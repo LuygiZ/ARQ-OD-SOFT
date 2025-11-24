@@ -91,7 +91,7 @@ public class UserService implements UserDetailsService {
 		}
 
 		//final User user = userEditMapper.create(request);
-		user.setPassword(passwordEncoder.encode(request.getPassword()));
+		//user.setPassword(passwordEncoder.encode(request.getPassword()));
 		//user.addAuthority(new Role(request.getRole()));
 
 		return userRepo.save(user);

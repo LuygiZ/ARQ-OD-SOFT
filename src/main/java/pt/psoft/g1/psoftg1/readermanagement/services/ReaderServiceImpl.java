@@ -71,9 +71,9 @@ public class ReaderServiceImpl implements ReaderService {
 
         int count = readerRepo.getCountFromCurrentYear();
         Reader reader = readerMapper.createReader(request);
+        userRepo.save(reader);
         ReaderDetails rd = readerMapper.createReaderDetails(count+1, reader, request, photoURI, interestList);
 
-        userRepo.save(reader);
         return readerRepo.save(rd);
     }
 
@@ -94,7 +94,7 @@ public class ReaderServiceImpl implements ReaderService {
         List<String> stringInterestList = request.getInterestList();
         List<Genre> interestList = this.getGenreListFromStringList(stringInterestList);
 
-         /*
+        /*
          * Since photos can be null (no photo uploaded) that means the URI can be null as well.
          * To avoid the client sending false data, photoURI has to be set to any value / null
          * according to the MultipartFile photo object

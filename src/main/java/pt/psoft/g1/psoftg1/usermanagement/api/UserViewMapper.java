@@ -25,17 +25,24 @@ import java.util.List;
 import org.mapstruct.Mapper;
 
 import org.mapstruct.Mapping;
+import pt.psoft.g1.psoftg1.shared.infrastructure.repositories.impl.sqlmapper.NameEntityMapper;
+import pt.psoft.g1.psoftg1.shared.model.Name;
 import pt.psoft.g1.psoftg1.usermanagement.model.User;
 
 /**
  * Based on https://github.com/Yoh0xFF/java-spring-security-example
  *
  */
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = {NameEntityMapper.class})
 public abstract class UserViewMapper {
 
-	@Mapping(target = "fullName", source = "name.name")
-	public abstract UserView toUserView(User user);
+    @Mapping(target = "fullName", source = "name")
+    public abstract UserView toUserView(User user);
 
-	public abstract List<UserView> toUserView(List<User> users);
+    public abstract List<UserView> toUserView(List<User> users);
+
+    // Método auxiliar para converter Name para String
+    public String map(Name name) {
+        return name == null ? null : name.getName();
+    }
 }

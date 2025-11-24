@@ -75,7 +75,7 @@ public class BookController {
         }
         //final var savedBook = bookService.save(book);
         final var newBookUri = ServletUriComponentsBuilder.fromCurrentRequestUri()
-                .pathSegment(book.getIsbn())
+                .pathSegment(book.getIsbn().toString())
                 .build().toUri();
 
         return ResponseEntity.created(newBookUri)
@@ -106,7 +106,7 @@ public class BookController {
         }
 
         fileStorageService.deleteFile(book.getPhoto().getPhotoFile());
-        bookService.removeBookPhoto(book.getIsbn(), book.getVersion());
+        bookService.removeBookPhoto(book.getIsbn().toString(), book.getVersion());
 
         return ResponseEntity.ok().build();
     }

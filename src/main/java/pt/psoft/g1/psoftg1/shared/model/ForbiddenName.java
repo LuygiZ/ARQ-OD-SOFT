@@ -6,21 +6,32 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Entity
-@NoArgsConstructor
-public class ForbiddenName{
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long pk;
-
-    @Getter
-    @Setter
-    @Column(nullable = false)
-    @Size(min = 1)
+public class ForbiddenName
+{
     private String forbiddenName;
 
-    public ForbiddenName(String name) {
-        this.forbiddenName = name;
+    public ForbiddenName(String forbiddenName)
+    {
+        setForbiddenName(forbiddenName);
+    }
+
+    protected ForbiddenName()
+    {
+        //smth here?
+    }
+
+    private void setForbiddenName(String forbiddenName)
+    {
+        if (forbiddenName == null || forbiddenName.isBlank())
+        {
+            throw new IllegalArgumentException("Forbidden name cannot be null or blank");
+        }
+
+        this.forbiddenName = forbiddenName;
+    }
+
+    public String getForbiddenName()
+    {
+        return forbiddenName;
     }
 }

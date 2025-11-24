@@ -80,10 +80,10 @@ public class SecurityConfig {
     @Bean
     public AuthenticationManager authenticationManager(final UserDetailsService userDetailsService,
                                                        final PasswordEncoder passwordEncoder) {
+        System.out.println("Creating AuthenticationManager with encoder: " + passwordEncoder.getClass().getName());
         final DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
         authenticationProvider.setUserDetailsService(userDetailsService);
         authenticationProvider.setPasswordEncoder(passwordEncoder);
-
         return new ProviderManager(authenticationProvider);
     }
 
@@ -96,12 +96,10 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         // Enable CORS and disable CSRF
-        http = http.cors(Customizer.withDefaults())
-                .csrf(csrf -> csrf
-                        .ignoringRequestMatchers("/h2-console/**")
-                        .disable())
-                .headers(headers -> headers
-                        .frameOptions(frameOptions -> frameOptions.sameOrigin()));
+        http = http.cors(Customizer.withDefaults()).csrf(csrf -> csrf.disable());
+
+        // Permitir frames para H2 Console (apenas desenvolvimento)
+        http = http.headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()));  // ADICIONA ESTA LINHA
 
         // Set session management to stateless
         http = http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
@@ -116,12 +114,10 @@ public class SecurityConfig {
                 // Swagger endpoints must be publicly accessible
                 .requestMatchers("/").permitAll().requestMatchers(format("%s/**", restApiDocPath)).permitAll()
                 .requestMatchers(format("%s/**", swaggerPath)).permitAll()
-
-                //H2
-                .requestMatchers("/h2-console/**").permitAll()  // <-- ADD THIS LINE
-
+                // H2 Console (apenas para desenvolvimento)
+                .requestMatchers("/h2-console/**").permitAll()  // ADICIONA ESTA LINHA
                 // Our public endpoints
-                .requestMatchers("/api/public/**").permitAll() // public assets & end-points
+                .requestMatchers("/api/public/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/readers").permitAll() //unregistered should be able to register
                 // Our private endpoints
                 //authors

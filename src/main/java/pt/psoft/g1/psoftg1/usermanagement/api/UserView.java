@@ -33,8 +33,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class UserView {
 
-	private String id;
+    private String id;
 
-	private String username;
-	private String fullName;
+    private String username;
+    private String fullName;
 }

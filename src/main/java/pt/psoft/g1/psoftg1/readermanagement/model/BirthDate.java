@@ -10,52 +10,53 @@ import org.springframework.security.access.AccessDeniedException;
 
 import java.time.LocalDate;
 
-
-@Embeddable
-@NoArgsConstructor
-@PropertySource({"classpath:config/library.properties"})
 public class BirthDate {
-    @Getter
-    @Column(nullable = false, updatable = false)
-    @Temporal(TemporalType.DATE)
-    LocalDate birthDate;
+    private final LocalDate birthDate;
 
-    @Transient
-    private final String dateFormatRegexPattern = "\\d{4}-\\d{2}-\\d{2}";
+    private static final String DATE_FORMAT_REGEX = "\\d{4}-\\d{2}-\\d{2}";
 
-    @Transient
-    @Value("${minimumReaderAge}")
-    private int minimumAge;
+    private static final int DEFAULT_MINIMUM_AGE = 12;
 
-    public BirthDate(int year, int month, int day) {
-        setBirthDate(year, month, day);
+    public BirthDate(int year, int month, int day)
+    {
+        this.birthDate = validateDate(LocalDate.of(year, month, day), DEFAULT_MINIMUM_AGE);
     }
 
-    public BirthDate(String birthDate) {
-        if(!birthDate.matches(dateFormatRegexPattern)) {
+    public BirthDate(String birthDate)
+    {
+        if (!birthDate.matches(DATE_FORMAT_REGEX))
+        {
             throw new IllegalArgumentException("Provided birth date is not in a valid format. Use yyyy-MM-dd");
         }
 
-        String[] dateParts = birthDate.split("-");
+        String[] parts = birthDate.split("-");
+        int year = Integer.parseInt(parts[0]);
+        int month = Integer.parseInt(parts[1]);
+        int day = Integer.parseInt(parts[2]);
 
-        int year = Integer.parseInt(dateParts[0]);
-        int month = Integer.parseInt(dateParts[1]);
-        int day = Integer.parseInt(dateParts[2]);
-
-        setBirthDate(year, month, day);
+        this.birthDate = validateDate(LocalDate.of(year, month, day), DEFAULT_MINIMUM_AGE);
     }
 
-    private void setBirthDate(int year, int month, int day) {
-        LocalDate minimumAgeDate = LocalDate.now().minusYears(minimumAge);
-        LocalDate userDate = LocalDate.of(year, month, day);
-        if(userDate.isAfter(minimumAgeDate)) {
-            throw new AccessDeniedException("User must be, at least, " + minimumAge + "years old");
+    private LocalDate validateDate(LocalDate date, int minimumAge)
+    {
+        LocalDate minDate = LocalDate.now().minusYears(minimumAge);
+        if (date.isAfter(minDate))
+        {
+            throw new IllegalArgumentException("User must be at least " + minimumAge + " years old");
         }
-
-        this.birthDate = userDate;
+        return date;
     }
 
-    public String toString() {
-        return String.format("%d-%d-%d", this.birthDate.getYear(), this.birthDate.getMonthValue(), this.birthDate.getDayOfMonth());
+    // Getter
+    public LocalDate getBirthDate()
+    {
+        return birthDate;
+    }
+
+    // Helper
+    public String toString()
+    {
+        return birthDate.toString();
     }
 }
+

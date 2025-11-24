@@ -67,7 +67,7 @@ public abstract class AuthorViewMapper extends MapperInterface {
     public String mapShortBookLink(final Book book) {
         return ServletUriComponentsBuilder.fromCurrentContextPath()
                 .path("/api/books/")
-                .path(book.getIsbn())
+                .path(book.getIsbn().toString())
                 .toUriString();
     }
 

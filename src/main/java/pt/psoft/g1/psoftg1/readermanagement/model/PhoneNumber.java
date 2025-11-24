@@ -2,25 +2,41 @@ package pt.psoft.g1.psoftg1.readermanagement.model;
 
 import jakarta.persistence.Embeddable;
 
-@Embeddable
-public class PhoneNumber {
-    String phoneNumber;
+public class PhoneNumber
+{
+    private String phoneNumber;
 
-    public PhoneNumber(String phoneNumber) {
+    public PhoneNumber(String phoneNumber)
+    {
         setPhoneNumber(phoneNumber);
     }
 
-    protected PhoneNumber() {}
-
-    private void setPhoneNumber(String number) {
-        if(!(number.startsWith("9") || number.startsWith("2")) || number.length() != 9) {
-            throw new IllegalArgumentException("Phone number is not valid: " + number);
+    // Setter
+    private void setPhoneNumber(String phoneNumber)
+    {
+        if (phoneNumber == null || phoneNumber.isBlank())
+        {
+            throw new IllegalArgumentException("Phone number cannot be null or empty");
         }
 
-        this.phoneNumber = number;
+        if (!(phoneNumber.startsWith("9") || phoneNumber.startsWith("2")) || phoneNumber.length() != 9)
+        {
+            throw new IllegalArgumentException("Phone number is not valid: " + phoneNumber);
+        }
+
+        this.phoneNumber = phoneNumber;
     }
 
-    public String toString() {
-        return this.phoneNumber;
+    // Getter
+    public String getPhoneNumber()
+    {
+        return phoneNumber;
+    }
+
+    // Helper
+    @Override
+    public String toString()
+    {
+        return phoneNumber;
     }
 }

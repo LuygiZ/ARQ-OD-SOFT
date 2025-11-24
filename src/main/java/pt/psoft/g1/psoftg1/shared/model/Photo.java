@@ -10,21 +10,36 @@ import lombok.Setter;
 
 import java.nio.file.Path;
 
-@Entity
-public class Photo {
-    @Id
-    @GeneratedValue(strategy= GenerationType.AUTO)
-    private long pk;
-
-    @NotNull
-    @Setter
-    @Getter
+public class Photo
+{
+    //private long pk;
     private String photoFile;
 
-    protected Photo (){}
-
-    public Photo (Path photoPath){
-        setPhotoFile(photoPath.toString());
+    public Photo(Path photoFile)
+    {
+        setPhotoFile(photoFile.toString());
     }
+
+    protected Photo()
+    {
+        // smth here
+    }
+
+    // Setter
+    private void setPhotoFile(String photofile)
+    {
+        if (photofile == null)
+        {
+            throw new IllegalArgumentException("PhotoFile cannot be null");
+        }
+
+        this.photoFile = photofile;
+    }
+
+    // Getter
+    public String getPhotoFile() { return this.photoFile; }
+
+    // Helper
+    public String toString() { return this.photoFile; }
 }
 

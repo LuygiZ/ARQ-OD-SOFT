@@ -33,6 +33,8 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
@@ -61,52 +63,90 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping(path = "api/public")
 public class AuthApi {
 
-	private final AuthenticationManager authenticationManager;
+    private final AuthenticationManager authenticationManager;
 
-	private final JwtEncoder jwtEncoder;
+    private final JwtEncoder jwtEncoder;
 
-	private final UserViewMapper userViewMapper;
+    private final UserViewMapper userViewMapper;
 
-	private final UserService userService;
+    private final UserService userService;
 
-	@PostMapping("login")
-	public ResponseEntity<UserView> login(@RequestBody @Valid final AuthRequest request) {
-		try {
-			final Authentication authentication = authenticationManager.authenticate(
-					new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
+    private final UserDetailsService userDetailsService;
 
-			// if the authentication is successful, Spring will store the authenticated user
-			// in its "principal"
-			final User user = (User) authentication.getPrincipal();
+    @PostMapping("login")
+    public ResponseEntity<UserView> login(@RequestBody @Valid final AuthRequest request) {
+        System.out.println("=== LOGIN ATTEMPT ===");
+        System.out.println("Username: " + request.getUsername());
+        System.out.println("Password received: " + request.getPassword());
 
-			final Instant now = Instant.now();
-			final long expiry = 36000L; // 1 hours is usually too long for a token to be valid. adjust for production
+        try {
+            // Buscar o user da BD ANTES de autenticar
+            User userFromDb = (User) userDetailsService.loadUserByUsername(request.getUsername());
+            System.out.println("User found in DB!");
+            System.out.println("DB Password hash: " + userFromDb.getPassword());
+            System.out.println("DB Password length: " + userFromDb.getPassword().length());
+            System.out.println("Password starts with $2a$: " + userFromDb.getPassword().startsWith("$2a$"));
 
-			final String scope = authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority)
-					.collect(joining(" "));
+            // Testar a comparação manualmente
+            BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+            boolean matches = encoder.matches(request.getPassword(), userFromDb.getPassword());
+            System.out.println("Manual password check: " + matches);
 
-			final JwtClaimsSet claims = JwtClaimsSet.builder().issuer("example.io").issuedAt(now)
-					.expiresAt(now.plusSeconds(expiry)).subject(format("%s,%s", user.getId(), user.getUsername()))
-					.claim("roles", scope).build();
+            final Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
 
-			final String token = this.jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
+            System.out.println("Authentication successful!");
 
-			return ResponseEntity.ok().header(HttpHeaders.AUTHORIZATION, token).body(userViewMapper.toUserView(user));
-		} catch (final BadCredentialsException ex) {
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-		}
-	}
+            final User user = (User) authentication.getPrincipal();
 
-	/**
-	 * signup to the service
-	 *
-	 * @param request
-	 * @return
-	 */
-	@PostMapping("register")
-	public UserView register(@RequestBody @Valid final CreateUserRequest request) {
-		final var user = userService.create(request);
-		return userViewMapper.toUserView(user);
-	}
+            System.out.println("User ID: " + user.getId());
+            System.out.println("User username: " + user.getUsername());
+
+            final Instant now = Instant.now();
+            final long expiry = 36000L;
+
+            final String scope = authentication.getAuthorities().stream()
+                    .map(GrantedAuthority::getAuthority)
+                    .collect(joining(" "));
+
+            final JwtClaimsSet claims = JwtClaimsSet.builder()
+                    .issuer("example.io")
+                    .issuedAt(now)
+                    .expiresAt(now.plusSeconds(expiry))
+                    .subject(format("%s,%s", user.getId(), user.getUsername()))
+                    .claim("roles", scope)
+                    .build();
+
+            final String token = this.jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
+
+            System.out.println("Creating UserView...");
+            UserView userView = userViewMapper.toUserView(user);
+            System.out.println("UserView created successfully!");
+
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.AUTHORIZATION, token)
+                    .body(userView);
+        } catch (final BadCredentialsException ex) {
+            System.out.println("BAD CREDENTIALS!");
+            ex.printStackTrace();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        } catch (Exception ex) {
+            System.out.println("OTHER ERROR!");
+            ex.printStackTrace();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+    }
+
+    /**
+     * signup to the service
+     *
+     * @param request
+     * @return
+     */
+    @PostMapping("register")
+    public UserView register(@RequestBody @Valid final CreateUserRequest request) {
+        final var user = userService.create(request);
+        return userViewMapper.toUserView(user);
+    }
 
 }

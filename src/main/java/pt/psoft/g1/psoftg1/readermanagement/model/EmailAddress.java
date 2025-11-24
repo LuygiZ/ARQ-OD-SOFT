@@ -4,11 +4,28 @@ import jakarta.persistence.Embeddable;
 import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;
 
-@Embeddable
-@AllArgsConstructor
 public class EmailAddress {
-    @Email
-    String address;
 
-    protected EmailAddress() {}
+    private final String address;
+
+    public EmailAddress(String address)
+    {
+        if (address == null || address.isBlank())
+        {
+            throw new IllegalArgumentException("This email address cannot be null or blank");
+        }
+        this.address = address;
+    }
+
+    // Getter
+    public String getAddress()
+    {
+        return address;
+    }
+
+    // Helper
+    public String toString()
+    {
+        return address;
+    }
 }

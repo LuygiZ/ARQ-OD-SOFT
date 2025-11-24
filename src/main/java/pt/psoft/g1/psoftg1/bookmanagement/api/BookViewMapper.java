@@ -35,7 +35,7 @@ public abstract class BookViewMapper extends MapperInterface {
 
     protected List<String> mapAuthors(List<Author> authors) {
         return authors.stream()
-                .map(Author::getName)
+                .map(author -> author.getName().toString())
                 .collect(Collectors.toList());
     }
 
@@ -43,7 +43,7 @@ public abstract class BookViewMapper extends MapperInterface {
     public Map<String, Object> mapLinks(final Book book) {
         String bookUri = ServletUriComponentsBuilder.fromCurrentContextPath()
                 .path("/api/books/")
-                .path(book.getIsbn())
+                .path(book.getIsbn().toString())
                 .toUriString();
 
         Map<String, Object> links = new HashMap<>();
@@ -67,9 +67,8 @@ public abstract class BookViewMapper extends MapperInterface {
         return links;
     }
 
-
     protected String generatePhotoUrl(Book book) {
-        String isbn = book.getIsbn();
+        String isbn = book.getIsbn().toString();
         return ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/books/{isbn}/photo").buildAndExpand(isbn).toUri().toString();
     }
 }
