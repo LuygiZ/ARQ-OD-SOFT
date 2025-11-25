@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 import pt.psoft.g1.psoftg1.genremanagement.model.Genre;
 
-@Profile("sql")
+@Profile("sql-redis")
 @Primary
 @Entity
 @Table(name = "Genre")

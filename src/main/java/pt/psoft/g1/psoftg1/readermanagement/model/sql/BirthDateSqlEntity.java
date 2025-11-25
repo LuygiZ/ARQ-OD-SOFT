@@ -15,7 +15,7 @@ import java.time.LocalDate;
 //@Entity
 @Embeddable
 @PropertySource({"classpath:config/library.properties"})
-@Profile("sql")
+@Profile("sql-redis")
 @Primary
 public class BirthDateSqlEntity implements Serializable
 {

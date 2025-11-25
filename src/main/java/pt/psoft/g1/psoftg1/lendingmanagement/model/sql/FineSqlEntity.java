@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Profile;
 
 @Entity
 @Table(name = "Fine")
-@Profile("sql")
+@Profile("sql-redis")
 @Primary
 public class FineSqlEntity {
     @Id

@@ -12,7 +12,7 @@ import pt.psoft.g1.psoftg1.usermanagement.model.sql.ReaderSqlEntity;
 
 import java.util.List;
 
-@Profile("sql")
+@Profile("sql-redis")
 @Primary
 @Entity
 @Table(name = "READER_DETAILS")

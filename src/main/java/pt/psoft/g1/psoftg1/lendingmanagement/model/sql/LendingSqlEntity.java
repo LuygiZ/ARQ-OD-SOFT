@@ -11,7 +11,7 @@ import pt.psoft.g1.psoftg1.bookmanagement.model.sql.BookSqlEntity;
 import pt.psoft.g1.psoftg1.readermanagement.model.sql.ReaderDetailsSqlEntity;
 import java.time.LocalDate;
 
-@Profile("sql")
+@Profile("sql-redis")
 @Primary
 @Entity
 @Data

@@ -83,4 +83,3 @@ class AuthorTest {
         assertEquals("photoTest.jpg", photo.getPhotoFile());
     }
 }
-

@@ -125,7 +125,7 @@ public class LendingRepositoryIntegrationTest {
 
     @Test
     public void testListByReaderNumberAndIsbn() {
-        List<Lending> lendings = lendingRepository.listByReaderNumberAndIsbn(lending.getReaderDetails().getReaderNumber(), lending.getBook().getIsbn());
+        List<Lending> lendings = lendingRepository.listByReaderNumberAndIsbn(lending.getReaderDetails().getReaderNumber(), lending.getBook().getIsbn().toString());
         assertThat(lendings).isNotEmpty();
         assertThat(lendings).contains(lending);
     }

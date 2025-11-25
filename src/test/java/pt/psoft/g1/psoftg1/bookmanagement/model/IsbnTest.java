@@ -1,65 +1,106 @@
+
 package pt.psoft.g1.psoftg1.bookmanagement.model;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class IsbnTest {
+/**
+ * Functional Opaque-Box Tests for Isbn class
+ * Tests the class as a black box, focusing on input/output behavior
+ */
+@DisplayName("Isbn - Functional Opaque-Box Tests")
+class IsbnOpaqueBoxTest {
 
     @Test
-    void ensureIsbnMustNotBeNull() {
-        assertThrows(IllegalArgumentException.class, () -> new Isbn(null));
+    @DisplayName("Should accept valid ISBN-10 with numeric check digit")
+    void shouldAcceptValidIsbn10() {
+        // Arrange & Act
+        Isbn isbn = new Isbn("0306406152");
+
+        // Assert
+        assertNotNull(isbn);
+        assertEquals("0306406152", isbn.getIsbn());
     }
 
     @Test
-    void ensureIsbnMustNotBeBlank() {
-        assertThrows(IllegalArgumentException.class, () -> new Isbn(""));
-    }
+    @DisplayName("Should accept valid ISBN-10 with X check digit")
+    void shouldAcceptValidIsbn10WithX() {
+        // Arrange & Act
+        Isbn isbn = new Isbn("043942089X");
 
-
-    /**
-     * Text from <a href="https://www.lipsum.com/">Lorem Ipsum</a> generator.
-     */
-    @Test
-    void ensureIsbnMustNotBeOversize() {
-        assertThrows(IllegalArgumentException.class, () -> new Isbn("\n" +
-                "\n" +
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam venenatis semper nisl, eget condimentum felis tempus vitae. Morbi tempus turpis a felis luctus, ut feugiat tortor mattis. Duis gravida nunc sed augue ultricies tempor. Phasellus ultrices in dolor id viverra. Sed vitae odio ut est vestibulum lacinia sed sed neque. Mauris commodo, leo in tincidunt porta, justo mi commodo arcu, non ultricies ipsum dolor a mauris. Pellentesque convallis vulputate nisl, vel commodo felis ornare nec. Aliquam tristique diam dignissim hendrerit auctor. Mauris nec dolor hendrerit, dignissim urna non, pharetra quam. Sed diam est, convallis nec efficitur eu, sollicitudin ac nibh. In orci leo, dapibus ut eleifend et, suscipit sit amet felis. Integer lectus quam, tristique posuere vulputate sed, tristique eget sem.\n" +
-                "\n" +
-                "Mauris ac neque porttitor, faucibus velit vel, congue augue. Vestibulum porttitor ipsum eu sem facilisis sagittis. Mauris dapibus tincidunt elit. Phasellus porttitor massa nulla, quis dictum lorem aliquet in. Integer sed turpis in mauris auctor viverra. Suspendisse faucibus tempus tellus, in faucibus urna dapibus at. Nullam dolor quam, molestie nec efficitur nec, bibendum a nunc.\n" +
-                "\n" +
-                "Maecenas quam arcu, euismod sit amet congue non, venenatis nec ipsum. Cras at posuere metus. Quisque facilisis, sem sit amet vestibulum porta, augue quam semper nulla, eu auctor orci purus vel felis. Fusce ultricies tristique tellus, sed rhoncus elit venenatis id. Aenean in lacus quis ipsum eleifend viverra at at lacus. Nulla finibus, risus ut venenatis posuere, lacus magna eleifend arcu, ut bibendum magna turpis eu lorem. Mauris sed quam eget libero vulputate pretium in in purus. Morbi nec faucibus mi, sit amet pretium tellus. Duis suscipit, tellus id fermentum ultricies, tellus elit malesuada odio, vitae tempor dui purus at ligula. Nam turpis leo, dignissim tristique mauris at, rutrum scelerisque est. Curabitur sed odio sit amet nisi molestie accumsan. Ut vulputate auctor tortor vel ultrices. Nam ut volutpat orci. Etiam faucibus aliquam iaculis.\n" +
-                "\n" +
-                "Mauris malesuada rhoncus ex nec consequat. Etiam non molestie libero. Phasellus rutrum elementum malesuada. Pellentesque et quam id metus iaculis hendrerit. Fusce molestie commodo tortor ac varius. Etiam ac justo ut lacus semper pretium. Curabitur felis mauris, malesuada accumsan pellentesque vitae, posuere non lacus. Donec sit amet dui finibus, dapibus quam quis, tristique massa. Phasellus velit ipsum, facilisis vel nisi eu, interdum vehicula ante. Nulla eget luctus nunc, nec ullamcorper lectus.\n" +
-                "\n" +
-                "Curabitur et nisi nisi. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Curabitur ultrices ultrices ante eu vestibulum. Phasellus imperdiet non ex sed rutrum. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Donec consequat mauris sed pulvinar sodales. Quisque a iaculis eros. Donec non tellus eget ligula eleifend posuere. Sed tincidunt, purus id eleifend fringilla, tellus erat tristique urna, at ullamcorper purus turpis ac risus. Maecenas non finibus diam. Aliquam erat volutpat. Morbi ultrices blandit arcu eu dignissim. Duis ac dapibus libero. Ut pretium libero sit amet velit viverra semper. Suspendisse vitae augue dui.\n" +
-                "\n" +
-                "Aliquam aliquam justo porttitor sapien faucibus sollicitudin. Sed iaculis accumsan urna, id elementum est rhoncus vitae. Maecenas rhoncus ultrices arcu eu semper. Integer pulvinar ultricies purus, sit amet scelerisque dui vehicula vel. Phasellus quis urna ac neque auctor scelerisque eget eget arcu. Sed convallis, neque consectetur venenatis ornare, nibh lorem mollis magna, vel vulputate libero ligula egestas ligula. Curabitur iaculis nisl nisi, ac ornare urna lacinia non. Cras sagittis risus sit amet interdum porta. Nam dictum, neque ut blandit feugiat, tortor libero hendrerit enim, at tempor justo velit scelerisque odio. Fusce a ipsum sit amet ligula maximus pharetra. Suspendisse rhoncus leo dolor, vulputate blandit mi ullamcorper ut. Etiam consequat non mi eu porta. Sed mattis metus fringilla purus auctor aliquam.\n" +
-                "\n" +
-                "Vestibulum quis mi at lorem laoreet bibendum eu porta magna. Etiam vitae metus a sapien sagittis dapibus et et ex. Vivamus sed vestibulum nibh. Etiam euismod odio massa, ac feugiat urna congue ac. Phasellus leo quam, lacinia at elementum vitae, viverra quis ligula. Quisque ultricies tellus nunc, id ultrices risus accumsan in. Vestibulum orci magna, mollis et vehicula non, bibendum et magna. Pellentesque ut nibh quis risus dignissim lacinia sed non elit. Morbi eleifend ipsum posuere velit sollicitudin, quis auctor urna ullamcorper. Praesent pellentesque non lacus eu scelerisque. Praesent quis eros sed orci tincidunt maximus. Quisque imperdiet interdum massa a luctus. Phasellus eget nisi leo.\n" +
-                "\n" +
-                "Nunc porta nisi eu dui maximus hendrerit eu quis est. Cras molestie lacus placerat, maximus libero hendrerit, eleifend nisi. Suspendisse potenti. Praesent nec mi ut turpis pharetra pharetra. Phasellus pharetra. "));
+        // Assert
+        assertNotNull(isbn);
+        assertEquals("043942089X", isbn.getIsbn());
     }
 
     @Test
-    void ensureIsbn13IsSet() {
-        final var isbn = new Isbn("9782826012092");
-        assertEquals("9782826012092", isbn.toString());
+    @DisplayName("Should accept valid ISBN-13")
+    void shouldAcceptValidIsbn13() {
+        // Arrange & Act
+        Isbn isbn = new Isbn("9780306406157");
+
+        // Assert
+        assertNotNull(isbn);
+        assertEquals("9780306406157", isbn.getIsbn());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "0306406153",  // Invalid check digit
+            "123456789X",  // Invalid ISBN-10
+            "9780306406158", // Invalid ISBN-13 check digit
+            "12345",       // Too short
+            "abc1234567",  // Non-numeric
+            "978030640615A" // Invalid character in ISBN-13
+    })
+    @DisplayName("Should reject invalid ISBNs")
+    void shouldRejectInvalidIsbn(String invalidIsbn) {
+        // Act & Assert
+        assertThrows(IllegalArgumentException.class, () -> new Isbn(invalidIsbn));
     }
 
     @Test
-    void ensureChecksum13IsCorrect() {
-        assertThrows(IllegalArgumentException.class, () -> new Isbn("9782826012099"));
+    @DisplayName("Should throw exception for null ISBN")
+    void shouldRejectNullIsbn() {
+        // Act & Assert
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> new Isbn(null)
+        );
+        assertEquals("Isbn cannot be null", exception.getMessage());
     }
 
     @Test
-    void ensureIsbn10IsSet() {
-        final var isbn = new Isbn("8175257660");
-        assertEquals("8175257660", isbn.toString());
+    @DisplayName("toString should return ISBN value")
+    void toStringShouldReturnIsbnValue() {
+        // Arrange
+        Isbn isbn = new Isbn("9780306406157");
+
+        // Act & Assert
+        assertEquals("9780306406157", isbn.toString());
     }
 
     @Test
-    void ensureChecksum10IsCorrect() {
-        assertThrows(IllegalArgumentException.class, () -> new Isbn("8175257667"));
+    @DisplayName("Boundary: ISBN-10 with exactly 10 characters")
+    void boundaryIsbn10Length() {
+        // Arrange & Act
+        Isbn isbn = new Isbn("0471958697");
+
+        // Assert
+        assertEquals(10, isbn.getIsbn().length());
+    }
+
+    @Test
+    @DisplayName("Boundary: ISBN-13 with exactly 13 characters")
+    void boundaryIsbn13Length() {
+        // Arrange & Act
+        Isbn isbn = new Isbn("9780471958697");
+
+        // Assert
+        assertEquals(13, isbn.getIsbn().length());
     }
 }

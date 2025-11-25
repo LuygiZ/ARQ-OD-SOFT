@@ -12,7 +12,7 @@ import pt.psoft.g1.psoftg1.shared.model.StringUtilsCustom;
 
 import java.io.Serializable;
 
-@Profile("sql")
+@Profile("sql-redis")
 @Primary
 @Embeddable
 public class DescriptionSqlEntity implements Serializable

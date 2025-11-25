@@ -34,7 +34,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-
 @Tag(name = "Author", description = "Endpoints for managing Authors")
 @RestController
 @RequiredArgsConstructor
@@ -46,13 +45,13 @@ public class AuthorController {
     private final FileStorageService fileStorageService;
     private final BookViewMapper bookViewMapper;
 
-
-    //Create
+    // Create
     @Operation(summary = "Creates a new Author")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<AuthorView> create(@Valid CreateAuthorRequest resource) {
-        //Guarantee that the client doesn't provide a link on the body, null = no photo or error
+        // Guarantee that the client doesn't provide a link on the body, null = no photo
+        // or error
         resource.setPhotoURI(null);
         MultipartFile file = resource.getPhoto();
 
@@ -72,13 +71,11 @@ public class AuthorController {
 
     }
 
-
-    //Update
+    // Update
     @Operation(summary = "Updates a specific author")
     @PatchMapping(value = "/{authorNumber}")
     public ResponseEntity<AuthorView> partialUpdate(
-            @PathVariable("authorNumber")
-            @Parameter(description = "The number of the Author to find") final Long authorNumber,
+            @PathVariable("authorNumber") @Parameter(description = "The number of the Author to find") final Long authorNumber,
             final WebRequest request,
             @Valid UpdateAuthorRequest resource) {
 
@@ -95,19 +92,19 @@ public class AuthorController {
         if (fileName != null) {
             resource.setPhotoURI(fileName);
         }
-        Author author = authorService.partialUpdate(authorNumber, resource, concurrencyService.getVersionFromIfMatchHeader(ifMatchValue));
+        Author author = authorService.partialUpdate(authorNumber, resource,
+                concurrencyService.getVersionFromIfMatchHeader(ifMatchValue));
 
         return ResponseEntity.ok()
                 .eTag(Long.toString(author.getVersion()))
                 .body(authorViewMapper.toAuthorView(author));
     }
 
-    //Gets
+    // Gets
     @Operation(summary = "Know an author’s detail given its author number")
     @GetMapping(value = "/{authorNumber}")
     public ResponseEntity<AuthorView> findByAuthorNumber(
-            @PathVariable("authorNumber")
-            @Parameter(description = "The number of the Author to find") final Long authorNumber) {
+            @PathVariable("authorNumber") @Parameter(description = "The number of the Author to find") final Long authorNumber) {
 
         final var author = authorService.findByAuthorNumber(authorNumber)
                 .orElseThrow(() -> new NotFoundException(Author.class, authorNumber));
@@ -125,47 +122,43 @@ public class AuthorController {
         return new ListResponse<>(authorViewMapper.toAuthorView(authors));
     }
 
-
-    //Know the books of an Author
+    // Know the books of an Author
     @Operation(summary = "Know the books of an author")
     @GetMapping("/{authorNumber}/books")
     public ListResponse<BookView> getBooksByAuthorNumber(
-           @PathVariable("authorNumber")
-             @Parameter(description = "The number of the Author to find")
-             final Long authorNumber) {
+            @PathVariable("authorNumber") @Parameter(description = "The number of the Author to find") final Long authorNumber) {
 
-        //Checking if author exists with this id
+        // Checking if author exists with this id
         authorService.findByAuthorNumber(authorNumber)
                 .orElseThrow(() -> new NotFoundException(Author.class, authorNumber));
 
         return new ListResponse<>(bookViewMapper.toBookView(authorService.findBooksByAuthorNumber(authorNumber)));
     }
 
-    //Know the Top 5 authors which have the most lent books
+    // Know the Top 5 authors which have the most lent books
     @Operation(summary = "Know the Top 5 authors which have the most lent books")
     @GetMapping("/top5")
     public ListResponse<AuthorLendingView> getTop5() {
         final var list = authorService.findTopAuthorByLendings();
 
-        if(list.isEmpty())
+        if (list.isEmpty())
             throw new NotFoundException("No authors to show");
 
         return new ListResponse<>(list);
     }
 
-    //get - Photo
-    @Operation(summary= "Gets a author photo")
+    // get - Photo
+    @Operation(summary = "Gets a author photo")
     @GetMapping("/{authorNumber}/photo")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<byte[]> getSpecificAuthorPhoto(@PathVariable("authorNumber")
-                                                             @Parameter(description = "The number of the Author to find")
-                                                             final Long authorNumber) {
+    public ResponseEntity<byte[]> getSpecificAuthorPhoto(
+            @PathVariable("authorNumber") @Parameter(description = "The number of the Author to find") final Long authorNumber) {
 
         Author authorDetails = authorService.findByAuthorNumber(authorNumber)
                 .orElseThrow(() -> new NotFoundException(Author.class, authorNumber));
 
-        //In case the user has no photo, just return a 200 OK without body
-        if(authorDetails.getPhoto() == null) {
+        // In case the user has no photo, just return a 200 OK without body
+        if (authorDetails.getPhoto() == null) {
             return ResponseEntity.ok().build();
         }
 
@@ -174,7 +167,7 @@ public class AuthorController {
         String fileFormat = this.fileStorageService.getExtension(authorDetails.getPhoto().getPhotoFile())
                 .orElseThrow(() -> new ValidationException("Unable to get file extension"));
 
-        if(image == null) {
+        if (image == null) {
             return ResponseEntity.ok().build();
         }
 
@@ -182,33 +175,34 @@ public class AuthorController {
                 .contentType(fileFormat.equals("png") ? MediaType.IMAGE_PNG : MediaType.IMAGE_JPEG)
                 .body(image);
     }
-    //Co-authors and their respective books
+
+    // Co-authors and their respective books
     @Operation(summary = "Get co-authors and their respective books for a specific author")
     @GetMapping("/{authorNumber}/coauthors")
-    public AuthorCoAuthorBooksView getAuthorWithCoAuthors(@PathVariable("authorNumber")Long authorNumber) {
+    public AuthorCoAuthorBooksView getAuthorWithCoAuthors(@PathVariable("authorNumber") Long authorNumber) {
         var author = authorService.findByAuthorNumber(authorNumber)
                 .orElseThrow(() -> new NotFoundException("Author not found"));
         var coAuthors = authorService.findCoAuthorsByAuthorNumber(authorNumber);
         List<CoAuthorView> coAuthorViews = new ArrayList<>();
-        for (Author coAuthor : coAuthors ) {
+        for (Author coAuthor : coAuthors) {
             var books = authorService.findBooksByAuthorNumber(coAuthor.getAuthorNumber());
-            var coAuthorView = authorViewMapper.toCoAuthorView(coAuthor,books);
+            var coAuthorView = authorViewMapper.toCoAuthorView(coAuthor, books);
             coAuthorViews.add(coAuthorView);
         }
         return authorViewMapper.toAuthorCoAuthorBooksView(author, coAuthorViews);
     }
 
-    //Delete a foto
+    // Delete a foto
     @Operation(summary = "Deletes a author photo")
     @DeleteMapping("/{authorNumber}/photo")
     public ResponseEntity<Void> deleteBookPhoto(@PathVariable("authorNumber") final Long authorNumber) {
 
         Optional<Author> optionalAuthor = authorService.findByAuthorNumber(authorNumber);
-        if(optionalAuthor.isEmpty()) {
+        if (optionalAuthor.isEmpty()) {
             throw new AccessDeniedException("A author could not be found with provided authorNumber");
         }
         Author author = optionalAuthor.get();
-        if(author.getPhoto() == null) {
+        if (author.getPhoto() == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
 

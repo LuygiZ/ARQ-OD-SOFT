@@ -13,7 +13,7 @@ import java.io.Serializable;
 //@Entity
 @Embeddable
 @EqualsAndHashCode
-@Profile("sql")
+@Profile("sql-redis")
 @Primary
 public class LendingNumberSqlEntity implements Serializable
 {

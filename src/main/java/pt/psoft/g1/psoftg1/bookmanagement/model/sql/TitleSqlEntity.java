@@ -12,7 +12,7 @@ import pt.psoft.g1.psoftg1.bookmanagement.model.Title;
 
 import java.io.Serializable;
 
-@Profile("sql")
+@Profile("sql-redis")
 @Primary
 @Embeddable
 @EqualsAndHashCode

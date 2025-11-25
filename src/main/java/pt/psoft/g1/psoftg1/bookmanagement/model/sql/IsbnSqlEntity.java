@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Profile;
 
 import java.io.Serializable;
 
-@Profile("sql")
+@Profile("sql-redis")
 @Primary
 @Embeddable
 @EqualsAndHashCode

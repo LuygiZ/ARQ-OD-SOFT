@@ -7,7 +7,7 @@ import lombok.Setter;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 
-@Profile("sql")
+@Profile("sql-redis")
 @Table(name="Photo")
 @Primary
 @Entity

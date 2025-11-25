@@ -12,7 +12,7 @@ import lombok.Setter;
 @Entity
 @Table(name="ForbiddenName")
 @NoArgsConstructor
-@Profile("sql")
+@Profile("sql-redis")
 @Primary
 public class ForbiddenNameSqlEntity {
 

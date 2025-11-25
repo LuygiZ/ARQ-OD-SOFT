@@ -63,13 +63,13 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping(path = "api/public")
 public class AuthApi {
 
-    private final AuthenticationManager authenticationManager;
+	private final AuthenticationManager authenticationManager;
 
-    private final JwtEncoder jwtEncoder;
+	private final JwtEncoder jwtEncoder;
 
-    private final UserViewMapper userViewMapper;
+	private final UserViewMapper userViewMapper;
 
-    private final UserService userService;
+	private final UserService userService;
 
     private final UserDetailsService userDetailsService;
 
@@ -137,16 +137,16 @@ public class AuthApi {
         }
     }
 
-    /**
-     * signup to the service
-     *
-     * @param request
-     * @return
-     */
-    @PostMapping("register")
-    public UserView register(@RequestBody @Valid final CreateUserRequest request) {
-        final var user = userService.create(request);
-        return userViewMapper.toUserView(user);
-    }
+	/**
+	 * signup to the service
+	 *
+	 * @param request
+	 * @return
+	 */
+	@PostMapping("register")
+	public UserView register(@RequestBody @Valid final CreateUserRequest request) {
+		final var user = userService.create(request);
+		return userViewMapper.toUserView(user);
+	}
 
 }

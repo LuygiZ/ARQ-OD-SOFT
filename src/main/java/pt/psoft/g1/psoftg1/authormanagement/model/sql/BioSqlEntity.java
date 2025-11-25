@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 import pt.psoft.g1.psoftg1.authormanagement.model.Bio;
 
-@Profile("sql")
+@Profile("sql-redis")
 @Primary
 @Embeddable
 public class BioSqlEntity

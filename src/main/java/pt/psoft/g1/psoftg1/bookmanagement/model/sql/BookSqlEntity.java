@@ -12,7 +12,7 @@ import pt.psoft.g1.psoftg1.shared.model.EntityWithPhoto;
 import java.util.ArrayList;
 import java.util.List;
 
-@Profile("sql") //Specifies which environment (or Spring profile) a bean should be loaded in.
+@Profile("sql-redis") //Specifies which environment (or Spring profile) a bean should be loaded in.
 @Primary //Marks a bean as the default when multiple candidates of the same type exist.
 @Entity
 @Table(name = "Book", uniqueConstraints = {

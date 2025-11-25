@@ -26,7 +26,7 @@ import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
-@Profile("bootstrap")
+@Profile("sql-redis")
 @Order(1)
 public class UserBootstrapper implements CommandLineRunner {
 

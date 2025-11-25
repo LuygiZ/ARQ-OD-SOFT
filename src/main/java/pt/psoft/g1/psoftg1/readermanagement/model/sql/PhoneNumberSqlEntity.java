@@ -8,7 +8,7 @@ import java.io.Serializable;
 
 //@Entity
 @Embeddable
-@Profile("sql")
+@Profile("sql-redis")
 @Primary
 public class PhoneNumberSqlEntity implements Serializable
 {

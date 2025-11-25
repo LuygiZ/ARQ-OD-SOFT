@@ -20,7 +20,7 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
-@Profile("sql")
+@Profile("sql-redis")
 @Primary
 @Entity
 @Table(name = "T_USER")

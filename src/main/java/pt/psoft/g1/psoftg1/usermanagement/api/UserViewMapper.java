@@ -25,7 +25,7 @@ import java.util.List;
 import org.mapstruct.Mapper;
 
 import org.mapstruct.Mapping;
-import pt.psoft.g1.psoftg1.shared.infrastructure.repositories.impl.sqlmapper.NameEntityMapper;
+import pt.psoft.g1.psoftg1.shared.infrastructure.repositories.impl.sql.sqlmapper.NameEntityMapper;
 import pt.psoft.g1.psoftg1.shared.model.Name;
 import pt.psoft.g1.psoftg1.usermanagement.model.User;
 
