@@ -11,7 +11,7 @@ import org.springframework.util.StringUtils;
 import pt.psoft.g1.psoftg1.bookmanagement.infrastructure.repositories.impl.sql.BookRepositoryImpl;
 import pt.psoft.g1.psoftg1.bookmanagement.model.Book;
 import pt.psoft.g1.psoftg1.bookmanagement.model.sql.BookSqlEntity;
-import pt.psoft.g1.psoftg1.lendingmanagement.infrastructure.repositories.impl.sql.sqlmapper.LendingEntityMapper;
+import pt.psoft.g1.psoftg1.lendingmanagement.infrastructure.repositories.impl.mappers.LendingEntityMapper;
 import pt.psoft.g1.psoftg1.lendingmanagement.model.Lending;
 import pt.psoft.g1.psoftg1.lendingmanagement.model.sql.LendingSqlEntity;
 import pt.psoft.g1.psoftg1.lendingmanagement.repositories.LendingRepository;

@@ -1,11 +1,11 @@
-package pt.psoft.g1.psoftg1.authormanagement.infrastructure.repositories.impl.sql.sqlmapper;
+package pt.psoft.g1.psoftg1.authormanagement.infrastructure.repositories.impl.mappers;
 
 import org.mapstruct.Mapper;
 import pt.psoft.g1.psoftg1.authormanagement.model.Author;
 import pt.psoft.g1.psoftg1.authormanagement.model.sql.AuthorSqlEntity;
 import pt.psoft.g1.psoftg1.authormanagement.model.sql.BioSqlEntity;
-import pt.psoft.g1.psoftg1.shared.infrastructure.repositories.impl.sql.sqlmapper.PhotoEntityMapper;
-import pt.psoft.g1.psoftg1.shared.infrastructure.repositories.impl.sql.sqlmapper.NameEntityMapper;
+import pt.psoft.g1.psoftg1.shared.infrastructure.repositories.impl.mappers.PhotoEntityMapper;
+import pt.psoft.g1.psoftg1.shared.infrastructure.repositories.impl.mappers.NameEntityMapper;
 import pt.psoft.g1.psoftg1.shared.model.sql.NameSqlEntity;
 import pt.psoft.g1.psoftg1.shared.model.sql.PhotoSqlEntity;
 

@@ -3,7 +3,7 @@ package pt.psoft.g1.psoftg1.readermanagement.services;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import pt.psoft.g1.psoftg1.genremanagement.model.Genre;
-import pt.psoft.g1.psoftg1.readermanagement.infraestructure.repositories.impl.sql.sqlmapper.ReaderDetailsEntityMapper;
+import pt.psoft.g1.psoftg1.readermanagement.infraestructure.repositories.impl.mappers.ReaderDetailsEntityMapper;
 import pt.psoft.g1.psoftg1.readermanagement.model.ReaderDetails;
 import pt.psoft.g1.psoftg1.usermanagement.model.Reader;
 import pt.psoft.g1.psoftg1.usermanagement.services.UserService;

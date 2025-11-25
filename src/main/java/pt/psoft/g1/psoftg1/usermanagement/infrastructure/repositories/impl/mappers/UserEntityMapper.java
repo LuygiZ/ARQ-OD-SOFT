@@ -1,4 +1,4 @@
-package pt.psoft.g1.psoftg1.usermanagement.infrastructure.repositories.impl.sql.sqlmapper;
+package pt.psoft.g1.psoftg1.usermanagement.infrastructure.repositories.impl.mappers;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

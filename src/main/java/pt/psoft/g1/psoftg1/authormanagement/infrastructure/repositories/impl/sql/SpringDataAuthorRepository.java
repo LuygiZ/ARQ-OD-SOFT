@@ -5,9 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import pt.psoft.g1.psoftg1.authormanagement.api.AuthorLendingView;
-import pt.psoft.g1.psoftg1.authormanagement.model.Author;
 import pt.psoft.g1.psoftg1.authormanagement.model.sql.AuthorSqlEntity;
-import pt.psoft.g1.psoftg1.authormanagement.repositories.AuthorRepository;
 
 import java.util.List;
 import java.util.Optional;

@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
-import pt.psoft.g1.psoftg1.lendingmanagement.infrastructure.repositories.impl.sql.sqlmapper.FineEntityMapper;
+import pt.psoft.g1.psoftg1.lendingmanagement.infrastructure.repositories.impl.mappers.FineEntityMapper;
 import pt.psoft.g1.psoftg1.lendingmanagement.model.Fine;
 import pt.psoft.g1.psoftg1.lendingmanagement.model.sql.FineSqlEntity;
 import pt.psoft.g1.psoftg1.lendingmanagement.repositories.FineRepository;

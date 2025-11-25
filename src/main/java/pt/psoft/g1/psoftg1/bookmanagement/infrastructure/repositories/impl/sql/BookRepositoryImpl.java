@@ -15,7 +15,7 @@ import org.springframework.util.StringUtils;
 import pt.psoft.g1.psoftg1.authormanagement.infrastructure.repositories.impl.sql.AuthorRepositoryImpl;
 import pt.psoft.g1.psoftg1.authormanagement.model.Author;
 import pt.psoft.g1.psoftg1.authormanagement.model.sql.AuthorSqlEntity;
-import pt.psoft.g1.psoftg1.bookmanagement.infrastructure.repositories.impl.sql.sqlmapper.BookEntityMapper;
+import pt.psoft.g1.psoftg1.bookmanagement.infrastructure.repositories.impl.mappers.BookEntityMapper;
 import pt.psoft.g1.psoftg1.bookmanagement.model.Book;
 import pt.psoft.g1.psoftg1.bookmanagement.model.sql.BookSqlEntity;
 import pt.psoft.g1.psoftg1.bookmanagement.repositories.BookRepository;

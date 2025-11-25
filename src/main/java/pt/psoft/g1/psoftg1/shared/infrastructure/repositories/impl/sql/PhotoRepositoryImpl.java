@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
-import pt.psoft.g1.psoftg1.shared.infrastructure.repositories.impl.sql.sqlmapper.PhotoEntityMapper;
+import pt.psoft.g1.psoftg1.shared.infrastructure.repositories.impl.mappers.PhotoEntityMapper;
 import pt.psoft.g1.psoftg1.shared.repositories.PhotoRepository;
 
 @Profile("sql-redis")

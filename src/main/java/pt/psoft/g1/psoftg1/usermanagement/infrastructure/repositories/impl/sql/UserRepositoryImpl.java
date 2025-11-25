@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 import pt.psoft.g1.psoftg1.shared.services.Page;
-import pt.psoft.g1.psoftg1.usermanagement.infrastructure.repositories.impl.sql.sqlmapper.UserEntityMapper;
+import pt.psoft.g1.psoftg1.usermanagement.infrastructure.repositories.impl.mappers.UserEntityMapper;
 import pt.psoft.g1.psoftg1.usermanagement.model.Librarian;
 import pt.psoft.g1.psoftg1.usermanagement.model.Reader;
 import pt.psoft.g1.psoftg1.usermanagement.model.User;
