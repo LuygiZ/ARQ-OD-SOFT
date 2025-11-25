@@ -7,7 +7,10 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
@@ -31,6 +34,7 @@ import java.util.Optional;
 /**
  * SQL implementation of UserRepository using UserSqlEntity.
  */
+@Configuration
 @Profile("sql-redis")
 @Primary
 @Repository
@@ -61,24 +65,21 @@ public class UserRepositoryImpl implements UserRepository
     }
 
     @Override
-    public <S extends User> S save(S entity)
-    {
+    @CacheEvict(value = "users", key = "#entity.username", condition = "#entity.username != null")
+    public <S extends User> S save(S entity) {
         if (entity instanceof Reader) {
             ReaderSqlEntity readerEntity = userEntityMapper.toEntity((Reader) entity);
             ReaderSqlEntity savedEntity = userRepo.save(readerEntity);
             return (S) userEntityMapper.toModel(savedEntity);
-
         } else if (entity instanceof Librarian) {
             LibrarianSqlEntity librarianEntity = userEntityMapper.toEntity((Librarian) entity);
             LibrarianSqlEntity savedEntity = userRepo.save(librarianEntity);
             return (S) userEntityMapper.toModel(savedEntity);
-
         } else if (entity instanceof User) {
             UserSqlEntity userEntity = userEntityMapper.toEntity(entity);
             UserSqlEntity savedEntity = userRepo.save(userEntity);
             return (S) userEntityMapper.toModel(savedEntity);
         }
-
         throw new IllegalArgumentException("Unsupported entity type: " + entity.getClass().getName());
     }
 
@@ -97,18 +98,10 @@ public class UserRepositoryImpl implements UserRepository
     }
 
     @Override
-    //@Cacheable(value = "users", key = "#username", unless = "#result == null || !#result.isPresent()")
-    public Optional<User> findByUsername(String username)
-    {
+    @Cacheable(value = "users", key = "#username", unless = "#result == null || !#result.isPresent()")
+    public Optional<User> findByUsername(String username) {
         Optional<UserSqlEntity> entityOpt = userRepo.findByUsername(username);
-        if (entityOpt.isPresent())
-        {
-            return Optional.of(userEntityMapper.toModel(entityOpt.get()));
-        }
-        else
-        {
-            return Optional.empty();
-        }
+        return entityOpt.map(userEntityMapper::toModel);
     }
 
     @Override

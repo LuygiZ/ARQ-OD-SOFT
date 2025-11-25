@@ -18,12 +18,15 @@ public class Author extends EntityWithPhoto
     private long version;
     private Name name;
     private Bio bio;
-    public Author() { }
+    public Author() {
+
+    }
 
     public Author(String name, String bio, String photoURI)
     {
         this(new Name(name), new Bio(bio), photoURI == null ? null : new Photo(Paths.get(photoURI)));
     }
+
     public Author(Name name, Bio bio, Photo photoURI)
     {
         setName(name);

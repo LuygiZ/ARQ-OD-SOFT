@@ -2,6 +2,7 @@ package pt.psoft.g1.psoftg1.bootstrapping;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
 import org.springframework.jdbc.core.JdbcTemplate;
