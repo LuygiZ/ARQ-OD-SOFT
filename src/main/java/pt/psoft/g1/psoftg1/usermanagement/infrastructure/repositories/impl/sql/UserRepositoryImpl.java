@@ -98,7 +98,7 @@ public class UserRepositoryImpl implements UserRepository
     }
 
     @Override
-    @Cacheable(value = "users", key = "#username", unless = "#result == null || !#result.isPresent()")
+    //@Cacheable(value = "users", key = "#username", unless = "#result == null || !#result.isPresent()")
     public Optional<User> findByUsername(String username) {
         Optional<UserSqlEntity> entityOpt = userRepo.findByUsername(username);
         return entityOpt.map(userEntityMapper::toModel);

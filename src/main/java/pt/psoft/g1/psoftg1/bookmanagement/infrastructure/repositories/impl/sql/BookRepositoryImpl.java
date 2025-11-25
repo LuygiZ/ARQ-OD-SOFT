@@ -16,6 +16,7 @@ import pt.psoft.g1.psoftg1.authormanagement.infrastructure.repositories.impl.sql
 import pt.psoft.g1.psoftg1.authormanagement.model.Author;
 import pt.psoft.g1.psoftg1.authormanagement.model.sql.AuthorSqlEntity;
 import pt.psoft.g1.psoftg1.bookmanagement.infrastructure.repositories.impl.mappers.BookEntityMapper;
+import pt.psoft.g1.psoftg1.bookmanagement.infrastructure.repositories.impl.redis.BookRepositoryRedisImpl;
 import pt.psoft.g1.psoftg1.bookmanagement.model.Book;
 import pt.psoft.g1.psoftg1.bookmanagement.model.sql.BookSqlEntity;
 import pt.psoft.g1.psoftg1.bookmanagement.repositories.BookRepository;
@@ -41,6 +42,7 @@ public class BookRepositoryImpl implements BookRepository
     private final GenreRepositoryImpl genreRepo;
     private final AuthorRepositoryImpl authorRepo;
     private final EntityManager em;
+    private final BookRepositoryRedisImpl redisRepo;
 
     @Override
     public List<Book> findByGenre(@Param("genre") String genre)
@@ -79,17 +81,30 @@ public class BookRepositoryImpl implements BookRepository
     }
 
     @Override
-    public Optional<Book> findByIsbn(@Param("isbn") String isbn)
-    {
+    public Optional<Book> findByIsbn(@Param("isbn") String isbn) {
+        // 1. TENTAR BUSCAR DO REDIS
+        String redisKey = "books:isbn:" + isbn;
+        Optional<Book> cached = redisRepo.getBookFromRedis(redisKey);
+
+        if (cached.isPresent()) {
+            System.out.println("✅ CACHE HIT - Book " + isbn + " from Redis");
+            return cached;
+        }
+
+        // 2. SE NÃO EXISTIR, BUSCAR DO DB
+        System.out.println("❌ CACHE MISS - Book " + isbn + " from DB");
         Optional<BookSqlEntity> entityOpt = bookRepo.findByIsbn(isbn);
-        if(entityOpt.isPresent())
-        {
-            return Optional.of(bookEntityMapper.toModel(entityOpt.get()));
+
+        if (entityOpt.isPresent()) {
+            Book book = bookEntityMapper.toModel(entityOpt.get());
+
+            // 3. CACHEAR NO REDIS
+            redisRepo.save(book);
+
+            return Optional.of(book);
         }
-        else
-        {
-            return Optional.empty();
-        }
+
+        return Optional.empty();
     }
 
     @Override
@@ -178,7 +193,6 @@ public class BookRepositoryImpl implements BookRepository
         for (var author : book.getAuthors())
         {
             // Retrieve the corresponding Author model from the repository by author number
-            //TODO: temos aqui uma questao, o searchByNameName retorna uma lista de nomes, entao pode nao ser o autor correto (no caso de haver varios autores com o mesmo nome)
             Author auth  = authorRepo.searchByNameName(author.getName().getName()).get(0);
             if (auth == null)
             {
@@ -199,16 +213,23 @@ public class BookRepositoryImpl implements BookRepository
         BookSqlEntity saved = bookRepo.save(entity);
         System.out.println("Saved entity ISBN: " +
                 (saved.getIsbn() != null ? saved.getIsbn() : "null"));
-        return bookEntityMapper.toModel(saved);
+
+        Book savedBook = bookEntityMapper.toModel(saved);
+
+        // ADICIONAR: Salvar no cache
+        redisRepo.save(savedBook);
+
+        return savedBook;
     }
 
     @Override
     public void delete(Book book)
     {
         // TODO: implement delete logic
+        bookRepo.delete(bookEntityMapper.toEntity(book));
+        redisRepo.delete(book);
     }
 
-    // Adiciona este método público
     public Optional<BookSqlEntity> findSqlEntityByIsbn(String isbn) {
         return bookRepo.findByIsbn(isbn);
     }
