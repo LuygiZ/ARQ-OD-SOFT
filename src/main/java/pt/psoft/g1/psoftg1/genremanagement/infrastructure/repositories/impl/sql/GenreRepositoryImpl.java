@@ -15,6 +15,7 @@ import org.springframework.stereotype.Repository;
 import pt.psoft.g1.psoftg1.bookmanagement.model.sql.BookSqlEntity;
 import pt.psoft.g1.psoftg1.bookmanagement.services.GenreBookCountDTO;
 import pt.psoft.g1.psoftg1.genremanagement.infrastructure.repositories.impl.mappers.GenreEntityMapper;
+import pt.psoft.g1.psoftg1.genremanagement.infrastructure.repositories.impl.redis.GenreRepositoryRedisImpl;
 import pt.psoft.g1.psoftg1.genremanagement.model.Genre;
 import pt.psoft.g1.psoftg1.genremanagement.model.sql.GenreSqlEntity;
 import pt.psoft.g1.psoftg1.genremanagement.repositories.GenreRepository;
@@ -29,61 +30,104 @@ import java.util.*;
 @Primary
 @Repository
 @RequiredArgsConstructor
-public class GenreRepositoryImpl implements GenreRepository
-{
+public class GenreRepositoryImpl implements GenreRepository {
+
     private final SpringDataGenreRepository genreRepo;
     private final GenreEntityMapper genreEntityMapper;
     private final EntityManager entityManager;
+    private final GenreRepositoryRedisImpl redisRepo;  // ADICIONAR
 
     @Override
-    public Iterable<Genre> findAll()
-    {
+    public Iterable<Genre> findAll() {
+        // 1. TENTAR BUSCAR DO REDIS
+        Optional<List<Genre>> cached = redisRepo.getAllGenresFromRedis();
+
+        if (cached.isPresent()) {
+            System.out.println("✅ CACHE HIT - All genres from Redis");
+            return cached.get();
+        }
+
+        // 2. SE NÃO EXISTIR, BUSCAR DO DB
+        System.out.println("❌ CACHE MISS - All genres from DB");
+
         List<Genre> genres = new ArrayList<>();
-        for (GenreSqlEntity g: genreRepo.findAll())
-        {
+        for (GenreSqlEntity g : genreRepo.findAll()) {
             genres.add(genreEntityMapper.toModel(g));
+        }
+
+        // 3. CACHEAR NO REDIS
+        if (!genres.isEmpty()) {
+            redisRepo.saveAllGenres(genres);
         }
 
         return genres;
     }
 
     @Override
-    public Optional<Genre> findByString(String genreName)
-    {
+    public Optional<Genre> findByString(String genreName) {
+        // 1. TENTAR BUSCAR DO REDIS
+        String redisKey = "genres:genre:" + genreName;
+        Optional<Genre> cached = redisRepo.getGenreFromRedis(redisKey);
+
+        if (cached.isPresent()) {
+            System.out.println("✅ CACHE HIT - Genre '" + genreName + "' from Redis");
+            return cached;
+        }
+
+        // 2. SE NÃO EXISTIR, BUSCAR DO DB
+        System.out.println("❌ CACHE MISS - Genre '" + genreName + "' from DB");
+
         Optional<GenreSqlEntity> entityOpt = genreRepo.findByString(genreName);
-        if (entityOpt.isPresent())
-        {
-            return Optional.of(genreEntityMapper.toModel(entityOpt.get()));
+
+        if (entityOpt.isPresent()) {
+            Genre genre = genreEntityMapper.toModel(entityOpt.get());
+
+            // 3. CACHEAR NO REDIS
+            redisRepo.save(genre);
+
+            return Optional.of(genre);
         }
-        else
-        {
-            return Optional.empty();
-        }
+
+        return Optional.empty();
     }
 
     @Override
     @Transactional
-    public Genre save(Genre genre)
-    {
+    public Genre save(Genre genre) {
         GenreSqlEntity entity = genreEntityMapper.toEntity(genre);
-        return genreEntityMapper.toModel(genreRepo.save(entity));
+        Genre savedGenre = genreEntityMapper.toModel(genreRepo.save(entity));
+
+        // Salvar no cache individual
+        redisRepo.save(savedGenre);
+
+        // Invalidar APENAS a lista (não os individuais!)
+        redisRepo.invalidateAllGenresCache();
+
+        return savedGenre;
     }
 
     @Override
-    public Page<GenreBookCountDTO> findTop5GenreByBookCount(Pageable pageable)
-    {
+    public void delete(Genre genre) {
+        genreRepo.delete(genreEntityMapper.toEntity(genre));
+
+        // Remover do cache individual
+        redisRepo.delete(genre);
+
+        // Invalidar APENAS a lista
+        redisRepo.invalidateAllGenresCache();
+    }
+
+    // ==================== Métodos sem cache (estatísticas) ====================
+
+    @Override
+    public Page<GenreBookCountDTO> findTop5GenreByBookCount(Pageable pageable) {
+        // Não cachear - é estatística dinâmica
         return genreRepo.findTop5GenreByBookCount(pageable);
     }
 
     @Override
-    public void delete(Genre genre)
-    {
-        genreRepo.delete(genreEntityMapper.toEntity(genre));
-    }
-
-    @Override
-    public List<GenreLendingsPerMonthDTO> getLendingsPerMonthLastYearByGenre()
-    {
+    public List<GenreLendingsPerMonthDTO> getLendingsPerMonthLastYearByGenre() {
+        // ... código existente permanece igual ...
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Tuple> cq = cb.createTupleQuery();
         Root<LendingSqlEntity> lendingRoot = cq.from(LendingSqlEntity.class);
@@ -98,7 +142,6 @@ public class GenreRepositoryImpl implements GenreRepository
         cq.multiselect(genreJoin.get("genre"), year, month, lendingCount);
         cq.groupBy(genreJoin.get("genre"), year, month);
 
-        // Predicate to filter the last 12 months
         LocalDate now = LocalDate.now();
         LocalDate twelveMonthsAgo = now.minusMonths(12);
         Predicate datePredicate = cb.between(lendingRoot.get("startDate"),
@@ -111,7 +154,6 @@ public class GenreRepositoryImpl implements GenreRepository
         TypedQuery<Tuple> query = entityManager.createQuery(cq);
         List<Tuple> results = query.getResultList();
 
-        // Grouping results by year and month
         Map<Integer, Map<Integer, List<GenreLendingsDTO>>> groupedResults = new HashMap<>();
 
         for (Tuple result : results) {
@@ -131,8 +173,8 @@ public class GenreRepositoryImpl implements GenreRepository
     }
 
     @Override
-    public List<GenreLendingsDTO> getAverageLendingsInMonth(LocalDate month, pt.psoft.g1.psoftg1.shared.services.Page page)
-    {
+    public List<GenreLendingsDTO> getAverageLendingsInMonth(LocalDate month, pt.psoft.g1.psoftg1.shared.services.Page page) {
+        // ... código existente permanece igual ...
         int days = month.lengthOfMonth();
         LocalDate firstOfMonth = LocalDate.of(month.getYear(), month.getMonth(), 1);
         LocalDate lastOfMonth = LocalDate.of(month.getYear(), month.getMonth(), days);
@@ -165,8 +207,8 @@ public class GenreRepositoryImpl implements GenreRepository
     }
 
     @Override
-    public List<GenreLendingsPerMonthDTO> getLendingsAverageDurationPerMonth(LocalDate startDate, LocalDate endDate)
-    {
+    public List<GenreLendingsPerMonthDTO> getLendingsAverageDurationPerMonth(LocalDate startDate, LocalDate endDate) {
+        // ... código existente permanece igual ...
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Tuple> cq = cb.createTupleQuery();
 
@@ -212,8 +254,7 @@ public class GenreRepositoryImpl implements GenreRepository
     }
 
     @NotNull
-    private List<GenreLendingsPerMonthDTO> getGenreLendingsPerMonthDtos(Map<Integer, Map<Integer, List<GenreLendingsDTO>>> groupedResults)
-    {
+    private List<GenreLendingsPerMonthDTO> getGenreLendingsPerMonthDtos(Map<Integer, Map<Integer, List<GenreLendingsDTO>>> groupedResults) {
         List<GenreLendingsPerMonthDTO> lendingsPerMonth = new ArrayList<>();
         for (Map.Entry<Integer, Map<Integer, List<GenreLendingsDTO>>> yearEntry : groupedResults.entrySet()) {
             int yearValue = yearEntry.getKey();

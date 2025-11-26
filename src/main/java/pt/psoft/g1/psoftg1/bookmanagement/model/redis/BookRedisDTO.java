@@ -13,7 +13,9 @@ public class BookRedisDTO implements Serializable {
     private List<Long> authorNumbers;
     private String photoURI;
 
-    public BookRedisDTO() {}
+    public BookRedisDTO() {
+
+    }
 
     public BookRedisDTO(Long pk, Long version, String isbn, String title, String description,
                         String genre, List<Long> authorNumbers, String photoURI) {

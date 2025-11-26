@@ -85,8 +85,7 @@ public class BookController {
 
     @Operation(summary = "Gets a specific Book by isbn")
     @GetMapping(value = "/{isbn}")
-    public ResponseEntity<BookView> findByIsbn(@PathVariable final String isbn) {
-
+    public ResponseEntity<BookView> findByIsbn(@PathVariable final String isbn) throws InterruptedException {
         final var book = bookService.findByIsbn(isbn);
 
         BookView bookView = bookViewMapper.toBookView(book);

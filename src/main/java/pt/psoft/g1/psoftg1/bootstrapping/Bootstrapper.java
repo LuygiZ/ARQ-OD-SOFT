@@ -31,7 +31,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Profile("bootstrap")
 @PropertySource({"classpath:config/library.properties"})
-@Order(2)
+@Order(3)
 public class Bootstrapper implements CommandLineRunner
 {
     @Value("${lendingDurationInDays}")
