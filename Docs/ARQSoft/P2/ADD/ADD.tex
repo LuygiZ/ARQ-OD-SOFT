@@ -83,13 +83,13 @@ Reengenhar o sistema LMS para uma \textbf{arquitetura distribuída baseada em mi
 
 \subsection{Estratégia de Migração}
 
-A reengenharia seguirá \textbf{migração progressiva} via padrão \textbf{Strangler Fig}: migração incremental, coexistência temporária monólito-microserviços, redução de risco e validação contínua.
+A reengenharia seguirá \textbf{migração progressiva} via padrão \textbf{Strangler Fig}: o novo sistema "estrangula" gradualmente o antigo, permitindo migração incremental, coexistência temporária, redução de risco e validação contínua.
 
 \section{Requisito Funcional Atribuído - Luis Santos (1250534)}
 
 \textbf{FR-1:} Como bibliotecário, quero criar Book, Author e Genre no mesmo processo.
 
-\textbf{Desafio:} Garantir atomicidade numa arquitetura distribuída onde cada entidade está num microserviço diferente com base de dados própria.
+\textbf{Desafio:} Garantir atomicidade numa arquitetura distribuída onde cada entidade está num microserviço diferente com base de dados própria (não podemos usar transações ACID tradicionais).
 
 % ===========================
 % 2. ANÁLISE DE REQUISITOS
@@ -141,6 +141,8 @@ NFR-6 & Manutenibilidade & Evolução independente de componentes \\
 \end{table}
 
 \section{Cenários de Qualidade}
+
+Os requisitos não-funcionais foram convertidos em cenários mensuráveis segundo a metodologia ADD.
 
 \subsection{QA-1: Disponibilidade}
 
@@ -209,17 +211,25 @@ Medida & 100\% consistência; rollback em falha; <3s \\
 
 \section{Strangler Fig Pattern}
 
-\textbf{Descrição:} Migração incremental criando nova aplicação ao redor da antiga, substituindo gradualmente funcionalidades.
+\textbf{Descrição:} Migração incremental criando nova aplicação ao redor da antiga, substituindo gradualmente funcionalidades (como uma figueira-estranguladora envolve uma árvore).
 
-\textbf{Justificação:} Redução de risco, business continuity, validação incremental e priorização por funcionalidade.
+\textbf{Justificação:} Redução de risco (rollback granular), business continuity (sistema sempre operacional), validação incremental e priorização por funcionalidade.
 
-\textbf{Aplicação:} Genre Service (primeiro) → Author Service → Book Service + Saga → Reader/Lending/Review Services. API Gateway com routing baseado em feature flags e traffic shifting progressivo (10\% → 50\% → 100\%).
+\textbf{Aplicação:} 
+\begin{enumerate}
+    \item Genre Service (primeiro: mais simples, menor risco)
+    \item Author Service
+    \item Book Service + Saga (mais complexo: FR-1)
+    \item Reader/Lending/Review Services
+\end{enumerate}
+
+API Gateway com routing baseado em feature flags e traffic shifting progressivo (10\% → 50\% → 100\%).
 
 \section{Database-per-Service}
 
-\textbf{Descrição:} Cada microserviço possui base de dados própria.
+\textbf{Descrição:} Cada microserviço possui base de dados própria (não partilhada).
 
-\textbf{Justificação:} Loose coupling, scaling independente, technology flexibility e failure isolation superam complexidade de transações distribuídas.
+\textbf{Justificação:} Loose coupling (serviços independentes), scaling independente, technology flexibility (escolher tech adequada) e failure isolation (falha numa BD não afeta outras). Estes benefícios superam a complexidade de transações distribuídas.
 
 \begin{table}[H]
 \centering
@@ -244,15 +254,17 @@ Lending Service & PostgreSQL & Transactional; audit trail \\
 
 \section{Polyglot Persistence}
 
+\textbf{Conceito:} Usar diferentes tecnologias de armazenamento conforme necessidades específicas (ao invés de "one size fits all").
+
 \textbf{PostgreSQL:} Book/Author/Genre/Lending (relacional, ACID, queries complexas)
 
-\textbf{MongoDB:} Reviews (document-oriented, schema flexível)
+\textbf{MongoDB:} Reviews (document-oriented, schema flexível para media/comments variáveis)
 
-\textbf{Redis:} Caching (in-memory, TTL support)
+\textbf{Redis:} Caching (in-memory, TTL support, alta performance)
 
 \section{Saga Pattern}
 
-\textbf{Descrição:} Transações distribuídas via sequência de transações locais com compensating actions.
+\textbf{Descrição:} Gerir transações distribuídas via sequência de transações locais. Se uma falha, executam-se compensating actions (desfazer operações anteriores).
 
 \begin{table}[H]
 \centering
@@ -264,28 +276,40 @@ Lending Service & PostgreSQL & Transactional; audit trail \\
 \hline
 Two-Phase Commit & Consistência forte & Bloqueante; má performance \\
 \hline
-Saga Choreography & Baixo acoplamento & Debug complexo \\
+Saga Choreography & Baixo acoplamento & Debug complexo; sem controlo central \\
 \hline
 \rowcolor{green!10}
-\textbf{Saga Orchestration} & \textbf{Workflow claro} & \textbf{Ponto crítico (HA mitiga)} \\
+\textbf{Saga Orchestration} & \textbf{Workflow claro; controlo central} & \textbf{Orquestrador é ponto crítico} \\
 \hline
 \end{tabularx}
 \caption{Comparação Transações Distribuídas}
 \end{table}
 
-\textbf{Workflow FR-1:} Librarian Process API orquestra sequencialmente: Criar Genre → Criar Author → Criar Book. Falha em qualquer passo dispara compensating transactions (DeleteAuthor, DeleteGenre).
+\textbf{Decisão:} Saga Orchestration. Orquestrador central gere workflow, facilitando debug e garantindo ordem de execução. Ponto crítico mitigado via HA (High Availability).
+
+\textbf{Workflow FR-1:} 
+\begin{enumerate}
+    \item Librarian Process API recebe pedido
+    \item Orquestra sequencialmente: Criar Genre → Criar Author → Criar Book
+    \item Se Genre falha: aborta imediatamente
+    \item Se Author falha: DeleteGenre (compensação)
+    \item Se Book falha: DeleteAuthor + DeleteGenre (compensações)
+    \item Se tudo sucede: commit implícito
+\end{enumerate}
 
 \section{Outbox Pattern}
 
-\textbf{Problema:} Atualizar DB + publicar event não é atômico.
+\textbf{Problema:} Atualizar BD + publicar event não é atômico. Pode resultar em BD atualizada mas event não publicado (inconsistência).
 
-\textbf{Solução:} Single transaction atualiza entity + insere event em outbox table. Background process publica events para RabbitMQ e marca como published.
+\textbf{Solução:} Single transaction atualiza entity + insere event em outbox table (ambos na mesma BD, logo atômico). Background process lê outbox e publica para RabbitMQ, marcando como published.
 
-\textbf{Aplicação:} Book, Author e Genre Services possuem outbox table e background publisher.
+\textbf{Benefício:} Garante que todo event publicado corresponde a uma mudança real na BD (at-least-once delivery).
+
+\textbf{Aplicação:} Book, Author e Genre Services.
 
 \section{Domain Events}
 
-Eventos representam mudanças significativas no domínio, permitindo comunicação assíncrona entre bounded contexts.
+\textbf{Conceito:} Eventos representam mudanças significativas no domínio (ex: "BookCreated"). Permitem comunicação assíncrona entre bounded contexts sem acoplamento direto.
 
 \begin{table}[H]
 \centering
@@ -311,34 +335,38 @@ ReviewSubmitted & Review Service \\
 
 \section{CQRS}
 
-\textbf{Descrição:} Separação read/write operations para otimização independente.
+\textbf{Descrição:} Command Query Responsibility Segregation - separar operações de escrita (commands) das de leitura (queries).
+
+\textbf{Justificação:} Permite otimizar independentemente. Writes necessitam normalização e ACID; Reads beneficiam de denormalização e caching.
 
 \textbf{Aplicação Book Service:}
 
 \begin{itemize}
-    \item \textbf{Write Model:} Normalized relational (PostgreSQL master)
-    \item \textbf{Read Model:} Denormalized view book+author+genre (PostgreSQL replica + Redis cache)
-    \item \textbf{Sincronização:} Read Model Projector consome BookCreated events e atualiza read model
+    \item \textbf{Write Model:} Normalized relational (PostgreSQL master) - para integridade
+    \item \textbf{Read Model:} Denormalized view book+author+genre (PostgreSQL replica + Redis) - para performance
+    \item \textbf{Sincronização:} Read Model Projector consome BookCreated events e atualiza read model assincronamente
 \end{itemize}
 
-\textbf{Benefícios:} -40\% query time, +100\% read throughput, -60\% para cached queries.
+\textbf{Trade-off:} Eventual consistency (read model pode ter lag de ~500ms) vs performance gains significativos.
 
 \section{Message Broker (RabbitMQ)}
 
-\textbf{Justificação:} Routing flexibility, built-in DLQ, message TTL/priority, strong delivery guarantees, mature/stable.
+\textbf{Justificação RabbitMQ:} Routing flexibility (topic/direct exchanges), built-in DLQ (Dead Letter Queue para mensagens falhadas), message TTL/priority, strong delivery guarantees, mature/stable.
 
 \textbf{Topologia:}
 
 \begin{itemize}
-    \item \textbf{lms.events} (Topic): domain.entity.event
-    \item \textbf{lms.commands} (Direct): service commands
-    \item \textbf{lms.saga} (Direct): saga orchestration
+    \item \textbf{lms.events} (Topic): domain.entity.event (ex: catalog.book.created) - para domain events
+    \item \textbf{lms.commands} (Direct): service-specific commands - para Saga commands
+    \item \textbf{lms.saga} (Direct): saga orchestration messages - para coordenação Saga
 \end{itemize}
 
 % ===========================
 % 4. PRIORIZAÇÃO
 % ===========================
 \chapter{Priorização de Requisitos}
+
+Priorização baseada em importância (valor negócio) vs dificuldade (complexidade técnica).
 
 \begin{table}[H]
 \centering
@@ -370,6 +398,8 @@ NFR-6 (Manutenibilidade) & Média & Baixa & \textbf{2} \\
 % ===========================
 \chapter{Processo ADD - Iterações}
 
+O ADD segue abordagem iterativa: cada iteração endereça um conjunto de drivers (requisitos prioritários).
+
 \section{Roadmap Geral}
 
 \begin{table}[H]
@@ -397,7 +427,7 @@ NFR-6 (Manutenibilidade) & Média & Baixa & \textbf{2} \\
 
 \textbf{Objetivo:} Estrutura geral com microserviços, Database-per-Service e Strangler Fig.
 
-\textbf{Bounded Contexts:}
+\textbf{Bounded Contexts Identificados:}
 \begin{itemize}
     \item Catalog Management: Books, Authors, Genres
     \item User Management: Users, Readers, Librarians
@@ -407,9 +437,14 @@ NFR-6 (Manutenibilidade) & Média & Baixa & \textbf{2} \\
 
 \textbf{Microserviços:} Genre, Author, Book, Reader, User, Lending, Review Services.
 
-\textbf{API Layers:} Experience API (BFF) → Process API (Saga Orchestrator) → System API (Microservices).
+\textbf{API Layers:} 
+\begin{itemize}
+    \item Experience API (BFF) - interface com clientes
+    \item Process API (Saga Orchestrator) - workflows complexos
+    \item System API (Microservices) - operações core
+\end{itemize}
 
-\textbf{Infraestrutura:} API Gateway (Kong), Service Registry (Eureka), RabbitMQ, PostgreSQL, MongoDB, Redis.
+\textbf{Infraestrutura:} API Gateway, Service Registry (Eureka), RabbitMQ, PostgreSQL, MongoDB, Redis.
 
 \begin{figure}[H]
 \centering
@@ -445,20 +480,11 @@ NFR-6 (Manutenibilidade) & Média & Baixa & \textbf{2} \\
 
 \textbf{Drivers:} FR-1 (atomicidade), QA-6 (consistência).
 
-\textbf{Objetivo:} Saga Pattern, Domain Events via RabbitMQ, Outbox Pattern.
+\textbf{Objetivo:} Saga Pattern, Domain Events via RabbitMQ, Outbox Pattern para garantir consistência eventual.
 
-\textbf{Padrões:} Saga Orchestration, Outbox, Domain Events, RabbitMQ.
+\textbf{Padrões Selecionados:} Saga Orchestration, Outbox, Domain Events, RabbitMQ.
 
-\textbf{Workflow FR-1:}
-\begin{enumerate}
-    \item Iniciar Saga (SagaId)
-    \item CreateGenreCommand → Genre Service → GenreCreated (via Outbox)
-    \item CreateAuthorCommand → Author Service → AuthorCreated (via Outbox)
-    \item CreateBookCommand → Book Service → BookCreated (via Outbox)
-    \item SagaCompletedEvent
-\end{enumerate}
-
-\textbf{Compensações:} Falha dispara DeleteAuthorCommand, DeleteGenreCommand.
+\textbf{Workflow FR-1:} Librarian Process API orquestra sequencialmente via RabbitMQ: CreateGenreCommand → GenreCreated (via Outbox) → CreateAuthorCommand → AuthorCreated (via Outbox) → CreateBookCommand → BookCreated (via Outbox) → SagaCompleted. Falhas disparam compensações.
 
 \begin{figure}[H]
 \centering
@@ -525,7 +551,7 @@ Saga Orchestrator
 \caption{Saga - Compensating Transactions}
 \end{figure}
 
-\textbf{Alcançado:} Saga para FR-1, atomicidade via compensations, Outbox, Domain Events, eventual consistency.
+\textbf{Alcançado:} Saga para FR-1, atomicidade via compensations, Outbox, Domain Events via RabbitMQ, eventual consistency.
 
 \section{Iteração 3: Performance e CQRS}
 
@@ -544,13 +570,13 @@ Saga Orchestrator
 \hline
 CQRS & Write normalized, Read denormalized \\
 \hline
-Caching & L1 Caffeine + L2 Redis (TTL 5min) \\
+Caching & L1 application cache + L2 Redis (TTL 5min) \\
 \hline
 Read Replicas & PostgreSQL replicas (50\% cada) \\
 \hline
 Load Balancing & Kubernetes Service \\
 \hline
-Database Indexing & Campos pesquisados \\
+Database Indexing & Campos pesquisados (title, isbn, authorId) \\
 \hline
 Async Processing & RabbitMQ non-blocking ops \\
 \hline
@@ -558,9 +584,11 @@ Async Processing & RabbitMQ non-blocking ops \\
 \caption{Táticas Performance}
 \end{table}
 
-\textbf{CQRS Book Service:} Write model (PostgreSQL normalized), Read model (MongoDB denormalized + Redis), Read Model Projector consome BookCreated.
+\textbf{CQRS Book Service:} Write model (PostgreSQL normalized), Read model (MongoDB denormalized + Redis cache), Read Model Projector consome BookCreated events.
 
-\textbf{Performance Gains:} -40\% query time, -60\% cached queries, +100\% read throughput, >25\% melhoria P95.
+\textbf{Performance Gains:} -40\% query time (denormalization), -60\% cached queries (Redis), +100\% read throughput (replicas), >25\% melhoria P95.
+
+\textbf{Alcançado:} CQRS implementado, caching multi-camada, read replicas, performance otimizada.
 
 \section{Iteração 4: Disponibilidade}
 
@@ -579,23 +607,23 @@ Async Processing & RabbitMQ non-blocking ops \\
 \hline
 Active Redundancy & 2-10 réplicas por serviço \\
 \hline
-Health Monitoring & Kubernetes probes \\
+Health Monitoring & Kubernetes liveness/readiness probes \\
 \hline
-Circuit Breaker & Resilience4j (50\% threshold) \\
+Circuit Breaker & Resilience4j (threshold 50\%, wait 30s) \\
 \hline
-Retry + Backoff & Exponential backoff \\
+Retry + Backoff & Exponential backoff (max 3 tentativas) \\
 \hline
-Graceful Degradation & Cached data fallback \\
+Graceful Degradation & Cached data fallback via Redis \\
 \hline
-Bulkhead & Thread pool isolation \\
+Bulkhead & Thread pool isolation por serviço \\
 \hline
-Timeout & 3s default \\
+Timeout & 3s default timeout \\
 \hline
 \end{tabularx}
 \caption{Táticas Disponibilidade}
 \end{table}
 
-\textbf{Observability:} Prometheus (métricas), Grafana (dashboards), ELK (logs), Jaeger (tracing).
+\textbf{Observability:} Prometheus (métricas RPS/latency/errors), Grafana (dashboards/alerting), ELK (logs centralizados), Jaeger (distributed tracing Saga).
 
 \textbf{Alcançado:} Circuit breakers, retry mechanisms, health monitoring, observability completa.
 
@@ -613,9 +641,9 @@ Timeout & 3s default \\
 +-------------------------+----------------------------+
                           |
 +-------------------------v----------------------------+
-|          API Gateway (Kong)                          |
-|   (Auth, Rate Limit, Routing, Cache, Circuit         |
-|    Breaker, Strangler Fig Routing)                   |
+|          API Gateway                                 |
+|   (Auth, Rate Limit, Routing, Circuit Breaker,       |
+|    Strangler Fig Routing Logic)                      |
 +-------------------------+----------------------------+
                           |
      +--------------------+--------------------+
@@ -674,7 +702,7 @@ Timeout & 3s default \\
 \rowcolor{primarycolor!20}
 \textbf{Componente} & \textbf{Responsabilidades} & \textbf{Tecnologia} \\
 \hline
-API Gateway & Routing, auth, rate limit, cache, circuit breaker & Kong, Redis \\
+API Gateway & Routing, auth, rate limit, circuit breaker, Strangler Fig routing & Spring Cloud Gateway \\
 \hline
 Librarian Process API & Saga orchestration, compensations & Spring Boot, RabbitMQ \\
 \hline
@@ -682,12 +710,44 @@ Book Service & CQRS, CRUD, outbox, events & Spring Boot, PostgreSQL, MongoDB \\
 \hline
 Author/Genre Services & CRUD, outbox, events & Spring Boot, PostgreSQL \\
 \hline
+Redis & L2 cache, session storage & Redis Cluster \\
+\hline
 RabbitMQ & Event distribution, commands, saga & RabbitMQ \\
 \hline
 Kubernetes & Orchestration, auto-scaling, health & Kubernetes, Docker \\
 \hline
 \end{tabularx}
 \caption{Responsabilidades}
+\end{table}
+
+\section{Padrões Implementados}
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabularx}{\textwidth}{|l|X|l|}
+\hline
+\rowcolor{primarycolor!20}
+\textbf{Padrão} & \textbf{Aplicação} & \textbf{Benefício} \\
+\hline
+Strangler Fig & Migração progressiva & Redução risco \\
+\hline
+Database-per-Service & BD própria por serviço & Loose coupling \\
+\hline
+Polyglot Persistence & PostgreSQL + MongoDB + Redis & Otimização por contexto \\
+\hline
+Saga Orchestration & FR-1 atomicity & Consistência distribuída \\
+\hline
+Outbox & Atomicidade DB+events & Consistência eventual \\
+\hline
+Domain Events & Comunicação assíncrona & Decoupling \\
+\hline
+CQRS & Read/write separation & Performance reads \\
+\hline
+Message Broker & RabbitMQ async & Event-driven \\
+\hline
+\end{tabularx}
+\caption{Sumário Padrões}
 \end{table}
 
 % ===========================
@@ -706,11 +766,11 @@ Kubernetes & Orchestration, auto-scaling, health & Kubernetes, Docker \\
 \hline
 \textbf{Solução} & Strangler Fig Pattern \\
 \hline
-\textbf{Detalhes} & API Gateway routing, feature flags, traffic shifting progressivo (10\%→100\%) \\
+\textbf{Detalhes} & API Gateway routing, feature flags, traffic shifting (10\%→100\%) \\
 \hline
 \textbf{Ordem} & Genre → Author → Book+Saga → Reader/Lending/Review \\
 \hline
-\textbf{Alternativas} & Big bang (rejeitado: risco), Parallel run (rejeitado: duplicação) \\
+\textbf{Alternativas} & Big bang (risco), Parallel run (duplicação) - rejeitadas \\
 \hline
 \end{tabularx}
 \caption{TM: Strangler Fig}
@@ -729,7 +789,7 @@ Kubernetes & Orchestration, auto-scaling, health & Kubernetes, Docker \\
 \hline
 \textbf{Detalhes} & Librarian Process API orquestra, compensating transactions, outbox tables \\
 \hline
-\textbf{Alternativas} & 2PC (bloqueante), Choreography (debug complexo) \\
+\textbf{Alternativas} & 2PC (bloqueante), Choreography (debug complexo) - rejeitadas \\
 \hline
 \end{tabularx}
 \caption{TM: Transações}
@@ -746,7 +806,7 @@ Kubernetes & Orchestration, auto-scaling, health & Kubernetes, Docker \\
 \hline
 \textbf{Solução} & Database-per-Service + Polyglot Persistence \\
 \hline
-\textbf{Detalhes} & PostgreSQL (relacional, ACID), MongoDB (document, flexible), Redis (cache) \\
+\textbf{Detalhes} & PostgreSQL (relacional/ACID), MongoDB (document/flexible), Redis (cache) \\
 \hline
 \textbf{Trade-offs} & Complexidade operacional vs loose coupling e otimização \\
 \hline
@@ -769,6 +829,8 @@ Kubernetes & Orchestration, auto-scaling, health & Kubernetes, Docker \\
 \hline
 \textbf{Benefícios} & -40\% query time, +100\% read throughput \\
 \hline
+\textbf{Trade-off} & Eventual consistency (~500ms lag) vs performance \\
+\hline
 \end{tabularx}
 \caption{TM: CQRS}
 \end{table}
@@ -786,7 +848,7 @@ Kubernetes & Orchestration, auto-scaling, health & Kubernetes, Docker \\
 \hline
 \textbf{Justificação} & Routing flexibility, DLQ, TTL/priority, delivery guarantees, mature \\
 \hline
-\textbf{Detalhes} & Topic exchange (events), Direct exchange (commands), saga coordination \\
+\textbf{Topologia} & Topic exchange (events), Direct exchange (commands/saga) \\
 \hline
 \end{tabularx}
 \caption{TM: Message Broker}
@@ -803,12 +865,33 @@ Kubernetes & Orchestration, auto-scaling, health & Kubernetes, Docker \\
 \hline
 \textbf{Solução} & Outbox Pattern \\
 \hline
-\textbf{Detalhes} & Local transaction atualiza entity + outbox table; background publisher lê outbox \\
+\textbf{Detalhes} & Local transaction atualiza entity + outbox; background publisher → RabbitMQ \\
 \hline
-\textbf{Benefícios} & Eventual consistency garantida, at-least-once delivery \\
+\textbf{Benefício} & Eventual consistency garantida, at-least-once delivery \\
 \hline
 \end{tabularx}
 \caption{TM: Outbox}
+\end{table}
+
+\section{TM-7: Caching Strategy}
+
+\begin{table}[H]
+\small
+\begin{tabularx}{\textwidth}{|l|X|}
+\hline
+\rowcolor{secondarycolor!20}
+\textbf{Issue} & Otimização performance reads \\
+\hline
+\textbf{Solução} & Multi-layer caching com Redis \\
+\hline
+\textbf{Detalhes} & L1 application cache (local), L2 Redis distributed (TTL 5min) \\
+\hline
+\textbf{Invalidação} & Cache evict ao receber domain events (BookCreated/Updated) \\
+\hline
+\textbf{Benefício} & -60\% latency para cached queries \\
+\hline
+\end{tabularx}
+\caption{TM: Caching}
 \end{table}
 
 % ===========================
@@ -818,7 +901,7 @@ Kubernetes & Orchestration, auto-scaling, health & Kubernetes, Docker \\
 
 \section{Estratégia}
 
-Migração progressiva via Strangler Fig, MVP focus, paralelização de tarefas, serviços managed (Kubernetes, RabbitMQ, Databases), automação CI/CD, patterns desde início.
+Migração progressiva via Strangler Fig, MVP focus, paralelização, serviços managed (Kubernetes, RabbitMQ, Databases), automação CI/CD, patterns desde início.
 
 \section{Fases}
 
@@ -831,16 +914,16 @@ Migração progressiva via Strangler Fig, MVP focus, paralelização de tarefas,
 \textbf{Fase} & \textbf{Atividades} \\
 \hline
 \textbf{1} & 
-\textbf{Setup + Genre:} Kubernetes, CI/CD, API Gateway, RabbitMQ, PostgreSQL, Genre Service (Database-per-service, Outbox, Events), routing 10\% traffic \\
+\textbf{Setup + Genre:} Kubernetes, CI/CD, API Gateway, RabbitMQ, PostgreSQL, Redis. Genre Service (Database-per-service, Outbox, Events). Routing 10\% traffic. \\
 \hline
 \textbf{2} & 
-\textbf{Author/Book + Saga:} Author Service + DB, Book Service + CQRS, Librarian Process API (Saga), compensations, RabbitMQ topology, testes FR-1, routing 50-100\% \\
+\textbf{Author/Book + Saga:} Author Service + DB, Book Service + CQRS, Librarian Process API (Saga), compensations, RabbitMQ topology, testes FR-1. Routing 50-100\%. \\
 \hline
 \textbf{3} & 
-\textbf{Performance + Services:} Redis caching (L1+L2), read replicas, Reader/Lending/Review Services, CQRS projectors, load testing \\
+\textbf{Performance + Services:} Redis caching (L1+L2), read replicas, Reader/Lending/Review Services, CQRS projectors, load testing, tuning. \\
 \hline
 \textbf{4} & 
-\textbf{Resiliência + Go-Live:} Circuit Breakers, health probes, monitoring (Prometheus/Grafana/ELK/Jaeger), chaos testing, data migration, progressive cutover \\
+\textbf{Resiliência + Go-Live:} Circuit Breakers, health probes, monitoring (Prometheus/Grafana/ELK/Jaeger), chaos testing, data migration, progressive cutover. \\
 \hline
 \end{tabularx}
 \caption{Fases de Implementação}
@@ -858,7 +941,7 @@ Migração progressiva via Strangler Fig, MVP focus, paralelização de tarefas,
 \hline
 Complexidade Saga + Outbox & Alto & Implementação cedo, testes intensivos \\
 \hline
-Eventual consistency lag & Médio & Monitoring, alerting, SLAs \\
+Eventual consistency lag & Médio & Monitoring, alerting, SLAs definidos \\
 \hline
 RabbitMQ message loss & Alto & Persistent messages, durable queues, manual ack \\
 \hline
@@ -868,8 +951,10 @@ Performance insuficiente & Alto & Load testing contínuo, caching agressivo \\
 \hline
 Data migration failures & Alto & Dry-run, validation scripts, rollback plan \\
 \hline
+Redis cache invalidation & Médio & Event-driven invalidation, TTL safety net \\
+\hline
 \end{tabularx}
-\caption{Riscos}
+\caption{Análise de Riscos}
 \end{table}
 
 % ===========================
@@ -906,19 +991,21 @@ CQRS Sync Lag & N/A & <500ms (P95) & Projector metrics \\
 \hline
 RabbitMQ Message Loss & N/A & 0\% & Message audit \\
 \hline
+Redis Hit Rate & N/A & >70\% & Redis metrics \\
+\hline
 \end{tabularx}
 \caption{KPIs}
 \end{table}
 
 \section{Critérios de Aceitação}
 
-\textbf{Padrões:} Database-per-Service, Polyglot Persistence, Saga, Outbox, Domain Events, Strangler Fig, CQRS.
+\textbf{Padrões:} Database-per-Service, Polyglot Persistence, Saga, Outbox, Domain Events, Strangler Fig, CQRS, Redis caching.
 
-\textbf{Funcionalidade:} FR-1 implementado, Saga rollback funcional, testes integração 100\%.
+\textbf{Funcionalidade:} FR-1 implementado, Saga rollback funcional, testes integração 100\%, end-to-end via RabbitMQ.
 
 \textbf{Performance:} CQRS funcional, 250+ RPS, P95 <600ms, auto-scaling 2-10 pods, Redis hit >70\%.
 
-\textbf{Produção:} Circuit breakers, zero downtime, monitoring/logging/tracing operacionais, alerting, documentação completa.
+\textbf{Produção:} Circuit breakers, zero downtime deployment, monitoring/logging/tracing operacionais, alerting, documentação completa, 100\% traffic novo sistema.
 
 % ===========================
 % 10. CONCLUSÃO
@@ -928,13 +1015,14 @@ RabbitMQ Message Loss & N/A & 0\% & Message audit \\
 \section{Objetivos Alcançados}
 
 \begin{itemize}
-    \item[$\checkmark$] Strangler Fig: Migração progressiva baixo risco
-    \item[$\checkmark$] Database-per-Service: Loose coupling, independent scaling
+    \item[$\checkmark$] Strangler Fig: migração progressiva baixo risco
+    \item[$\checkmark$] Database-per-Service: loose coupling, independent scaling
     \item[$\checkmark$] Polyglot Persistence: PostgreSQL + MongoDB + Redis otimizado
     \item[$\checkmark$] Saga Pattern: FR-1 atomicidade via compensations
-    \item[$\checkmark$] Outbox Pattern: Consistência eventual DB+events
-    \item[$\checkmark$] Domain Events: Comunicação assíncrona RabbitMQ
-    \item[$\checkmark$] CQRS: Performance reads otimizada
+    \item[$\checkmark$] Outbox Pattern: consistência eventual DB+events
+    \item[$\checkmark$] Domain Events: comunicação assíncrona RabbitMQ
+    \item[$\checkmark$] CQRS: performance reads otimizada
+    \item[$\checkmark$] Redis: caching multi-layer alta performance
     \item[$\checkmark$] Performance: 25\%+ melhoria
     \item[$\checkmark$] Disponibilidade: 99.9\%
     \item[$\checkmark$] API-led Connectivity: 3 camadas
@@ -972,17 +1060,26 @@ Message Broker & RabbitMQ async & $\checkmark$ \\
 
 \section{Contribuições ADD}
 
-Decisões estruturadas baseadas em drivers, foco em qualidade, iterações focadas, rastreabilidade via technical memos, trade-offs explícitos, priorização clara, visual models (diagramas service decomposition, data flows, dependencies).
+Decisões estruturadas baseadas em drivers, foco em atributos de qualidade, abordagem iterativa, rastreabilidade via technical memos, trade-offs explícitos, priorização clara, visual models (diagramas decomposition/flows/dependencies).
 
 \section{Estratégias Executadas}
 
-Serviços managed, Strangler Fig progressivo, paralelização desenvolvimento, MVP first, patterns implementados desde início, automação CI/CD.
+Serviços managed, Strangler Fig progressivo, paralelização, MVP focus, patterns desde início, automação CI/CD, Redis multi-layer caching.
 
 \section{Best Practices}
 
-Strangler Fig reduz risco, Outbox critical para consistency, RabbitMQ topology design cedo, CQRS só onde critical, monitoring desde início, integration tests > unit tests em event-driven systems, idempotency fundamental para retries.
+\begin{itemize}
+    \item Strangler Fig reduz risco migração
+    \item Outbox Pattern critical para consistency
+    \item RabbitMQ topology design antecipado
+    \item CQRS só onde performance é critical
+    \item Redis caching com event-driven invalidation
+    \item Monitoring desde início
+    \item Integration tests > unit tests em event-driven
+    \item Idempotency fundamental para retries
+\end{itemize}
 
-Design \textbf{evolutivo} e \textbf{production-ready}, todos padrões microserviços implementados com justificação técnica sólida. Abordagem viável via Strangler Fig, MVP focus e ferramentas managed.
+Design \textbf{evolutivo} e \textbf{production-ready}, todos padrões microserviços implementados com justificação técnica sólida. Abordagem viável via Strangler Fig, MVP focus, ferramentas managed e Redis high-performance caching.
 
 % ===========================
 % REFERÊNCIAS
