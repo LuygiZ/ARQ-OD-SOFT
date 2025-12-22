@@ -1,0 +1,15 @@
+http:
+  services:
+    lmsbooks_split:
+      weighted:
+        services:
+          - name: lmsbooks_blue@swarm
+            weight: 20
+          - name: lmsbooks_green@swarm
+            weight: 80
+
+  routers:
+    lmsbooks_router:
+      entryPoints: ["web"]
+      rule: "PathPrefix(`/`)"
+      service: lmsbooks_split

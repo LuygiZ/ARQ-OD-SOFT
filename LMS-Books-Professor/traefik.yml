@@ -1,0 +1,38 @@
+version: "3.9"
+
+services:
+  traefik:
+    image: traefik:v3.1.0
+    command:
+      - "--providers.swarm=true"
+      - "--providers.swarm.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--api.dashboard=true"
+      - "--api.insecure=true"
+      - "--providers.file.directory=/etc/traefik/dynamic"
+      - "--providers.file.watch=true"
+      - "--entrypoints.web.address=:80"
+      - "--api.dashboard=true"
+      - "--api.insecure=true"
+
+    ports:
+      - "80:80"
+      - "8090:8080"
+      - mode: host
+
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./rollout/dynamic:/etc/traefik/dynamic
+    networks:
+      - lms_overlay_attachable_network
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+      replicas: 1
+      labels:
+        - "traefik.enable=true"
+
+networks:
+  lms_overlay_attachable_network:
+    external: true

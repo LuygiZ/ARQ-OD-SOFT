@@ -1,0 +1,139 @@
+@startuml
+top to bottom direction
+
+skinparam nodesep 30
+skinparam ranksep 12
+skinparam dpi 80
+
+
+note as N1
+This diagram intentionally combines elements from two architectural viewpoints:
+• a logical view (routing components, traffic flow, interfaces)
+• a physical/deployment view (Swarm services, containers, networks)
+
+While traditional modelling guidelines recommend using a single
+viewpoint per diagram, this combination is justified here because
+the diagram represents a Scenario View in the 4+1 Architectural Model.
+Scenario Views are explicitly allowed to integrate multiple viewpoints
+to illustrate how architectural elements collaborate at runtime to
+realise a specific system behaviour — in this case, Traefik’s routing
+flow across the canary (and blue/green) deployment.
+end note
+
+' -----------------------------------------------------------
+' CLIENT NODE
+' -----------------------------------------------------------
+node "Client's Host" {
+    component "HTTP Client" as Client
+}
+interface "HTTP API" as I_HTTP_Request
+
+
+' -----------------------------------------------------------
+' TRAEFIK CONFIGURATION
+' -----------------------------------------------------------
+node "Traefik configuration for LMSBooks Canary rollout" as Traefik {
+
+    component "lmsbooks_router\n<<Router>>" as Router
+    component "lmsbooks_split@file\n<<Weighted Service>>" as Split
+    component "lmsbooks_blue@swarm\n<<LoadBalancer>>" as BlueLB
+    component "lmsbooks_green@swarm\n<<LoadBalancer>>" as GreenLB
+
+    interface "RoutingDecision" as I_RoutingDecision
+    interface "BlueTraffic" as I_BlueTraffic
+    interface "GreenTraffic" as I_GreenTraffic
+}
+
+
+' -----------------------------------------------------------
+' SWARM CLUSTER (BLUE/GREEN SERVICES)
+' -----------------------------------------------------------
+node "Docker Swarm Cluster" <<Swarm>> {
+
+    node "LMSBooks_blue Service\n<<Swarm Service>>" as BlueService {
+        component "LMSBooks_blue[1]\n<<Container>>" as B1
+        component "LMSBooks_blue[n]\n<<Container>>" as Bn
+    }
+
+    node "LMSBooks_green Service\n<<Swarm Service>>" as GreenService {
+        component "LMSBooks_green[1]\n<<Container>>" as G1
+        component "LMSBooks_green[n]\n<<Container>>" as Gn
+    }
+}
+
+
+' -----------------------------------------------------------
+' NON-SWARM SECTION: STANDALONE DATABASE CONTAINERS
+' -----------------------------------------------------------
+node "Standalone Docker Host\n(Not in Swarm)" as StandaloneDocker {
+
+    node "Blue DB Container\n<<Docker Container>>" as BlueDB_1 {
+        component "lmsbooks_blue_db [1]" as DBBlue_1
+    }
+
+    node "Blue DB Container\n<<Docker Container>>" as BlueDB_n {
+        component "lmsbooks_blue_db [n]" as DBBlue_n
+    }
+
+    node "Green DB Container\n<<Docker Container>>" as GreenDB_1 {
+        component "lmsbooks_green_db [1]" as DBGreen_1
+    }
+    node "Green DB Container\n<<Docker Container>>" as GreenDB_n {
+        component "lmsbooks_green_db [n]" as DBGreen_n
+    }
+}
+
+
+' -----------------------------------------------------------
+' HIDDEN LAYOUT CONTROL
+' -----------------------------------------------------------
+Client -[hidden]down-> Router
+Router -[hidden]down-> Split
+Split  -[hidden]down-> BlueLB
+Split  -[hidden]down-> GreenLB
+
+
+' -----------------------------------------------------------
+' TRAEFIK ROUTING FLOW
+' -----------------------------------------------------------
+Client --( I_HTTP_Request
+Router -up- I_HTTP_Request
+
+Router -down-( I_RoutingDecision
+Split -up- I_RoutingDecision
+
+Split -right-( I_BlueTraffic
+BlueLB -up- I_BlueTraffic
+
+Split -left-( I_GreenTraffic
+GreenLB -up- I_GreenTraffic
+
+
+' -----------------------------------------------------------
+' ROUTING TO SWARM SERVICE INSTANCES
+' -----------------------------------------------------------
+BlueLB --( InstanceBlue
+B1 -up- InstanceBlue
+Bn -up- InstanceBlue
+
+GreenLB --( InstanceGreen
+G1 -up- InstanceGreen
+Gn -up- InstanceGreen
+
+
+' -----------------------------------------------------------
+' SERVICE → DATABASE CONNECTIONS
+' -----------------------------------------------------------
+B1 --( I_DBBlue_1
+DBBlue_1 -up- I_DBBlue_1
+
+Bn --( I_DBBlue_n
+DBBlue_n -up- I_DBBlue_n
+
+G1 --> I_DBGreen_1
+DBGreen_1 -up-( I_DBGreen_1
+
+Gn --( I_DBGreen_n
+DBGreen_n -up- I_DBGreen_n
+
+@enduml
