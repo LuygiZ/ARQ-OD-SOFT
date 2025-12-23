@@ -108,6 +108,37 @@ public class Book extends EntityWithPhoto
         }
     }
 
+    public void applyPatch(final Long desiredVersion,
+                           final String title,
+                           final String description,
+                           final String photoURI,
+                           final Genre genre,
+                           final List<Author> authors ) {
+
+        if (!Objects.equals(this.version, desiredVersion))
+            throw new StaleObjectStateException("Object was already modified by another user", this.pk);
+
+        if (title != null) {
+            setTitle(new Title(title));
+        }
+
+        if (description != null) {
+            setDescription(new Description(description));
+        }
+
+        if (genre != null) {
+            setGenre(genre);
+        }
+
+        if (authors != null) {
+            setAuthors(authors);
+        }
+
+        if (photoURI != null)
+            setPhotoInternal(photoURI);
+
+    }
+
     public void removePhoto(Long expectedVersion)
     {
         if(!Objects.equals(this.version, expectedVersion))
