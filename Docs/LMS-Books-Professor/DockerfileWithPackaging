@@ -9,7 +9,7 @@ COPY ../pom.xml .
 RUN mvn dependency:go-offline
 
 # Copy the rest of the project files
-COPY ../src ./src
+COPY ../Docs/src ./src
 
 # Package the application
 RUN mvn package
