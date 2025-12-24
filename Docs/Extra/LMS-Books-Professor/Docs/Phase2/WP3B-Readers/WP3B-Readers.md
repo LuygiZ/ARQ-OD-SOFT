@@ -30,4 +30,4 @@ days). When a reader doesn’t return a book on time a fine will be applied per 
 ## 2. Design
 ### 2.1. Class Diagram (CD)
 
-![CD](./WP3B-Readers-CD.svg)
+![CD](WP3B-Readers-CD.svg)

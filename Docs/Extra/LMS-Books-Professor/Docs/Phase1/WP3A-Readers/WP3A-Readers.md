@@ -139,7 +139,7 @@ para o requisito "11. As anonymous I want to register as a reader" de notar que 
 ## 2. Design
 ### 2.1. Class Diagram (CD)
 
-![CD](./WP3A-Readers-CD.svg)
+![CD](WP3A-Readers-CD.svg)
 ## 3. Tests
 - None
 ## 4. Observations
