@@ -5,39 +5,25 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import lombok.*;
 import pt.psoft.shared.events.DomainEvent;
 
-import java.util.List;
-
 /**
- * Domain Event emitted when a Book is created
+ * Domain Event emitted when a Book is deleted
  */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-@JsonTypeName("BookCreated")
-public class BookCreatedEvent extends DomainEvent {
+@JsonTypeName("BookDeleted")
+public class BookDeletedEvent extends DomainEvent {
 
     @JsonProperty("isbn")
     private String isbn;
 
-    @JsonProperty("title")
-    private String title;
-
-    @JsonProperty("description")
-    private String description;
-
-    @JsonProperty("genre")
-    private String genre;
-
-    @JsonProperty("authorIds")
-    private List<Long> authorIds;
-
-    @JsonProperty("photoURI")
-    private String photoURI;
+    @JsonProperty("version")
+    private Long version;
 
     @Override
     public String getEventType() {
-        return "CREATED";
+        return "DELETED";
     }
 
     @Override

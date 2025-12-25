@@ -8,14 +8,14 @@ import pt.psoft.shared.events.DomainEvent;
 import java.util.List;
 
 /**
- * Domain Event emitted when a Book is created
+ * Domain Event emitted when a Book is updated
  */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-@JsonTypeName("BookCreated")
-public class BookCreatedEvent extends DomainEvent {
+@JsonTypeName("BookUpdated")
+public class BookUpdatedEvent extends DomainEvent {
 
     @JsonProperty("isbn")
     private String isbn;
@@ -35,9 +35,12 @@ public class BookCreatedEvent extends DomainEvent {
     @JsonProperty("photoURI")
     private String photoURI;
 
+    @JsonProperty("version")
+    private Long version;
+
     @Override
     public String getEventType() {
-        return "CREATED";
+        return "UPDATED";
     }
 
     @Override

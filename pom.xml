@@ -16,6 +16,7 @@
 	<modules>
 		<module>shared-kernel</module>
 		<module>genre-service</module>
+		<module>book-service</module>
 		<!-- Adicionar outros serviços conforme forem criados -->
 		<!-- <module>author-service</module> -->
 		<!-- <module>book-service</module> -->
