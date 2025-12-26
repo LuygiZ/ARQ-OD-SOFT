@@ -70,21 +70,22 @@ services:
       timeout: 5s
       retries: 5
 
-  # ==================== MICROSERVICES ====================
+    # ==================== MICROSERVICES ====================
 
+# ======== GENRE ================
   genre-service:
     image: genre-service:latest
     container_name: genre-service
     restart: unless-stopped
     ports:
-      - "8081:8080"
+      - "8081:8081"
     environment:
       SPRING_PROFILES_ACTIVE: dev
-      DB_HOST: postgres        # ⬅️ Service name
+      DB_HOST: postgres
       DB_USER: postgres
       DB_PASSWORD: password
-      REDIS_HOST: redis        # ⬅️ Service name
-      RABBITMQ_HOST: rabbitmq  # ⬅️ Service name
+      REDIS_HOST: redis
+      RABBITMQ_HOST: rabbitmq
     networks:
       - lms_network
     depends_on:
@@ -96,6 +97,38 @@ services:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 40s
+
+#============== BOOKS ================
+
+  book-service:
+    image: book-service:latest
+    container_name: book-service
+    restart: unless-stopped
+    ports:
+      - "8083:8083"
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      DB_HOST: postgres
+      DB_USER: postgres
+      DB_PASSWORD: password
+      REDIS_HOST: redis
+      RABBITMQ_HOST: rabbitmq
+      SERVER_PORT: 8083
+    networks:
+      - lms_network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8083/actuator/health"]
       interval: 30s
       timeout: 5s
       retries: 3

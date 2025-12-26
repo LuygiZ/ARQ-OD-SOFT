@@ -11,11 +11,10 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableCaching
 @EnableScheduling
 @EntityScan(basePackages = {
-        "pt.psoft.book.command.model",      // Command Model entities
-        "pt.psoft.book.query.model",        // Query Model entities (Read Model)
-        "pt.psoft.shared.messaging"         // OutboxEvent from shared-kernel
+        "pt.psoft.book.model",
+        "pt.psoft.shared.messaging"
 })
-@EnableJpaRepositories(basePackages = "pt.psoft.book")
+@EnableJpaRepositories(basePackages = "pt.psoft.book.repositories")
 public class BookServiceApplication {
 
     public static void main(String[] args) {

@@ -1,3 +1,11 @@
+-- Drop existing databases (if any)
+DROP DATABASE IF EXISTS genre_db;
+DROP DATABASE IF EXISTS author_db;
+DROP DATABASE IF EXISTS book_db;
+DROP DATABASE IF EXISTS reader_db;
+DROP DATABASE IF EXISTS lending_db;
+DROP DATABASE IF EXISTS user_db;
+
 -- Create databases for each microservice (Database-per-Service pattern)
 CREATE DATABASE genre_db;
 CREATE DATABASE author_db;
