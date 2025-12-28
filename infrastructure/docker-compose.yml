@@ -70,9 +70,9 @@ services:
       timeout: 5s
       retries: 5
 
-    # ==================== MICROSERVICES ====================
+  # ==================== MICROSERVICES ====================
 
-# ======== GENRE ================
+  # ======== GENRE ================
   genre-service:
     image: genre-service:latest
     container_name: genre-service
@@ -102,8 +102,38 @@ services:
       retries: 3
       start_period: 40s
 
-#============== BOOKS ================
+  # ======== AUTHOR ================
+  author-service:
+    image: author-service:latest
+    container_name: author-service
+    restart: unless-stopped
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      DB_HOST: postgres
+      DB_USER: postgres
+      DB_PASSWORD: password
+      REDIS_HOST: redis
+      RABBITMQ_HOST: rabbitmq
+      SERVER_PORT: 8082
+    networks:
+      - lms_network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8082/actuator/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 40s
 
+  # ============== BOOKS ================
   book-service:
     image: book-service:latest
     container_name: book-service
