@@ -10,8 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import pt.psoft.author.api.dto.AuthorView;
-import pt.psoft.author.api.CreateAuthorRequest;
-import pt.psoft.author.api.UpdateAuthorRequest;
+import pt.psoft.author.api.dto.CreateAuthorRequest;
+import pt.psoft.author.api.dto.UpdateAuthorRequest;
 import pt.psoft.author.model.command.AuthorEntity;
 import pt.psoft.author.services.AuthorCommandService;
 
