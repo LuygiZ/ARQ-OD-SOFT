@@ -6,30 +6,24 @@ import lombok.*;
 import pt.psoft.shared.events.DomainEvent;
 
 /**
- * Domain Event emitted when an Author is created
+ * Domain Event emitted when an Author is deleted
  */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-@JsonTypeName("AuthorCreated")
-public class AuthorCreatedEvent extends DomainEvent {
+@JsonTypeName("AuthorDeleted")
+public class AuthorDeletedEvent extends DomainEvent {
 
     @JsonProperty("authorNumber")
     private Long authorNumber;
 
-    @JsonProperty("name")
-    private String name;
-
-    @JsonProperty("bio")
-    private String bio;
-
-    @JsonProperty("photoURI")
-    private String photoURI;
+    @JsonProperty("version")
+    private Long version;
 
     @Override
     public String getEventType() {
-        return "CREATED";
+        return "DELETED";
     }
 
     @Override
