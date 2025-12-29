@@ -8,10 +8,12 @@ volumes:
   postgres_data:
   redis_data:
   rabbitmq_data:
+  mongodb_data:
 
 services:
   # ==================== INFRASTRUCTURE ====================
 
+  # ===================== POSTGRES =========================
   postgres:
     image: postgres:15-alpine
     container_name: postgres_lms
@@ -32,7 +34,28 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+  #==================== MONGODB ======================
 
+  mongodb:
+    image: mongo:7-jammy
+    container_name: mongodb_lms
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin123
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - lms_network
+    healthcheck:
+      test: [ "CMD", "mongosh", "--eval", "db.adminCommand('ping')" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  #=================== REDIS ========================
   redis:
     image: redis:7-alpine
     container_name: redis_lms
@@ -50,6 +73,7 @@ services:
       timeout: 5s
       retries: 5
 
+  #=================== RABBITMQ ===========================
   rabbitmq:
     image: rabbitmq:3-management-alpine
     container_name: rabbitmq_lms
@@ -70,9 +94,9 @@ services:
       timeout: 5s
       retries: 5
 
-    # ==================== MICROSERVICES ====================
+  # ==================== MICROSERVICES ====================
 
-# ======== GENRE ================
+  # ======== GENRE ================
   genre-service:
     image: genre-service:latest
     container_name: genre-service
@@ -102,8 +126,50 @@ services:
       retries: 3
       start_period: 40s
 
-#============== BOOKS ================
+  # ======== AUTHOR (Polyglot Persistence: PostgreSQL + MongoDB) ========
 
+  author-service:
+    image: author-service:latest
+    container_name: author-service
+    restart: unless-stopped
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      # PostgreSQL - Command Model (Writes)
+      DB_HOST: postgres
+      DB_USER: postgres
+      DB_PASSWORD: password
+      # MongoDB - Read Model (Reads)
+      MONGODB_HOST: mongodb
+      MONGODB_PORT: 27017
+      MONGODB_DATABASE: author_read_db
+      MONGODB_USERNAME: admin
+      MONGODB_PASSWORD: admin123
+      # Redis Cache
+      REDIS_HOST: redis
+      # RabbitMQ Events
+      RABBITMQ_HOST: rabbitmq
+      SERVER_PORT: 8082
+    networks:
+      - lms_network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8082/actuator/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 40s
+
+  # ============== BOOKS ================
   book-service:
     image: book-service:latest
     container_name: book-service

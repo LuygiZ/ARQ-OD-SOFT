@@ -6,14 +6,14 @@ import lombok.*;
 import pt.psoft.shared.events.DomainEvent;
 
 /**
- * Domain Event emitted when an Author is created
+ * Domain Event emitted when an Author is updated
  */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-@JsonTypeName("AuthorCreated")
-public class AuthorCreatedEvent extends DomainEvent {
+@JsonTypeName("AuthorUpdated")
+public class AuthorUpdatedEvent extends DomainEvent {
 
     @JsonProperty("authorNumber")
     private Long authorNumber;
@@ -27,9 +27,12 @@ public class AuthorCreatedEvent extends DomainEvent {
     @JsonProperty("photoURI")
     private String photoURI;
 
+    @JsonProperty("version")
+    private Long version;
+
     @Override
     public String getEventType() {
-        return "CREATED";
+        return "UPDATED";
     }
 
     @Override

@@ -9,7 +9,7 @@ Transformação arquitetural do LMS seguindo metodologia ADD para alcançar:
 - ✅ **Database-per-Service** com polyglot persistence
 - ✅ **Event-Driven Architecture** para comunicação assíncrona
 - ✅ **Consistência eventual** com Saga Pattern e Outbox Pattern
-- ✅ **CQRS** para otimização de leitura/escrita (Book Service)
+- ✅ **CQRS** para otimização de leitura/escrita (Author Service, Book Service)
 - ✅ **Observabilidade** com health checks e métricas
 
 ---
@@ -21,8 +21,8 @@ Transformação arquitetural do LMS seguindo metodologia ADD para alcançar:
 | Serviço | Status | Porta | Descrição | Database | Padrões |
 |---------|--------|-------|-----------|----------|---------|
 | **Genre Service** | ✅ Completo | 8081 | Gestão de Géneros Literários | PostgreSQL (genre_db) | Outbox, Domain Events, Caching |
-| **Author Service** | 🔄 Planeado | 8082 | Gestão de Autores | PostgreSQL (author_db) | Outbox, Domain Events |
-| **Book Service** | 🔄 Planeado | 8083 | Gestão de Livros | PostgreSQL (book_db + replicas) | CQRS, Event Sourcing |
+| **Author Service** | ✅ Completo | 8082 | Gestão de Autores | PostgreSQL (author_db) + MongoDB (read model) | CQRS, Polyglot Persistence, Outbox |
+| **Book Service** | ✅ Completo | 8083 | Gestão de Livros | PostgreSQL (book_db + replicas) | CQRS, Outbox, Domain Events, Caching |
 | **Reader Service** | 🔄 Planeado | 8085 | Gestão de Leitores | PostgreSQL (reader_db) | Outbox, Domain Events |
 | **Lending Service** | 🔄 Planeado | 8086 | Gestão de Empréstimos | PostgreSQL (lending_db) | Saga Pattern, Outbox |
 | **User Service** | 🔄 Planeado | 8087 | Autenticação & Autorização | PostgreSQL (user_db) | OAuth2, JWT |
@@ -33,6 +33,7 @@ Transformação arquitetural do LMS seguindo metodologia ADD para alcançar:
 | Componente | Versão | Porta(s) | Descrição |
 |------------|--------|----------|-----------|
 | **PostgreSQL** | 15-alpine | 5432 | Database-per-Service + Read Replicas |
+| **MongoDB** | 7-jammy | 27017 | NoSQL Database para Read Models (Polyglot Persistence) |
 | **Redis** | 7-alpine | 6379 | L2 Cache + Distributed Lock + Saga State |
 | **RabbitMQ** | 3-management | 5672, 15672 | Message Broker (Events & Commands) |
 | **Shared Kernel** | 1.0.0 | - | Domain Events, DTOs, Exceptions, Base Classes |
@@ -100,35 +101,11 @@ mvn -version
 ### 1️⃣ Build do Shared Kernel
 
 ```bash
-cd shared-kernel
 mvn clean install
 ```
 
-**Output esperado:**
-```
-[INFO] Installing /path/to/lms-shared-kernel-1.0.0.jar to ~/.m2/repository/pt/psoft/lms-shared-kernel/1.0.0/
-[INFO] BUILD SUCCESS
-```
+### Isto irá compilar todos os serviços presentes no pom.xml do projeto pai
 
----
-
-### 2️⃣ Build do Genre Service
-
-```bash
-cd ../genre-service
-mvn clean package
-
-# Build da Docker image
-docker build -t genre-service:latest .
-```
-
-**Output esperado:**
-```
-[INFO] Building jar: /path/to/genre-service-1.0.0.jar
-[INFO] BUILD SUCCESS
-
-Successfully tagged genre-service:latest
-```
 
 ---
 
@@ -143,7 +120,7 @@ docker-compose up -d
 # Ver logs em tempo real
 docker-compose logs -f
 
-# Ver apenas logs do genre-service
+# Ex: Ver apenas logs do genre-service
 docker-compose logs -f genre-service
 ```
 
@@ -160,18 +137,6 @@ docker-compose logs -f genre-service
 ```bash
 # Status de todos os containers
 docker-compose ps
-
-# Saúde dos serviços
-docker-compose ps | grep healthy
-```
-
-**Output esperado:**
-```
-NAME              STATUS          PORTS
-postgres_lms      Up (healthy)    0.0.0.0:5432->5432/tcp
-redis_lms         Up (healthy)    0.0.0.0:6379->6379/tcp
-rabbitmq_lms      Up (healthy)    0.0.0.0:5672->5672/tcp, 0.0.0.0:15672->15672/tcp
-genre-service     Up (healthy)    0.0.0.0:8081->8080/tcp
 ```
 
 ---
@@ -202,83 +167,11 @@ Invoke-WebRequest -Uri http://localhost:8081/actuator/health -UseBasicParsing
 }
 ```
 
----
-
-### CRUD Operations
-
-#### 1. Criar Géneros (POST)
-
-```bash
-# PowerShell
-curl.exe -X POST http://localhost:8081/api/genres `
-  -H "Content-Type: application/json" `
-  -d "{\"name\":\"Ficção Científica\"}"
-
-curl.exe -X POST http://localhost:8081/api/genres `
-  -H "Content-Type: application/json" `
-  -d "{\"name\":\"Romance\"}"
-
-curl.exe -X POST http://localhost:8081/api/genres `
-  -H "Content-Type: application/json" `
-  -d "{\"name\":\"Thriller\"}"
-```
-
-**Response esperada:**
-```json
-{
-  "id": 1,
-  "name": "Ficção Científica"
-}
-```
-
-#### 2. Listar Todos os Géneros (GET)
-
-```bash
-curl.exe http://localhost:8081/api/genres
-```
-
-**Response esperada:**
-```json
-[
-  {"id": 1, "name": "Ficção Científica"},
-  {"id": 2, "name": "Romance"},
-  {"id": 3, "name": "Thriller"}
-]
-```
-
-#### 3. Buscar por ID (GET)
-
-```bash
-curl.exe http://localhost:8081/api/genres/1
-```
-
-#### 4. Buscar por Nome (GET)
-
-```bash
-curl.exe "http://localhost:8081/api/genres/search?name=Romance"
-```
-
-#### 5. Atualizar Género (PUT)
-
-```bash
-curl.exe -X PUT http://localhost:8081/api/genres/1 `
-  -H "Content-Type: application/json" `
-  -d "{\"name\":\"Sci-Fi\"}"
-```
-
-#### 6. Eliminar Género (DELETE)
-
-```bash
-curl.exe -X DELETE http://localhost:8081/api/genres/1
-```
-
----
-
 ### Verificar Outbox Pattern
 
 **Ver eventos na base de dados:**
 ```bash
-docker exec -it postgres_lms psql -U postgres -d genre_db -c "SELECT id, event_type, status, aggregate_id, created_at FROM outbox_events ORDER BY created_at DESC LIMIT 10;"
+docker exec -it postgres_lms psql -U postgres -d [bd que se quer conectar] -c "SELECT id, event_type, status, aggregate_id, created_at FROM outbox_events ORDER BY created_at DESC LIMIT 10;"
 ```
 
 **Output esperado:**
@@ -336,15 +229,6 @@ docker exec -it redis_lms redis-cli FLUSHALL
 
 ## 🌐 Acessos aos Serviços
 
-### APIs REST
-
-| Endpoint | URL | Autenticação |
-|----------|-----|--------------|
-| Genre Service API | http://localhost:8081/api/genres | Nenhuma (dev) |
-| Swagger UI | http://localhost:8081/swagger-ui.html | Nenhuma |
-| Health Check | http://localhost:8081/actuator/health | Nenhuma |
-| Metrics | http://localhost:8081/actuator/metrics | Nenhuma |
-
 ### Infraestrutura
 
 | Interface | URL | Credenciais |
@@ -386,37 +270,6 @@ docker-compose down
 docker-compose build --no-cache
 docker-compose up -d
 ```
-
----
-
-### Erro: "Not a managed type: OutboxEvent"
-
-**Solução:** Adicionar `@EntityScan` no `@SpringBootApplication`:
-
-```java
-@EntityScan(basePackages = {
-    "pt.psoft.genre.model",
-    "pt.psoft.shared.messaging"
-})
-```
-
----
-
-### Erro: "UnknownHostException: rabbitmq/redis"
-
-**Causa:** Containers não estão na mesma Docker network.
-
-**Solução:**
-```bash
-# Verificar network
-docker network inspect lms_network
-
-# Se necessário, recriar
-docker-compose down
-docker network rm lms_network
-docker-compose up -d
-```
-
 ---
 
 ### Health Check falha (503)
@@ -575,6 +428,40 @@ docker exec -it redis_lms redis-cli INFO memory
 
 ---
 
+---
+
+### MongoDB
+
+```bash
+# Conectar ao MongoDB
+docker exec -it mongodb_lms mongosh -u admin -p admin123
+
+# Ver databases
+docker exec -it mongodb_lms mongosh -u admin -p admin123 --eval "show dbs"
+
+# Usar database author_read_db
+docker exec -it mongodb_lms mongosh -u admin -p admin123 --eval "use author_read_db"
+
+# Ver collections
+docker exec -it mongodb_lms mongosh -u admin -p admin123 --eval "use author_read_db; show collections"
+
+# Ver todos os autores
+docker exec -it mongodb_lms mongosh -u admin -p admin123 --eval "use author_read_db; db.authors.find().pretty()"
+
+# Buscar autor por authorNumber
+docker exec -it mongodb_lms mongosh -u admin -p admin123 --eval "use author_read_db; db.authors.find({authorNumber: 1}).pretty()"
+
+# Buscar autores por nome (regex)
+docker exec -it mongodb_lms mongosh -u admin -p admin123 --eval "use author_read_db; db.authors.find({name: /Martin/i}).pretty()"
+
+# Contar autores
+docker exec -it mongodb_lms mongosh -u admin -p admin123 --eval "use author_read_db; db.authors.countDocuments()"
+
+# Ver stats da collection
+docker exec -it mongodb_lms mongosh -u admin -p admin123 --eval "use author_read_db; db.authors.stats()"
+```
+
+
 ### RabbitMQ
 
 ```bash
@@ -600,25 +487,14 @@ docker exec -it rabbitmq_lms rabbitmqctl purge_queue genre-service.events
 
 ### 🔄 Em Desenvolvimento
 
-1. **Author Service** - Similar ao Genre Service
-    - Outbox Pattern
-    - Domain Events
-    - Redis caching
-
-2. **Book Service** - Com CQRS
-    - Command Model (Write)
-    - Query Model (Read Replicas)
-    - Event Sourcing
-
 3. **Saga Orchestrator** - Para FR-1
-    - State machine com Redis
-    - Compensating transactions
-    - Coordenação de Create Book + Author + Genre
+   - State machine com Redis
+   - Compensating transactions
+   - Coordenação de Create Book + Author + Genre
 
 ### 📋 Backlog
 
-- [ ] API Gateway (Traefik/Kong)
-- [ ] Monitoring (Prometheus + Grafana)
+- [ ] API Gateway (Traefik)
 - [ ] Distributed Tracing (Jaeger/Zipkin)
 - [ ] Circuit Breaker (Resilience4j)
 - [ ] Rate Limiting
@@ -634,10 +510,10 @@ docker exec -it rabbitmq_lms rabbitmqctl purge_queue genre-service.events
 
 ### Documentos de Arquitetura
 
-- **ADD (Attribute-Driven Design)**: Ver `Docs/ADD.pdf`
-- **Domain Model**: Ver `Docs/DomainModel.md`
-- **Event Catalog**: Ver `Docs/EventCatalog.md`
-- **API Contracts**: Ver `Docs/APIContracts.md`
+- **ADD (Attribute-Driven Design)**: Ver `Docs/ARQSoft/ADD.pdf`
+- **Domain Model**: Ver `Docs/ARQSoft/DomainModel.md`
+- **Event Catalog**: Ver `Docs/ARQSoft/EventCatalog.md`
+- **API Contracts**: Ver `Docs/ARQSoft/APIContracts.md`
 
 ### Recursos Externos
 
@@ -654,15 +530,9 @@ docker exec -it rabbitmq_lms rabbitmqctl purge_queue genre-service.events
 
 ## 👥 Equipa
 
-**Projeto Académico - ISEP 2024/2025**
+**Projeto Académico - ISEP 2025/2026**
 - Curso: Mestrado em Engenharia Informática
 - UCs: ARQSOFT (Arquitetura de Software) + ODSOFT (Organização e Desenvolvimento de Software)
-
----
-
-## 📝 Licença
-
-Este projeto é um trabalho académico desenvolvido no âmbito do Mestrado em Engenharia Informática do ISEP.
 
 ---
 
@@ -671,8 +541,8 @@ Este projeto é um trabalho académico desenvolvido no âmbito do Mestrado em En
 ### ✅ FR-1: Create Book with Author and Genre (via Saga)
 **Status:** Parcialmente implementado
 - ✅ Genre Service operacional
-- 🔄 Author Service - em desenvolvimento
-- 🔄 Book Service - em desenvolvimento
+- ✅ Author Service - operacional (CQRS + Polyglot Persistence)
+- ✅ Book Service - operacional
 - 🔄 Saga Orchestrator - em desenvolvimento
 
 **Fluxo esperado:**
@@ -684,15 +554,9 @@ Este projeto é um trabalho académico desenvolvido no âmbito do Mestrado em En
 6. Se falha → Compensating transactions
 7. Retorna resultado agregado
 
----
 
-## 🔐 Segurança (Planeado)
-
-- **Autenticação**: OAuth2 + JWT
-- **Autorização**: Role-based (Admin, Librarian, Reader)
-- **API Gateway**: Rate limiting, CORS, SSL/TLS
-- **Secrets Management**: Docker secrets / Vault
-- **Audit Log**: Event Sourcing
-
----
-
+#### ✅ Polyglot Persistence
+- Author Service: PostgreSQL (Command Model) + MongoDB (Read Model)
+- PostgreSQL para writes: Transacional, ACID, relacional
+- MongoDB para reads: Rápido, flexível, otimizado para queries
+- Sincronização via Domain Events (Eventually Consistent)
