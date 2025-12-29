@@ -10,7 +10,7 @@ import pt.psoft.author.api.dto.CreateAuthorRequest;
 import pt.psoft.author.api.dto.UpdateAuthorRequest;
 import pt.psoft.author.messaging.AuthorEventPublisher;
 import pt.psoft.author.model.command.AuthorEntity;
-import pt.psoft.author.repositories.AuthorRepository;
+import pt.psoft.author.repositories.jpa.AuthorRepository;
 import pt.psoft.shared.events.author.AuthorCreatedEvent;
 import pt.psoft.shared.events.author.AuthorDeletedEvent;
 import pt.psoft.shared.events.author.AuthorUpdatedEvent;

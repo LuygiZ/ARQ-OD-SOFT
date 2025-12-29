@@ -1,4 +1,4 @@
-package pt.psoft.author.model.command;
+package pt.psoft.author.model.command.valueobjets;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;

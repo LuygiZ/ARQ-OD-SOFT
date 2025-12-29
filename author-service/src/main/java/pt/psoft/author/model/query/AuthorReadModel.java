@@ -1,63 +1,96 @@
 package pt.psoft.author.model.query;
 
-import jakarta.persistence.*;
-import lombok.Getter;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
+
 import java.time.LocalDateTime;
 
 /**
- * Author Read Model (Query Side - CQRS)
- * Optimized for queries - denormalized and cached
+ * Read Model for Author - Stored in MongoDB
+ * This is the Query side of CQRS implementing Polyglot Persistence
+ *
+ * PostgreSQL → Command Model (writes/transactions)
+ * MongoDB → Read Model (reads/queries)
  */
-@Entity
-@Table(name = "authors_read_model", indexes = {
-        @Index(name = "idx_author_read_number", columnList = "author_number"),
-        @Index(name = "idx_author_read_name", columnList = "name")
-})
-@Getter
-@Setter
+@Document(collection = "authors")
+@Data
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class AuthorReadModel {
 
     @Id
-    @Column(name = "author_number")
-    private Long authorNumber;
+    private String id; // MongoDB ObjectId
 
-    @Column(name = "name", nullable = false, length = 150)
+    @Field("author_number")
+    @Indexed(unique = true)
+    private Long authorNumber; // Business key from PostgreSQL
+
+    @Field("name")
+    @Indexed
     private String name;
 
-    @Column(name = "bio", nullable = false, length = 4096)
+    @Field("bio")
     private String bio;
 
-    @Column(name = "photo_uri", length = 512)
+    @Field("photo_uri")
     private String photoURI;
 
-    @Column(name = "version", nullable = false)
+    @Field("version")
     private Long version;
 
-    @Column(name = "created_at", nullable = false)
+    @Field("created_at")
     private LocalDateTime createdAt;
 
-    @Column(name = "updated_at", nullable = false)
+    @Field("updated_at")
     private LocalDateTime updatedAt;
 
-    public AuthorReadModel(Long authorNumber, String name, String bio, String photoURI, Long version) {
+    /**
+     * Update from Event
+     */
+    public void updateFromEvent(Long authorNumber, String name, String bio,
+                                String photoURI, Long version,
+                                LocalDateTime updatedAt) {
         this.authorNumber = authorNumber;
         this.name = name;
         this.bio = bio;
         this.photoURI = photoURI;
         this.version = version;
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
+        this.updatedAt = updatedAt;
     }
 
-    public void updateFromEvent(String name, String bio, String photoURI, Long version) {
-        // Always update ALL fields (event represents complete state)
-        this.name = name;
-        this.bio = bio;
-        this.photoURI = photoURI;
-        this.version = version;
-        this.updatedAt = LocalDateTime.now();
+    // Getters for compatibility with existing code
+    public Long getAuthorNumber() {
+        return authorNumber;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getBio() {
+        return bio;
+    }
+
+    public String getPhotoURI() {
+        return photoURI;
+    }
+
+    public Long getVersion() {
+        return version;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
     }
 }

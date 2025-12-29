@@ -2,6 +2,9 @@ package pt.psoft.author.model.command;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import pt.psoft.author.model.command.valueobjets.AuthorName;
+import pt.psoft.author.model.command.valueobjets.Bio;
+
 import java.time.LocalDateTime;
 
 /**

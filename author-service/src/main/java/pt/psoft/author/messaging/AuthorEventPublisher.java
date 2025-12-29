@@ -3,7 +3,7 @@ package pt.psoft.author.messaging;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import pt.psoft.author.repositories.OutboxRepository;
+import pt.psoft.author.repositories.jpa.OutboxRepository;
 import pt.psoft.shared.events.author.AuthorCreatedEvent;
 import pt.psoft.shared.events.author.AuthorDeletedEvent;
 import pt.psoft.shared.events.author.AuthorUpdatedEvent;

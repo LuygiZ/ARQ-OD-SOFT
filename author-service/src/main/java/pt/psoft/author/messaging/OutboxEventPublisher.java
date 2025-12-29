@@ -6,7 +6,7 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import pt.psoft.author.repositories.OutboxRepository;
+import pt.psoft.author.repositories.jpa.OutboxRepository;
 import pt.psoft.shared.messaging.OutboxEvent;
 import pt.psoft.shared.messaging.OutboxStatus;
 

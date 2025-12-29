@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pt.psoft.author.api.dto.AuthorView;
 import pt.psoft.author.model.query.AuthorReadModel;
-import pt.psoft.author.repositories.AuthorQueryRepository;
+import pt.psoft.author.repositories.mongo.AuthorQueryRepository;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -51,7 +51,7 @@ public class AuthorQueryServiceImpl implements AuthorQueryService {
     @Cacheable(value = "authors-all", unless = "#result == null || #result.isEmpty()")
     public List<AuthorView> findAll() {
         log.debug("Finding all authors");
-        return authorQueryRepository.findAllOrderByName()
+        return authorQueryRepository.findAllByOrderByNameAsc()
                 .stream()
                 .map(this::toAuthorView)
                 .collect(Collectors.toList());
