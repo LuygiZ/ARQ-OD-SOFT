@@ -9,12 +9,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import pt.psoft.book.api.BookView;
-import pt.psoft.book.api.CreateBookRequest;
 import pt.psoft.book.api.UpdateBookRequest;
 import pt.psoft.book.model.command.BookEntity;
 import pt.psoft.book.services.BookCommandService;
+import pt.psoft.shared.dto.book.CreateBookRequest;
+import pt.psoft.shared.utils.IsbnGenerator;
 
 import java.util.Collections;
+
 
 @Tag(name = "Books - Commands", description = "Endpoints for book write operations")
 @RestController
@@ -23,6 +25,26 @@ import java.util.Collections;
 public class BookCommandController {
 
     private final BookCommandService bookCommandService;
+
+    @Operation(summary = "Create a new book (auto-generate ISBN)")
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity<BookView> createBookAutoISBN(
+            @Valid @RequestBody CreateBookRequest request) {
+
+        String isbn = IsbnGenerator.generateValidIsbn();
+
+        BookEntity book = bookCommandService.createBook(isbn, request);
+
+        var newBookUri = ServletUriComponentsBuilder.fromCurrentRequestUri()
+                .path("/{isbn}")
+                .buildAndExpand(book.getIsbnValue())
+                .toUri();
+
+        return ResponseEntity.created(newBookUri)
+                .eTag(String.valueOf(book.getVersion()))
+                .body(mapToBookView(book));
+    }
 
     @Operation(summary = "Create a new book")
     @PutMapping("/{isbn}")

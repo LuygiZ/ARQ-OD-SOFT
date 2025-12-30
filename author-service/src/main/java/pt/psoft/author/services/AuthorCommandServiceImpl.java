@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.hibernate.StaleObjectStateException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import pt.psoft.author.api.dto.CreateAuthorRequest;
+import pt.psoft.shared.dto.author.CreateAuthorRequest;
 import pt.psoft.author.api.dto.UpdateAuthorRequest;
 import pt.psoft.author.messaging.AuthorEventPublisher;
 import pt.psoft.author.model.command.AuthorEntity;
@@ -93,20 +93,27 @@ public class AuthorCommandServiceImpl implements AuthorCommandService {
     @Override
     @Transactional
     public void deleteAuthor(Long authorNumber, Long expectedVersion) {
-        log.info("Deleting author with number: {}", authorNumber);
+        log.info("Deleting author with number: {}, expectedVersion: {}", authorNumber, expectedVersion);
 
         AuthorEntity author = authorRepository.findByAuthorNumber(authorNumber)
                 .orElseThrow(() -> new NotFoundException("Author with number " + authorNumber + " not found"));
 
-        if (!author.getVersion().equals(expectedVersion)) {
+        // ✅ SAGA COMPENSATION FIX: Only check version if provided
+        if (expectedVersion != null && !author.getVersion().equals(expectedVersion)) {
+            log.warn("Version mismatch for author {}: expected={}, actual={}",
+                    authorNumber, expectedVersion, author.getVersion());
             throw new StaleObjectStateException("Author", authorNumber);
         }
 
         authorRepository.delete(author);
-        log.info("Author deleted with number: {}", authorNumber);
+        log.info("Author deleted with number: {} (version check: {})",
+                authorNumber, expectedVersion != null ? "enforced" : "skipped");
 
         // Publish domain event
-        AuthorDeletedEvent event = new AuthorDeletedEvent(authorNumber, expectedVersion);
+        AuthorDeletedEvent event = new AuthorDeletedEvent(
+                authorNumber,
+                expectedVersion != null ? expectedVersion : author.getVersion()
+        );
         authorEventPublisher.publishAuthorDeleted(event);
     }
 

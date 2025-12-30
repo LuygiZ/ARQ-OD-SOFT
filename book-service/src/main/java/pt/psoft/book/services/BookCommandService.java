@@ -1,6 +1,6 @@
 package pt.psoft.book.services;
 
-import pt.psoft.book.api.CreateBookRequest;
+import pt.psoft.shared.dto.book.CreateBookRequest;
 import pt.psoft.book.api.UpdateBookRequest;
 import pt.psoft.book.model.command.BookEntity;
 

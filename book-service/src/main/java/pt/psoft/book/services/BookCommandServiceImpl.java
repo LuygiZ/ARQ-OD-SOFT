@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.hibernate.StaleObjectStateException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import pt.psoft.book.api.CreateBookRequest;
+import pt.psoft.shared.dto.book.CreateBookRequest;
 import pt.psoft.book.api.UpdateBookRequest;
 import pt.psoft.book.messaging.BookEventPublisher;
 import pt.psoft.book.model.command.BookEntity;

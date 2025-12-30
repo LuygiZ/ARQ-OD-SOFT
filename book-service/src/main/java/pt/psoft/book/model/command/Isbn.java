@@ -26,7 +26,7 @@ public class Isbn implements Serializable {
 
     public Isbn(String isbn) {
         if (!isValidIsbn(isbn)) {
-            throw new IllegalArgumentException("Invalid ISBN format or checksum");
+            throw new IllegalArgumentException("Invalid ISBN format or checksum : " + isbn);
         }
         this.isbn = isbn;
     }
