@@ -34,7 +34,11 @@ import java.util.UUID;
         // Author Events
         @JsonSubTypes.Type(value = AuthorCreatedEvent.class, name = "AuthorCreated"),
         @JsonSubTypes.Type(value = AuthorUpdatedEvent.class, name = "AuthorUpdated"),
-        @JsonSubTypes.Type(value = AuthorDeletedEvent.class, name = "AuthorDeleted")
+        @JsonSubTypes.Type(value = AuthorDeletedEvent.class, name = "AuthorDeleted"),
+        // Reader Events
+        @JsonSubTypes.Type(value = pt.psoft.shared.events.reader.ReaderCreatedEvent.class, name = "ReaderCreated"),
+        // User Events
+        @JsonSubTypes.Type(value = pt.psoft.shared.events.user.UserCreatedEvent.class, name = "UserCreated")
 })
 public abstract class DomainEvent implements Serializable {
 
