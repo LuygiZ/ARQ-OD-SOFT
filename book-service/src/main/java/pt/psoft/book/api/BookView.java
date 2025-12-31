@@ -8,6 +8,10 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 
+/**
+ * Changed authors from List<String> (names) to List<Long> (IDs)
+ * for proper Feign Client mapping to BookDTO.authorIds
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -27,8 +31,12 @@ public class BookView {
     @Schema(description = "Genre name", example = "Programming")
     private String genre;
 
-    @Schema(description = "Author names (denormalized)")
-    private List<String> authors;
+    /**
+     * Changed from List<String> (names) to List<Long> (IDs)
+     * Allows Feign Client to map directly to BookDTO.authorIds
+     */
+    @Schema(description = "Author IDs", example = "[1, 2, 3]")
+    private List<Long> authors;
 
     @Schema(description = "Photo URI")
     private String photoURI;

@@ -13,7 +13,7 @@ import java.util.List;
 
 /**
  * Response DTO for Book creation saga
- * Returns aggregated information about Genre, Author, and Book
+ * Now supports multiple authors
  */
 @Data
 @NoArgsConstructor
@@ -39,8 +39,11 @@ public class CreateBookSagaResponse {
     @Schema(description = "Created Genre")
     private GenreResponse genre;
 
-    @Schema(description = "Created Author")
-    private AuthorResponse author;
+    /**
+     * ✅ ENHANCED: Changed from single author to list of authors
+     */
+    @Schema(description = "Created Authors (newly created in this saga)")
+    private List<AuthorResponse> authors;
 
     @Schema(description = "Created Book")
     private BookResponse book;
@@ -77,6 +80,10 @@ public class CreateBookSagaResponse {
         private String title;
         private String description;
         private String genre;
-        private List<Long> authors;  // Author numbers
+
+        /**
+         * ✅ ALL author IDs (both newly created and existing)
+         */
+        private List<Long> authors;
     }
 }

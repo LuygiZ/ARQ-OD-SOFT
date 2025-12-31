@@ -9,7 +9,12 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- * DTO for Book inter-service communication
+ *
+ *
+ * No longer needs authorNames field since BookView.authors
+ * now returns List<Long> (IDs) instead of List<String> (names)
+ *
+ * Feign Client can now map BookView.authors → BookDTO.authorIds directly
  */
 @Data
 @NoArgsConstructor
@@ -26,10 +31,13 @@ public class BookDTO implements Serializable {
     private String description;
 
     @JsonProperty("genre")
-    private String genre;  // Genre name
+    private String genre;
 
-    @JsonProperty("authorIds")
-    private List<Long> authorIds;  // Author numbers
+    /**
+     * Author IDs - mapped from BookView.authors (List<Long>)
+     */
+    @JsonProperty("authors")  // ✅ Maps to BookView.authors
+    private List<Long> authorIds;
 
     @JsonProperty("photoURI")
     private String photoURI;

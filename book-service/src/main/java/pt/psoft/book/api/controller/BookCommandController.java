@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,13 +16,18 @@ import pt.psoft.book.services.BookCommandService;
 import pt.psoft.shared.dto.book.CreateBookRequest;
 import pt.psoft.shared.utils.IsbnGenerator;
 
-import java.util.Collections;
+import java.util.List;
 
-
+/**
+ * ✅ CORRECTED: Book Command Controller
+ * BookView.authors now returns author IDs (List<Long>) instead of names
+ * This allows proper Feign Client mapping to BookDTO.authorIds
+ */
 @Tag(name = "Books - Commands", description = "Endpoints for book write operations")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/books")
+@Slf4j
 public class BookCommandController {
 
     private final BookCommandService bookCommandService;
@@ -32,8 +38,10 @@ public class BookCommandController {
     public ResponseEntity<BookView> createBookAutoISBN(
             @Valid @RequestBody CreateBookRequest request) {
 
-        String isbn = IsbnGenerator.generateValidIsbn();
+        log.info("Creating book with authorIds={}, authorNames={}",
+                request.getAuthorIds(), request.getAuthorNames());
 
+        String isbn = IsbnGenerator.generateValidIsbn();
         BookEntity book = bookCommandService.createBook(isbn, request);
 
         var newBookUri = ServletUriComponentsBuilder.fromCurrentRequestUri()
@@ -41,9 +49,13 @@ public class BookCommandController {
                 .buildAndExpand(book.getIsbnValue())
                 .toUri();
 
+        BookView view = mapToBookView(book);
+
+        log.info("Returning BookView: isbn={}, authors={}", view.getIsbn(), view.getAuthors());
+
         return ResponseEntity.created(newBookUri)
                 .eTag(String.valueOf(book.getVersion()))
-                .body(mapToBookView(book));
+                .body(view);
     }
 
     @Operation(summary = "Create a new book")
@@ -101,13 +113,21 @@ public class BookCommandController {
                 .body(mapToBookView(book));
     }
 
+    /**
+     * ✅ CORRECTED: Map BookEntity to BookView
+     * BookView.authors now contains author IDs (List<Long>) instead of names
+     * This allows Feign Client to map correctly to BookDTO.authorIds
+     */
     private BookView mapToBookView(BookEntity book) {
         BookView view = new BookView();
         view.setIsbn(book.getIsbnValue());
         view.setTitle(book.getTitleValue());
         view.setDescription(book.getDescriptionValue());
         view.setGenre(book.getGenreName());
-        view.setAuthors(Collections.emptyList());
+
+        // ✅ CORRECTED: Return author IDs directly (not names)
+        view.setAuthors(book.getAuthorIds() != null ? book.getAuthorIds() : List.of());
+
         view.setPhotoURI(book.getPhotoURI());
         view.setVersion(book.getVersion());
         return view;

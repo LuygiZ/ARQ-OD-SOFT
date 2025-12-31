@@ -1,6 +1,7 @@
 package pt.psoft.saga.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,14 +22,16 @@ import pt.psoft.shared.dto.book.CreateBookRequest;
 import pt.psoft.shared.dto.genre.CreateGenreRequest;
 import pt.psoft.shared.dto.genre.GenreDTO;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
- * Saga Orchestrator - Coordinates distributed transactions
- *
- * Orchestrates the creation of Book + Author + Genre across 3 microservices
- * Implements compensation logic for rollback on failures
- * Uses shared-kernel DTOs for service communication
+ *  Saga Orchestrator
+ * Supports:
+ * - Multiple NEW authors creation
+ * - Using EXISTING author IDs
+ * - Combination of both (new + existing)
  */
 @Service
 @RequiredArgsConstructor
@@ -41,27 +44,19 @@ public class SagaOrchestrator {
     private final BookServiceClient bookServiceClient;
     private final ObjectMapper objectMapper;
 
-    /**
-     * Execute Saga for Book creation
-     */
     public CreateBookSagaResponse createBook(CreateBookSagaRequest request) {
         log.info("🎯 Starting Saga for Book creation: {}", request.getBook().getTitle());
 
-        // Create and save saga instance
+        validateRequest(request);
+
         SagaInstance saga = createSagaInstance(request);
         saga = sagaRepository.save(saga);
 
         try {
-            // STEP 1: Create Genre
             saga = executeGenreCreation(saga, request.getGenre());
+            saga = executeAuthorsCreation(saga, request.getNewAuthors());
+            saga = executeBookCreation(saga, request.getBook(), request.getExistingAuthorIds());
 
-            // STEP 2: Create Author
-            saga = executeAuthorCreation(saga, request.getAuthor());
-
-            // STEP 3: Create Book
-            saga = executeBookCreation(saga, request.getBook(), saga.getGenreId());
-
-            // Complete saga
             saga.complete();
             saga = sagaRepository.save(saga);
 
@@ -72,20 +67,22 @@ public class SagaOrchestrator {
             log.error("❌ Saga failed: {}. Starting compensation...", saga.getSagaId(), e);
             saga.fail(e.getMessage());
             saga = sagaRepository.save(saga);
-
-            // Execute compensation
             compensate(saga);
-
             throw new RuntimeException("Saga failed: " + e.getMessage(), e);
         }
     }
 
-    /**
-     * STEP 1: Create Genre
-     */
+    private void validateRequest(CreateBookSagaRequest request) {
+        boolean hasNewAuthors = request.getNewAuthors() != null && !request.getNewAuthors().isEmpty();
+        boolean hasExistingAuthors = request.getExistingAuthorIds() != null && !request.getExistingAuthorIds().isEmpty();
+
+        if (!hasNewAuthors && !hasExistingAuthors) {
+            throw new IllegalArgumentException("Must provide either newAuthors or existingAuthorIds (or both)");
+        }
+    }
+
     private SagaInstance executeGenreCreation(SagaInstance saga, CreateBookSagaRequest.GenreData genreData) {
         log.info("📝 [STEP 1] Creating Genre: {}", genreData.getName());
-
         saga.setState(SagaState.CREATING_GENRE);
         saga = sagaRepository.save(saga);
 
@@ -112,70 +109,138 @@ public class SagaOrchestrator {
     }
 
     /**
-     * STEP 2: Create Author
+     * ✅ NEW: Create MULTIPLE authors if provided
      */
-    private SagaInstance executeAuthorCreation(SagaInstance saga, CreateBookSagaRequest.AuthorData authorData) {
-        log.info("📝 [STEP 2] Creating Author: {}", authorData.getName());
+    private SagaInstance executeAuthorsCreation(SagaInstance saga, List<CreateBookSagaRequest.AuthorData> newAuthors) {
+        if (newAuthors == null || newAuthors.isEmpty()) {
+            log.info("📝 [STEP 2] No new authors to create - skipping");
+            return saga;
+        }
 
+        log.info("📝 [STEP 2] Creating {} new author(s)", newAuthors.size());
         saga.setState(SagaState.CREATING_AUTHOR);
         saga = sagaRepository.save(saga);
 
+        List<Long> createdAuthorNumbers = new ArrayList<>();
+        List<AuthorDTO> createdAuthors = new ArrayList<>();
+
         try {
-            CreateAuthorRequest authorRequest = new CreateAuthorRequest(
-                    authorData.getName(),
-                    authorData.getBio(),
-                    authorData.getPhotoURI()
-            );
+            for (int i = 0; i < newAuthors.size(); i++) {
+                CreateBookSagaRequest.AuthorData authorData = newAuthors.get(i);
+                log.info("📝 [STEP 2.{}] Creating Author: {}", i + 1, authorData.getName());
 
-            AuthorDTO authorResponse = authorServiceClient.createAuthor(authorRequest);
+                CreateAuthorRequest authorRequest = new CreateAuthorRequest(
+                        authorData.getName(),
+                        authorData.getBio(),
+                        authorData.getPhotoURI()
+                );
 
-            saga.setAuthorNumber(authorResponse.getAuthorNumber());
-            saga.setAuthorResponse(toJson(authorResponse));
+                AuthorDTO authorResponse = authorServiceClient.createAuthor(authorRequest);
+                createdAuthorNumbers.add(authorResponse.getAuthorNumber());
+                createdAuthors.add(authorResponse);
+
+                saga.addStep(SagaStep.success(
+                        "CREATE_AUTHOR_" + (i + 1),
+                        "author-service",
+                        "CREATE",
+                        toJson(authorResponse)
+                ));
+
+                log.info("✅ [STEP 2.{}] Author created: authorNumber={}", i + 1, authorResponse.getAuthorNumber());
+            }
+
+            // Store all created author numbers and responses
+            saga.setAuthorNumber(createdAuthorNumbers.get(0)); // Keep first for backward compatibility
+            saga.setAuthorResponse(toJson(createdAuthors));
             saga.setState(SagaState.AUTHOR_CREATED);
-            saga.addStep(SagaStep.success("CREATE_AUTHOR", "author-service", "CREATE", toJson(authorResponse)));
             saga = sagaRepository.save(saga);
 
-            log.info("✅ [STEP 2] Author created: authorNumber={}", authorResponse.getAuthorNumber());
+            log.info("✅ [STEP 2] All {} authors created: {}", createdAuthorNumbers.size(), createdAuthorNumbers);
             return saga;
 
         } catch (Exception e) {
-            log.error("❌ [STEP 2] Author creation failed", e);
+            log.error("❌ [STEP 2] Authors creation failed", e);
             saga.setState(SagaState.AUTHOR_CREATION_FAILED);
-            saga.addStep(SagaStep.failure("CREATE_AUTHOR", "author-service", "CREATE", e.getMessage()));
+            saga.addStep(SagaStep.failure("CREATE_AUTHORS", "author-service", "CREATE", e.getMessage()));
+
+            // Store partially created authors for compensation
+            if (!createdAuthorNumbers.isEmpty()) {
+                saga.setAuthorNumber(createdAuthorNumbers.get(0));
+                saga.setAuthorResponse(toJson(createdAuthors));
+            }
+
             sagaRepository.save(saga);
-            throw new RuntimeException("Failed to create author: " + e.getMessage(), e);
+            throw new RuntimeException("Failed to create authors: " + e.getMessage(), e);
         }
     }
 
     /**
-     * STEP 3: Create Book
+     * ✅ ENHANCED: Create book with BOTH new and existing author IDs
      */
-    private SagaInstance executeBookCreation(SagaInstance saga, CreateBookSagaRequest.BookData bookData, Long genreId) {
-        log.info("📝 [STEP 3] Creating Book: {}", bookData.getTitle());
+    private SagaInstance executeBookCreation(
+            SagaInstance saga,
+            CreateBookSagaRequest.BookData bookData,
+            List<Long> existingAuthorIds) {
 
+        log.info("📝 [STEP 3] Creating Book: {}", bookData.getTitle());
         saga.setState(SagaState.CREATING_BOOK);
         saga = sagaRepository.save(saga);
 
         try {
-            // Note: Genre is passed by NAME in CreateBookRequest (from uploaded file)
-            // But we need to map genreId to genre name - for now using the original genre name
+            // Gather ALL author IDs (new + existing)
+            List<Long> allAuthorIds = new ArrayList<>();
+            List<String> allAuthorNames = new ArrayList<>();
+
+            // Add newly created authors
+            if (saga.getAuthorResponse() != null) {
+                List<AuthorDTO> createdAuthors = objectMapper.readValue(
+                        saga.getAuthorResponse(),
+                        new TypeReference<List<AuthorDTO>>() {}
+                );
+
+                for (AuthorDTO author : createdAuthors) {
+                    allAuthorIds.add(author.getAuthorNumber());
+                    allAuthorNames.add(author.getName());
+                }
+
+                log.info("📚 New authors: IDs={}, Names={}", allAuthorIds, allAuthorNames);
+            }
+
+            // Add existing authors
+            if (existingAuthorIds != null && !existingAuthorIds.isEmpty()) {
+                for (Long authorId : existingAuthorIds) {
+                    AuthorDTO existingAuthor = authorServiceClient.getAuthor(authorId);
+                    allAuthorIds.add(authorId);
+                    allAuthorNames.add(existingAuthor.getName()); // real names
+                }
+
+                log.info("📚 Existing authors: IDs={}", existingAuthorIds);
+            }
+
+            log.info("📚 Total authors for book: IDs={}, Names={}", allAuthorIds, allAuthorNames);
+
             CreateBookRequest bookRequest = new CreateBookRequest(
                     bookData.getTitle(),
                     bookData.getDescription(),
-                    bookData.getGenreName(), // Use genre name from request
-                    List.of(saga.getAuthorNumber()), // Single author for now
+                    bookData.getGenreName(),
+                    allAuthorIds,
+                    allAuthorNames,
                     bookData.getPhotoURI()
             );
 
             BookDTO bookResponse = bookServiceClient.createBook(bookRequest);
 
-            saga.setBookId(bookResponse.getIsbn().hashCode() * 1L); // Temporary ID since Book uses ISBN
+            log.info("✅ Received BookDTO: isbn={}, authorIds={}",
+                    bookResponse.getIsbn(), bookResponse.getAuthorIds());
+
+            saga.setBookId(bookResponse.getIsbn().hashCode() * 1L);
             saga.setBookResponse(toJson(bookResponse));
             saga.setState(SagaState.BOOK_CREATED);
             saga.addStep(SagaStep.success("CREATE_BOOK", "book-service", "CREATE", toJson(bookResponse)));
             saga = sagaRepository.save(saga);
 
-            log.info("✅ [STEP 3] Book created: ISBN={}", bookResponse.getIsbn());
+            log.info("✅ [STEP 3] Book created: ISBN={} with {} authors",
+                    bookResponse.getIsbn(), allAuthorIds.size());
             return saga;
 
         } catch (Exception e) {
@@ -187,21 +252,15 @@ public class SagaOrchestrator {
         }
     }
 
-    /**
-     * Compensation logic - Rollback in reverse order
-     */
     private void compensate(SagaInstance saga) {
         log.warn("🔄 Starting compensation for Saga: {}", saga.getSagaId());
-
         saga.startCompensation();
         saga = sagaRepository.save(saga);
 
         try {
-            // Compensate in REVERSE order: Book → Author → Genre
-
-            // Only compensate if the step succeeded
-            if (saga.getAuthorNumber() != null) {
-                compensateAuthor(saga);
+            // Compensate all created authors
+            if (saga.getAuthorResponse() != null) {
+                compensateAuthors(saga);
             }
 
             if (saga.getGenreId() != null) {
@@ -221,12 +280,8 @@ public class SagaOrchestrator {
         }
     }
 
-    /**
-     * Compensate Genre (DELETE)
-     */
     private void compensateGenre(SagaInstance saga) {
         log.info("🔄 [COMPENSATE] Deleting Genre: ID={}", saga.getGenreId());
-
         try {
             genreServiceClient.deleteGenre(saga.getGenreId());
             saga.addStep(SagaStep.success("COMPENSATE_GENRE", "genre-service", "DELETE", "Genre deleted"));
@@ -239,33 +294,59 @@ public class SagaOrchestrator {
     }
 
     /**
-     * Compensate Author (DELETE)
+     * ✅ ENHANCED: Compensate ALL created authors
      */
-    private void compensateAuthor(SagaInstance saga) {
-        log.info("🔄 [COMPENSATE] Deleting Author: authorNumber={}", saga.getAuthorNumber());
-
+    private void compensateAuthors(SagaInstance saga) {
         try {
-            authorServiceClient.deleteAuthor(saga.getAuthorNumber());
-            saga.addStep(SagaStep.success("COMPENSATE_AUTHOR", "author-service", "DELETE", "Author deleted"));
-            log.info("✅ [COMPENSATE] Author deleted: authorNumber={}", saga.getAuthorNumber());
-        } catch (Exception e) {
-            log.error("❌ [COMPENSATE] Failed to delete Author: authorNumber={}", saga.getAuthorNumber(), e);
-            saga.addStep(SagaStep.failure("COMPENSATE_AUTHOR", "author-service", "DELETE", e.getMessage()));
-            throw e;
+            List<AuthorDTO> createdAuthors = objectMapper.readValue(
+                    saga.getAuthorResponse(),
+                    new TypeReference<List<AuthorDTO>>() {}
+            );
+
+            log.info("🔄 [COMPENSATE] Deleting {} author(s)", createdAuthors.size());
+
+            for (int i = 0; i < createdAuthors.size(); i++) {
+                AuthorDTO author = createdAuthors.get(i);
+                try {
+                    log.info("🔄 [COMPENSATE] Deleting Author {}/{}: authorNumber={}",
+                            i + 1, createdAuthors.size(), author.getAuthorNumber());
+
+                    authorServiceClient.deleteAuthor(author.getAuthorNumber());
+
+                    saga.addStep(SagaStep.success(
+                            "COMPENSATE_AUTHOR_" + (i + 1),
+                            "author-service",
+                            "DELETE",
+                            "Author deleted: " + author.getAuthorNumber()
+                    ));
+
+                    log.info("✅ [COMPENSATE] Author deleted: authorNumber={}", author.getAuthorNumber());
+
+                } catch (Exception e) {
+                    log.error("❌ [COMPENSATE] Failed to delete Author: authorNumber={}",
+                            author.getAuthorNumber(), e);
+                    saga.addStep(SagaStep.failure(
+                            "COMPENSATE_AUTHOR_" + (i + 1),
+                            "author-service",
+                            "DELETE",
+                            e.getMessage()
+                    ));
+                    throw e;
+                }
+            }
+
+        } catch (JsonProcessingException e) {
+            log.error("❌ [COMPENSATE] Failed to parse authors for compensation", e);
+            throw new RuntimeException("Failed to parse authors for compensation", e);
         }
     }
 
-    /**
-     * Get Saga status
-     */
     public CreateBookSagaResponse getSagaStatus(String sagaId) {
         SagaInstance saga = sagaRepository.findBySagaId(sagaId)
                 .orElseThrow(() -> new RuntimeException("Saga not found: " + sagaId));
 
         return buildSuccessResponse(saga);
     }
-
-    // Helper methods
 
     private SagaInstance createSagaInstance(CreateBookSagaRequest request) {
         try {
@@ -286,7 +367,7 @@ public class SagaOrchestrator {
     private CreateBookSagaResponse buildSuccessResponse(SagaInstance saga) {
         try {
             CreateBookSagaResponse.GenreResponse genreResp = null;
-            CreateBookSagaResponse.AuthorResponse authorResp = null;
+            List<CreateBookSagaResponse.AuthorResponse> authorResps = new ArrayList<>();
             CreateBookSagaResponse.BookResponse bookResp = null;
 
             if (saga.getGenreResponse() != null) {
@@ -298,23 +379,30 @@ public class SagaOrchestrator {
             }
 
             if (saga.getAuthorResponse() != null) {
-                AuthorDTO ar = objectMapper.readValue(saga.getAuthorResponse(), AuthorDTO.class);
-                authorResp = CreateBookSagaResponse.AuthorResponse.builder()
-                        .authorNumber(ar.getAuthorNumber())
-                        .name(ar.getName())
-                        .bio(ar.getBio())
-                        .photoURI(ar.getPhotoURI())
-                        .build();
+                List<AuthorDTO> authors = objectMapper.readValue(
+                        saga.getAuthorResponse(),
+                        new TypeReference<List<AuthorDTO>>() {}
+                );
+
+                for (AuthorDTO ar : authors) {
+                    authorResps.add(CreateBookSagaResponse.AuthorResponse.builder()
+                            .authorNumber(ar.getAuthorNumber())
+                            .name(ar.getName())
+                            .bio(ar.getBio())
+                            .photoURI(ar.getPhotoURI())
+                            .build());
+                }
             }
 
             if (saga.getBookResponse() != null) {
                 BookDTO br = objectMapper.readValue(saga.getBookResponse(), BookDTO.class);
+
                 bookResp = CreateBookSagaResponse.BookResponse.builder()
                         .isbn(br.getIsbn())
                         .title(br.getTitle())
                         .description(br.getDescription())
                         .genre(br.getGenre())
-                        .authors(br.getAuthorIds())
+                        .authors(br.getAuthorIds() != null ? br.getAuthorIds() : List.of())
                         .build();
             }
 
@@ -324,12 +412,13 @@ public class SagaOrchestrator {
                     .startedAt(saga.getStartedAt())
                     .completedAt(saga.getCompletedAt())
                     .genre(genreResp)
-                    .author(authorResp)
+                    .authors(authorResps)  // ✅ Now returns LIST of authors
                     .book(bookResp)
                     .errorMessage(saga.getErrorMessage())
                     .build();
 
         } catch (Exception e) {
+            log.error("❌ Failed to build response", e);
             throw new RuntimeException("Failed to build response", e);
         }
     }

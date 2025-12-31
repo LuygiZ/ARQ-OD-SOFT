@@ -33,5 +33,9 @@ public class CreateBookRequest implements Serializable {
     @Size(min = 1, message = "At least one author is required")
     private List<Long> authorIds;
 
+    @NotNull(message = "Author names are required")
+    @Size(min = 1, message = "At least one author name is required")
+    private List<String> authorNames;
+
     private String photoURI;
 }
