@@ -10,7 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import pt.psoft.author.api.dto.AuthorView;
-import pt.psoft.author.api.dto.CreateAuthorRequest;
+import pt.psoft.shared.dto.author.CreateAuthorRequest;
 import pt.psoft.author.api.dto.UpdateAuthorRequest;
 import pt.psoft.author.model.command.AuthorEntity;
 import pt.psoft.author.services.AuthorCommandService;
@@ -60,7 +60,8 @@ public class AuthorCommandController {
     @DeleteMapping("/{authorNumber}")
     public ResponseEntity<Void> deleteAuthor(
             @PathVariable @Parameter(description = "Author number") Long authorNumber,
-            @RequestHeader("If-Match") @Parameter(description = "Expected version") Long expectedVersion) {
+            @RequestHeader(value = "If-Match", required = false)
+            @Parameter(description = "Expected version (optional for Saga compensation)") Long expectedVersion) {
 
         authorCommandService.deleteAuthor(authorNumber, expectedVersion);
         return ResponseEntity.noContent().build();

@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pt.psoft.genre.services.GenreService;
 import pt.psoft.shared.dto.genre.GenreDTO;
+import pt.psoft.shared.dto.genre.CreateGenreRequest;
 
 import java.util.List;
 
@@ -45,7 +46,7 @@ public class GenreController {
 
     @PostMapping
     @Operation(summary = "Create new genre")
-    public ResponseEntity<GenreDTO> createGenre(@Valid @RequestBody GenreRequest request) {
+    public ResponseEntity<GenreDTO> createGenre(@Valid @RequestBody CreateGenreRequest request) {
         GenreDTO created = genreService.create(request.getName());
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
@@ -54,7 +55,7 @@ public class GenreController {
     @Operation(summary = "Update genre")
     public ResponseEntity<GenreDTO> updateGenre(
             @PathVariable Long id,
-            @Valid @RequestBody GenreRequest request) {
+            @Valid @RequestBody CreateGenreRequest request) {
         GenreDTO updated = genreService.update(id, request.getName());
         return ResponseEntity.ok(updated);
     }

@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.hibernate.StaleObjectStateException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import pt.psoft.book.api.CreateBookRequest;
+import pt.psoft.shared.dto.book.CreateBookRequest;
 import pt.psoft.book.api.UpdateBookRequest;
 import pt.psoft.book.messaging.BookEventPublisher;
 import pt.psoft.book.model.command.BookEntity;
@@ -53,6 +53,7 @@ public class BookCommandServiceImpl implements BookCommandService {
                 savedBook.getDescriptionValue(),
                 savedBook.getGenreName(),
                 savedBook.getAuthorIds(),
+                request.getAuthorNames(),
                 savedBook.getPhotoURI()
         );
         bookEventPublisher.publishBookCreated(event);
@@ -85,12 +86,15 @@ public class BookCommandServiceImpl implements BookCommandService {
 
         log.info("Book updated with ISBN: {}", isbn);
 
+        // TODO: For UPDATE, we'd need to fetch author names or receive them in UpdateBookRequest
+        // For now, passing null will leave author names unchanged in Read Model
         BookUpdatedEvent event = new BookUpdatedEvent(
                 updatedBook.getIsbnValue(),
                 updatedBook.getTitleValue(),
                 updatedBook.getDescriptionValue(),
                 updatedBook.getGenreName(),
                 updatedBook.getAuthorIds(),
+                null, // TODO: Add authorNames to UpdateBookRequest if needed
                 updatedBook.getPhotoURI(),
                 updatedBook.getVersion()
         );
@@ -138,12 +142,14 @@ public class BookCommandServiceImpl implements BookCommandService {
         BookEntity updatedBook = bookCommandRepository.save(book);
         entityManager.flush();
 
+        // For photo removal, author names remain unchanged
         BookUpdatedEvent event = new BookUpdatedEvent(
                 updatedBook.getIsbnValue(),
                 updatedBook.getTitleValue(),
                 updatedBook.getDescriptionValue(),
                 updatedBook.getGenreName(),
                 updatedBook.getAuthorIds(),
+                null, // Keep existing author names
                 null,
                 updatedBook.getVersion()
         );

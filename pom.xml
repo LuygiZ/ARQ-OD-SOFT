@@ -18,6 +18,7 @@
 		<module>genre-service</module>
 		<module>book-service</module>
 		<module>author-service</module>
+		<module>saga-orchestrator</module>
 		<!-- Adicionar outros serviços conforme forem criados -->
 		<!-- <module>author-service</module> -->
 		<!-- <module>book-service</module> -->

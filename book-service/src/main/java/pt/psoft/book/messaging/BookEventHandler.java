@@ -15,17 +15,12 @@ import pt.psoft.shared.events.book.BookUpdatedEvent;
 
 import java.util.stream.Collectors;
 
-/**
- * Event Handler to synchronize Write Model → Read Model (CQRS)
- * Listens to domain events and updates BookReadModel accordingly
- */
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class BookEventHandler {
 
     private final BookQueryRepository bookQueryRepository;
-    private final ObjectMapper objectMapper;
 
     @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
     @CacheEvict(value = "books", allEntries = true)
@@ -33,13 +28,16 @@ public class BookEventHandler {
         log.info("Handling BookCreated event for ISBN: {}", event.getIsbn());
 
         try {
-            // TODO: Fetch author names from Author Service (via sync call or event)
-            // For now, store only IDs as comma-separated string
+            // Convert authorIds to comma-separated string
             String authorIds = event.getAuthorIds().stream()
                     .map(String::valueOf)
                     .collect(Collectors.joining(","));
 
-            String authorNames = ""; // TODO: Resolve author names
+            String authorNames = event.getAuthorNames() != null
+                    ? String.join(",", event.getAuthorNames())
+                    : "";
+
+            log.debug("Creating BookReadModel: authorIds={}, authorNames={}", authorIds, authorNames);
 
             BookReadModel readModel = new BookReadModel(
                     event.getIsbn(),
@@ -53,7 +51,7 @@ public class BookEventHandler {
             );
 
             bookQueryRepository.save(readModel);
-            log.info("BookReadModel created for ISBN: {}", event.getIsbn());
+            log.info("BookReadModel created for ISBN: {} with authors: {}", event.getIsbn(), authorNames);
 
         } catch (Exception e) {
             log.error("Failed to handle BookCreated event for ISBN: {}", event.getIsbn(), e);
@@ -70,18 +68,23 @@ public class BookEventHandler {
             BookReadModel readModel = bookQueryRepository.findByIsbn(event.getIsbn())
                     .orElseThrow(() -> new RuntimeException("ReadModel not found for ISBN: " + event.getIsbn()));
 
-            // TODO: Fetch author names from Author Service
+            // Convert authorIds to comma-separated string
             String authorIds = event.getAuthorIds().stream()
                     .map(String::valueOf)
                     .collect(Collectors.joining(","));
 
-            String authorNames = ""; // TODO: Resolve author names
+            // ✅ FIXED: Use authorNames from event if present, otherwise keep existing
+            String authorNames = event.getAuthorNames() != null
+                    ? String.join(",", event.getAuthorNames())
+                    : readModel.getAuthorNames(); // Keep existing if not provided
+
+            log.debug("Updating BookReadModel: authorIds={}, authorNames={}", authorIds, authorNames);
 
             readModel.updateFromEvent(
                     event.getTitle(),
                     event.getDescription(),
                     event.getGenre(),
-                    authorNames,
+                    authorNames, // ✅ FIXED: Now uses event data or keeps existing
                     authorIds,
                     event.getPhotoURI(),
                     event.getVersion()

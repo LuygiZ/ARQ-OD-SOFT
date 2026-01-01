@@ -1,6 +1,6 @@
 package pt.psoft.author.services;
 
-import pt.psoft.author.api.dto.CreateAuthorRequest;
+import pt.psoft.shared.dto.author.CreateAuthorRequest;
 import pt.psoft.author.api.dto.UpdateAuthorRequest;
 import pt.psoft.author.model.command.AuthorEntity;
 

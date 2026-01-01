@@ -1,6 +1,5 @@
-package pt.psoft.book.api;
+package pt.psoft.shared.dto.book;
 
-import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -8,32 +7,35 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.util.List;
 
+/**
+ * DTO for creating a new Book
+ * Shared across all services
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Schema(description = "Request to create a new Book")
-public class CreateBookRequest {
+public class CreateBookRequest implements Serializable {
 
     @NotBlank(message = "Title is required")
-    @Size(min = 1, max = 128)
-    @Schema(description = "Book title", example = "Clean Code")
+    @Size(min = 1, max = 128, message = "Title must be between 1 and 128 characters")
     private String title;
 
-    @Size(max = 4096)
-    @Schema(description = "Book description")
+    @Size(max = 4096, message = "Description cannot exceed 4096 characters")
     private String description;
 
     @NotBlank(message = "Genre is required")
-    @Schema(description = "Genre name", example = "Programming")
     private String genre;
 
     @NotNull(message = "Authors are required")
-    @Size(min = 1)
-    @Schema(description = "List of author IDs", example = "[1, 2]")
+    @Size(min = 1, message = "At least one author is required")
     private List<Long> authorIds;
 
-    @Schema(description = "Photo URI")
+    @NotNull(message = "Author names are required")
+    @Size(min = 1, message = "At least one author name is required")
+    private List<String> authorNames;
+
     private String photoURI;
 }

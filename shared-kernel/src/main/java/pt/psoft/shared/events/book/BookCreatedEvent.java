@@ -32,6 +32,9 @@ public class BookCreatedEvent extends DomainEvent {
     @JsonProperty("authorIds")
     private List<Long> authorIds;
 
+    @JsonProperty("authorNames")
+    private List<String> authorNames;
+
     @JsonProperty("photoURI")
     private String photoURI;
 

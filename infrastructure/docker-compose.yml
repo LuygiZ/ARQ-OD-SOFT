@@ -263,3 +263,40 @@ services:
       timeout: 5s
       retries: 3
       start_period: 40s
+
+  # ============== SAGA ORCHESTRATOR ================
+  saga-orchestrator:
+    image: saga-orchestrator:latest
+    container_name: saga-orchestrator
+    restart: unless-stopped
+    ports:
+      - "8086:8084" 
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      # Redis for Saga state
+      REDIS_HOST: redis
+      # Service URLs
+      GENRE_SERVICE_HOST: genre-service
+      GENRE_SERVICE_PORT: 8080
+      AUTHOR_SERVICE_HOST: author-service
+      AUTHOR_SERVICE_PORT: 8082
+      BOOK_SERVICE_HOST: book-service
+      BOOK_SERVICE_PORT: 8083
+      SERVER_PORT: 8084
+    networks:
+      - lms_network
+    depends_on:
+      redis:
+        condition: service_healthy
+      genre-service:
+        condition: service_healthy
+      author-service:
+        condition: service_healthy
+      book-service:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8084/actuator/health" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 40s
