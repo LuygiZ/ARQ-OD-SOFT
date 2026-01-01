@@ -81,25 +81,44 @@ public class SagaOrchestrator {
     }
 
     /**
-     * STEP 1: Create Genre
+     * STEP 1: Create Genre (or use existing)
      */
     private SagaInstance executeGenreCreation(SagaInstance saga, CreateBookSagaRequest.GenreData genreData) {
-        log.info("📝 [STEP 1] Creating Genre: {}", genreData.getName());
+        log.info("📝 [STEP 1] Creating/Finding Genre: {}", genreData.getName());
 
         saga.setState(SagaState.CREATING_GENRE);
         saga = sagaRepository.save(saga);
 
         try {
-            CreateGenreRequest genreRequest = new CreateGenreRequest(genreData.getName());
-            GenreDTO genreResponse = genreServiceClient.createGenre(genreRequest);
+            GenreDTO genreResponse;
+            boolean isExisting = false;
+
+            // First, try to find existing genre
+            try {
+                genreResponse = genreServiceClient.findByName(genreData.getName());
+                if (genreResponse != null) {
+                    log.info("📌 [STEP 1] Genre already exists: {}", genreData.getName());
+                    isExisting = true;
+                }
+            } catch (Exception e) {
+                // Genre not found, will create new one
+                genreResponse = null;
+            }
+
+            // Create new genre if not found
+            if (genreResponse == null) {
+                CreateGenreRequest genreRequest = new CreateGenreRequest(genreData.getName());
+                genreResponse = genreServiceClient.createGenre(genreRequest);
+                log.info("✅ [STEP 1] Genre created: ID={}", genreResponse.getId());
+            }
 
             saga.setGenreId(Long.parseLong(genreResponse.getId()));
             saga.setGenreResponse(toJson(genreResponse));
             saga.setState(SagaState.GENRE_CREATED);
-            saga.addStep(SagaStep.success("CREATE_GENRE", "genre-service", "CREATE", toJson(genreResponse)));
+            saga.addStep(SagaStep.success(isExisting ? "FOUND_GENRE" : "CREATE_GENRE", "genre-service",
+                    isExisting ? "FIND" : "CREATE", toJson(genreResponse)));
             saga = sagaRepository.save(saga);
 
-            log.info("✅ [STEP 1] Genre created: ID={}", genreResponse.getId());
             return saga;
 
         } catch (Exception e) {
@@ -112,30 +131,55 @@ public class SagaOrchestrator {
     }
 
     /**
-     * STEP 2: Create Author
+     * STEP 2: Create Author (or use existing)
      */
     private SagaInstance executeAuthorCreation(SagaInstance saga, CreateBookSagaRequest.AuthorData authorData) {
-        log.info("📝 [STEP 2] Creating Author: {}", authorData.getName());
+        log.info("📝 [STEP 2] Creating/Finding Author: {}", authorData.getName());
 
         saga.setState(SagaState.CREATING_AUTHOR);
         saga = sagaRepository.save(saga);
 
         try {
-            CreateAuthorRequest authorRequest = new CreateAuthorRequest(
-                    authorData.getName(),
-                    authorData.getBio(),
-                    authorData.getPhotoURI()
-            );
+            AuthorDTO authorResponse = null;
+            boolean isExisting = false;
 
-            AuthorDTO authorResponse = authorServiceClient.createAuthor(authorRequest);
+            // First, try to find existing author by name
+            try {
+                List<AuthorDTO> existingAuthors = authorServiceClient.findByName(authorData.getName());
+                if (existingAuthors != null && !existingAuthors.isEmpty()) {
+                    // Find exact match
+                    for (AuthorDTO author : existingAuthors) {
+                        if (author.getName().equalsIgnoreCase(authorData.getName())) {
+                            authorResponse = author;
+                            isExisting = true;
+                            log.info("📌 [STEP 2] Author already exists: {}", authorData.getName());
+                            break;
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                // Author not found, will create new one
+                authorResponse = null;
+            }
+
+            // Create new author if not found
+            if (authorResponse == null) {
+                CreateAuthorRequest authorRequest = new CreateAuthorRequest(
+                        authorData.getName(),
+                        authorData.getBio(),
+                        authorData.getPhotoURI()
+                );
+                authorResponse = authorServiceClient.createAuthor(authorRequest);
+                log.info("✅ [STEP 2] Author created: authorNumber={}", authorResponse.getAuthorNumber());
+            }
 
             saga.setAuthorNumber(authorResponse.getAuthorNumber());
             saga.setAuthorResponse(toJson(authorResponse));
             saga.setState(SagaState.AUTHOR_CREATED);
-            saga.addStep(SagaStep.success("CREATE_AUTHOR", "author-service", "CREATE", toJson(authorResponse)));
+            saga.addStep(SagaStep.success(isExisting ? "FOUND_AUTHOR" : "CREATE_AUTHOR", "author-service",
+                    isExisting ? "FIND" : "CREATE", toJson(authorResponse)));
             saga = sagaRepository.save(saga);
 
-            log.info("✅ [STEP 2] Author created: authorNumber={}", authorResponse.getAuthorNumber());
             return saga;
 
         } catch (Exception e) {

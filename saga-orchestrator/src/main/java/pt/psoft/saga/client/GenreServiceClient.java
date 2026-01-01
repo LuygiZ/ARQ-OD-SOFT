@@ -31,6 +31,10 @@ public interface GenreServiceClient {
     @CircuitBreaker(name = "genreService")
     GenreDTO getGenre(@PathVariable("id") Long id);
 
+    @GetMapping("/api/genres/search")
+    @CircuitBreaker(name = "genreService")
+    GenreDTO findByName(@RequestParam("name") String name);
+
     // Fallback method
     default GenreDTO createGenreFallback(CreateGenreRequest request, Exception e) {
         throw new RuntimeException("Genre Service unavailable: " + e.getMessage(), e);

@@ -17,10 +17,17 @@ public class RabbitMQConfig {
     public static final String EXCHANGE_NAME = "lms.events";
     public static final String QUEUE_NAME = "book-service.events";
 
-    // Routing keys
+    // Routing keys for Book events
     public static final String ROUTING_KEY_CREATED = "catalog.book.created";
     public static final String ROUTING_KEY_UPDATED = "catalog.book.updated";
     public static final String ROUTING_KEY_DELETED = "catalog.book.deleted";
+
+    // Routing keys for Review events (consumed by Book Service)
+    public static final String ROUTING_KEY_RATING_UPDATED = "review.book.rating_updated";
+
+    // Routing keys for Lending events (for reviews)
+    // Pattern from lending-service: lending.{aggregate}.{event}
+    public static final String ROUTING_KEY_LENDING_RETURNED = "lending.lending.returned";
 
     @Bean
     public TopicExchange lmsEventsExchange() {
@@ -53,6 +60,20 @@ public class RabbitMQConfig {
         return BindingBuilder.bind(bookEventsQueue)
                 .to(lmsEventsExchange)
                 .with(ROUTING_KEY_DELETED);
+    }
+
+    @Bean
+    public Binding bookRatingUpdatedBinding(Queue bookEventsQueue, TopicExchange lmsEventsExchange) {
+        return BindingBuilder.bind(bookEventsQueue)
+                .to(lmsEventsExchange)
+                .with(ROUTING_KEY_RATING_UPDATED);
+    }
+
+    @Bean
+    public Binding lendingReturnedBinding(Queue bookEventsQueue, TopicExchange lmsEventsExchange) {
+        return BindingBuilder.bind(bookEventsQueue)
+                .to(lmsEventsExchange)
+                .with(ROUTING_KEY_LENDING_RETURNED);
     }
 
     @Bean

@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.*;
 import pt.psoft.shared.dto.author.AuthorDTO;
 import pt.psoft.shared.dto.author.CreateAuthorRequest;
 
+import java.util.List;
+
 /**
  * Feign Client for Author Service
  * Uses shared-kernel DTOs
@@ -30,6 +32,10 @@ public interface AuthorServiceClient {
     @GetMapping("/api/authors/{authorNumber}")
     @CircuitBreaker(name = "authorService")
     AuthorDTO getAuthor(@PathVariable("authorNumber") Long authorNumber);
+
+    @GetMapping("/api/authors")
+    @CircuitBreaker(name = "authorService")
+    List<AuthorDTO> findByName(@RequestParam(value = "name", required = false) String name);
 
     // Fallback method
     default AuthorDTO createAuthorFallback(CreateAuthorRequest request, Exception e) {

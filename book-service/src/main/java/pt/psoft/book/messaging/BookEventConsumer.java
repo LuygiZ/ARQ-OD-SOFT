@@ -9,7 +9,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import pt.psoft.shared.events.book.BookCreatedEvent;
 import pt.psoft.shared.events.book.BookDeletedEvent;
+import pt.psoft.shared.events.book.BookRatingUpdatedEvent;
 import pt.psoft.shared.events.book.BookUpdatedEvent;
+import pt.psoft.shared.events.lending.LendingReturnedEvent;
 
 @Component
 @RequiredArgsConstructor
@@ -42,6 +44,18 @@ public class BookEventConsumer {
                 case "BookDeleted" -> {
                     BookDeletedEvent event = objectMapper.readValue(message, BookDeletedEvent.class);
                     log.info("Publishing local BookDeleted event for ISBN: {}", event.getIsbn());
+                    eventPublisher.publishEvent(event);
+                }
+                case "BookRatingUpdated" -> {
+                    BookRatingUpdatedEvent event = objectMapper.readValue(message, BookRatingUpdatedEvent.class);
+                    log.info("Publishing local BookRatingUpdated event for ISBN: {}, avgRating: {}, totalReviews: {}",
+                            event.getIsbn(), event.getAverageRating(), event.getTotalReviews());
+                    eventPublisher.publishEvent(event);
+                }
+                case "LendingReturned" -> {
+                    LendingReturnedEvent event = objectMapper.readValue(message, LendingReturnedEvent.class);
+                    log.info("Publishing local LendingReturned event for lending: {}, book: {}, rating: {}",
+                            event.getLendingNumber(), event.getBookId(), event.getRating());
                     eventPublisher.publishEvent(event);
                 }
                 default -> log.warn("Unknown event type: {}", eventType);

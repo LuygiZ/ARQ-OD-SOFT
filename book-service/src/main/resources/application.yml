@@ -52,6 +52,11 @@ spring:
 server:
   port: ${SERVER_PORT:8083}
 
+# JWT Configuration (Resource Server - only needs public key for validation)
+jwt:
+  public:
+    key: classpath:rsa.public.key
+
 management:
   endpoints:
     web:

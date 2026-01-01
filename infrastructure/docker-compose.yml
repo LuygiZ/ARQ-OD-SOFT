@@ -200,6 +200,84 @@ services:
       retries: 3
       start_period: 40s
 
+  # ============== LENDING (Student C) ================
+  lending-service:
+    image: lending-service:latest
+    container_name: lending-service
+    restart: unless-stopped
+    ports:
+      - "8086:8086"
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      DB_HOST: postgres
+      DB_USER: postgres
+      DB_PASSWORD: password
+      REDIS_HOST: redis
+      RABBITMQ_HOST: rabbitmq
+      SERVER_PORT: 8086
+    networks:
+      - lms_network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8086/actuator/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 40s
+
+  # ============== READER SERVICE (Authentication & Reader Management) ================
+  reader-service:
+    image: reader-service:latest
+    container_name: reader-service
+    restart: unless-stopped
+    ports:
+      - "8087:8087"
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      DB_HOST: postgres
+      DB_USER: postgres
+      DB_PASSWORD: password
+      REDIS_HOST: redis
+      RABBITMQ_HOST: rabbitmq
+      SERVER_PORT: 8087
+    networks:
+      - lms_network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8087/actuator/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 40s
+
   # ============== SAGA ORCHESTRATOR ================
   saga-orchestrator:
     image: saga-orchestrator:latest

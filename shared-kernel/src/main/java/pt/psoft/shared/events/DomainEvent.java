@@ -11,9 +11,13 @@ import pt.psoft.shared.events.author.AuthorUpdatedEvent;
 import pt.psoft.shared.events.book.BookCreatedEvent;
 import pt.psoft.shared.events.book.BookDeletedEvent;
 import pt.psoft.shared.events.book.BookUpdatedEvent;
+import pt.psoft.shared.events.book.BookRatingUpdatedEvent;
 import pt.psoft.shared.events.genre.GenreCreatedEvent;
 import pt.psoft.shared.events.genre.GenreDeletedEvent;
 import pt.psoft.shared.events.genre.GenreUpdatedEvent;
+import pt.psoft.shared.events.lending.LendingCreatedEvent;
+import pt.psoft.shared.events.lending.LendingReturnedEvent;
+import pt.psoft.shared.events.review.ReviewCreatedEvent;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -31,10 +35,16 @@ import java.util.UUID;
         @JsonSubTypes.Type(value = BookCreatedEvent.class, name = "BookCreated"),
         @JsonSubTypes.Type(value = BookUpdatedEvent.class, name = "BookUpdated"),
         @JsonSubTypes.Type(value = BookDeletedEvent.class, name = "BookDeleted"),
+        @JsonSubTypes.Type(value = BookRatingUpdatedEvent.class, name = "BookRatingUpdated"),
         // Author Events
         @JsonSubTypes.Type(value = AuthorCreatedEvent.class, name = "AuthorCreated"),
         @JsonSubTypes.Type(value = AuthorUpdatedEvent.class, name = "AuthorUpdated"),
-        @JsonSubTypes.Type(value = AuthorDeletedEvent.class, name = "AuthorDeleted")
+        @JsonSubTypes.Type(value = AuthorDeletedEvent.class, name = "AuthorDeleted"),
+        // Lending Events
+        @JsonSubTypes.Type(value = LendingCreatedEvent.class, name = "LendingCreated"),
+        @JsonSubTypes.Type(value = LendingReturnedEvent.class, name = "LendingReturned"),
+        // Review Events
+        @JsonSubTypes.Type(value = ReviewCreatedEvent.class, name = "ReviewCreated")
 })
 public abstract class DomainEvent implements Serializable {
 

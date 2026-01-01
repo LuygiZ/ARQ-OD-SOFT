@@ -33,6 +33,12 @@ public class BookView {
     @Schema(description = "Photo URI")
     private String photoURI;
 
+    @Schema(description = "Average rating (0-10)", example = "8.5")
+    private Double averageRating;
+
+    @Schema(description = "Total number of reviews", example = "42")
+    private Integer totalReviews;
+
     @Schema(description = "Version for optimistic locking")
     private Long version;
 }

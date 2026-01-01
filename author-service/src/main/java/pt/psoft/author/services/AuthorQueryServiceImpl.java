@@ -34,7 +34,7 @@ public class AuthorQueryServiceImpl implements AuthorQueryService {
 
     @Override
     @Transactional(readOnly = true)
-    @Cacheable(value = "authors-search", key = "#name", unless = "#result == null || #result.isEmpty()")
+    @Cacheable(value = "authors-search", key = "#name != null ? #name : 'all'", unless = "#result == null || #result.isEmpty()")
     public List<AuthorView> searchByName(String name) {
         log.debug("Searching authors by name: {}", name);
         if (name == null || name.isBlank()) {

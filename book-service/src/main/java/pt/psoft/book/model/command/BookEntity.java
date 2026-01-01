@@ -54,6 +54,15 @@ public class BookEntity {
     @Getter
     private String photoURI;
 
+    // Rating statistics (updated via Review events)
+    @Column(name = "average_rating")
+    @Getter
+    private Double averageRating = 0.0;
+
+    @Column(name = "total_reviews")
+    @Getter
+    private Integer totalReviews = 0;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     @Getter
     private LocalDateTime createdAt;
@@ -114,6 +123,12 @@ public class BookEntity {
 
     public void removePhoto() {
         this.photoURI = null;
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public void updateRating(Double averageRating, Integer totalReviews) {
+        this.averageRating = averageRating != null ? averageRating : 0.0;
+        this.totalReviews = totalReviews != null ? totalReviews : 0;
         this.updatedAt = LocalDateTime.now();
     }
 

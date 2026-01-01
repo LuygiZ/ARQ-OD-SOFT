@@ -1,0 +1,42 @@
+@startuml C4_Container
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+title Container Diagram - Student C (Lending & Reviews)
+
+Person(reader, "Reader", "Library member")
+Person(librarian, "Librarian", "Library staff")
+
+System_Boundary(lms, "Library Management System") {
+
+    Container(reader_api, "Reader Service", "Spring Boot", "Authentication and JWT issuance\nPort: 8087")
+    ContainerDb(reader_db, "Reader DB", "PostgreSQL", "Users, Readers")
+
+    Container(lending_api, "Lending Service", "Spring Boot", "Lending operations (Commands)\nPort: 8086")
+    ContainerDb(lending_db, "Lending DB", "PostgreSQL", "Lendings, Outbox Events")
+
+    Container(book_api, "Book Service", "Spring Boot", "Book queries (Queries)\nPort: 8083")
+    ContainerDb(book_db, "Book DB", "PostgreSQL", "Books, Reviews")
+
+    ContainerQueue(rabbitmq, "RabbitMQ", "AMQP", "Event messaging")
+    ContainerDb(redis, "Redis", "Cache", "Caching layer")
+}
+
+Rel(reader, reader_api, "POST /login", "HTTPS")
+Rel(librarian, reader_api, "POST /login", "HTTPS")
+
+Rel(reader, lending_api, "POST /lendings/{id}/return", "HTTPS + JWT")
+Rel(librarian, lending_api, "POST /lendings", "HTTPS + JWT")
+
+Rel(reader, book_api, "GET /books/{isbn}/reviews", "HTTPS")
+
+Rel(reader_api, reader_db, "Reads/Writes", "JDBC")
+Rel(lending_api, lending_db, "Reads/Writes", "JDBC")
+Rel(book_api, book_db, "Reads/Writes", "JDBC")
+
+Rel(lending_api, rabbitmq, "Publishes LendingReturnedEvent", "AMQP")
+Rel(rabbitmq, book_api, "Delivers events", "AMQP")
+
+Rel(lending_api, redis, "Cache", "Redis")
+Rel(book_api, redis, "Cache", "Redis")
+
+@enduml

@@ -45,6 +45,13 @@ public class BookReadModel {
     @Column(name = "photo_uri", length = 512)
     private String photoURI;
 
+    // Rating statistics (updated via Review events)
+    @Column(name = "average_rating")
+    private Double averageRating = 0.0;
+
+    @Column(name = "total_reviews")
+    private Integer totalReviews = 0;
+
     @Column(name = "version", nullable = false)
     private Long version;
 
@@ -89,6 +96,12 @@ public class BookReadModel {
         this.authorIds = authorIds;
         this.photoURI = photoURI;
         this.version = version;
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public void updateRating(Double averageRating, Integer totalReviews) {
+        this.averageRating = averageRating != null ? averageRating : 0.0;
+        this.totalReviews = totalReviews != null ? totalReviews : 0;
         this.updatedAt = LocalDateTime.now();
     }
 }

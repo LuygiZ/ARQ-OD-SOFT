@@ -1,0 +1,59 @@
+@startuml Sequence_ReturnWithReview
+title Sequence Diagram - Return Book with Review (Student C)
+
+actor Reader
+participant "Reader Service\n(Auth)" as Auth
+participant "Lending Service\n(Command)" as Lending
+database "Lending DB" as LendingDB
+queue "RabbitMQ" as MQ
+participant "Book Service\n(Query)" as Book
+database "Book DB" as BookDB
+
+== Authentication ==
+Reader -> Auth: POST /api/public/login\n{username, password}
+Auth -> Auth: Validate credentials
+Auth -> Auth: Generate JWT (RS256)
+Auth --> Reader: 200 OK\nAuthorization: Bearer <token>
+
+== Return Book with Review ==
+Reader -> Lending: POST /api/v1/lendings/2025/1/return\nAuthorization: Bearer <token>\n{comment: "Great book!", rating: 8}
+Lending -> Lending: Validate JWT (public key)
+Lending -> Lending: Extract reader from token
+
+Lending -> LendingDB: Find lending by number
+LendingDB --> Lending: LendingEntity
+
+Lending -> Lending: Validate:\n- Lending exists\n- Reader owns lending\n- Not already returned
+
+Lending -> Lending: lending.setReturned(\n  comment, rating)
+
+group Transaction (Outbox Pattern)
+    Lending -> LendingDB: Save LendingEntity
+    Lending -> LendingDB: Save OutboxEvent\n(LendingReturnedEvent)
+end
+
+Lending --> Reader: 200 OK\n{lendingNumber, returnDate}
+
+== Event Processing ==
+Lending -> MQ: Publish LendingReturnedEvent\n(via Outbox Publisher)
+
+MQ -> Book: Deliver message\n(lending.returned)
+
+Book -> Book: Parse LendingReturnedEvent
+Book -> Book: Check idempotency\n(lending number unique)
+
+alt New Review
+    Book -> BookDB: Save BookReview
+    Book -> BookDB: Recalculate rating stats
+    Book -> BookDB: Update BookReadModel\n(avgRating, totalReviews)
+else Already Processed
+    Book -> Book: Skip (idempotent)
+end
+
+== Query Reviews ==
+Reader -> Book: GET /api/books/978-0-13-468599-1/reviews
+Book -> BookDB: Find reviews by ISBN
+BookDB --> Book: List<BookReview>
+Book --> Reader: 200 OK\n[{lendingNumber, rating, comment, ...}]
+
+@enduml

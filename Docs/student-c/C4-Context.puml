@@ -1,0 +1,27 @@
+@startuml C4_Context
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+title System Context Diagram - Library Management System (Student C)
+
+Person(reader, "Reader", "A library member who borrows books")
+Person(librarian, "Librarian", "Library staff managing lendings")
+
+System_Boundary(lms, "Library Management System") {
+    System(auth, "Reader Service", "Authentication and reader management")
+    System(lending, "Lending Service", "Book lending operations")
+    System(books, "Book Service", "Book catalog and reviews")
+}
+
+System_Ext(rabbitmq, "RabbitMQ", "Message broker for events")
+
+Rel(reader, auth, "Logs in", "HTTPS/JWT")
+Rel(reader, lending, "Returns books with reviews", "HTTPS/JWT")
+Rel(reader, books, "Views books and reviews", "HTTPS")
+
+Rel(librarian, auth, "Logs in", "HTTPS/JWT")
+Rel(librarian, lending, "Creates lendings", "HTTPS/JWT")
+
+Rel(lending, rabbitmq, "Publishes events", "AMQP")
+Rel(rabbitmq, books, "Delivers events", "AMQP")
+
+@enduml
