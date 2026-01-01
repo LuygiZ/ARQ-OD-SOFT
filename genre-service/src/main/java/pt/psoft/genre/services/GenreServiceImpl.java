@@ -61,16 +61,15 @@ public class GenreServiceImpl implements GenreService {
     public GenreDTO create(String genreName) {
         log.info("Creating new genre: {}", genreName);
 
-        // Validar se já existe
         if (genreRepository.existsByName(genreName)) {
-            throw new ConflictException("Genre", "name", genreName);
+            throw new ConflictException(
+                    "Genre with name '" + genreName + "' already exists"
+            );
         }
 
-        // Criar entidade
         Genre genre = new Genre(genreName);
         genre = genreRepository.save(genre);
 
-        // Publicar evento (via Outbox Pattern)
         GenreCreatedEvent event = new GenreCreatedEvent(
                 genre.getId().toString(),
                 genre.getName()
@@ -88,20 +87,20 @@ public class GenreServiceImpl implements GenreService {
         log.info("Updating genre {}: {}", id, genreName);
 
         Genre genre = genreRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Genre", id.toString()));
+                .orElseThrow(() -> new NotFoundException(Genre.class, id));
 
-        // Verificar se novo nome já existe (exceto para o próprio)
         genreRepository.findByName(genreName)
                 .ifPresent(existing -> {
                     if (!existing.getId().equals(id)) {
-                        throw new ConflictException("Genre", "name", genreName);
+                        throw new ConflictException(
+                                "Genre with name '" + genreName + "' already exists"
+                        );
                     }
                 });
 
         genre.setName(genreName);
         genre = genreRepository.save(genre);
 
-        // Publicar evento
         GenreUpdatedEvent event = new GenreUpdatedEvent(
                 genre.getId().toString(),
                 genre.getName()
@@ -119,12 +118,11 @@ public class GenreServiceImpl implements GenreService {
         log.info("Deleting genre: {}", id);
 
         Genre genre = genreRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Genre", id.toString()));
+                .orElseThrow(() -> new NotFoundException(Genre.class, id));
 
         String genreName = genre.getName();
         genreRepository.delete(genre);
 
-        // Publicar evento
         GenreDeletedEvent event = new GenreDeletedEvent(
                 id.toString(),
                 genreName
