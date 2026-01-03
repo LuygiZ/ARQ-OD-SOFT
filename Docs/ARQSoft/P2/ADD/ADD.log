@@ -1,0 +1,1610 @@
+This is pdfTeX, Version 3.141592653-2.6-1.40.27 (MiKTeX 25.4) (preloaded format=pdflatex 2025.11.5)  22 DEC 2025 03:16
+entering extended mode
+ restricted \write18 enabled.
+ %&-line parsing enabled.
+**./ADD.tex
+(ADD.tex
+LaTeX2e <2025-06-01> patch level 1
+L3 programming layer <2025-10-09>
+
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/koma-script\scrbook.cls
+Document Class: scrbook 2025/09/09 v3.48 KOMA-Script document class (book)
+
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/koma-script\scrkbase.st
+y
+Package: scrkbase 2025/09/09 v3.48 KOMA-Script package (KOMA-Script-dependent b
+asics and keyval usage)
+
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/koma-script\scrbase.sty
+Package: scrbase 2025/09/09 v3.48 KOMA-Script package (KOMA-Script-independent 
+basics and keyval usage)
+
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/koma-script\scrlfile.st
+y
+Package: scrlfile 2025/09/09 v3.48 KOMA-Script package (file load hooks)
+
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/koma-script\scrlfile-ho
+ok.sty
+Package: scrlfile-hook 2025/09/09 v3.48 KOMA-Script package (using LaTeX hooks)
+
+
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/koma-script\scrlogo.sty
+Package: scrlogo 2025/09/09 v3.48 KOMA-Script package (logo)
+))) (C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/graphics\keyval.sty
+Package: keyval 2022/05/29 v1.15 key=value parser (DPC)
+\KV@toks@=\toks17
+)
+Applying: [2021/05/01] Usage of raw or classic option list on input line 254.
+Already applied: [0000/00/00] Usage of raw or classic option list on input line
+ 370.
+))
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/koma-script\tocbasic.st
+y
+Package: tocbasic 2025/09/09 v3.48 KOMA-Script package (handling toc-files)
+\scr@dte@tocline@numberwidth=\skip49
+\scr@dte@tocline@numbox=\box53
+)
+Package tocbasic Info: omitting babel extension for `toc'
+(tocbasic)             because of feature `nobabel' available
+(tocbasic)             for `toc' on input line 143.
+Package scrbook Info: You've used standard option `11pt'.
+(scrbook)             This is correct!
+(scrbook)             Internally I'm using `fontsize=11pt'.
+(scrbook)             If you'd like to set the option with \KOMAoptions,
+(scrbook)             you'd have to use `fontsize=11pt' there
+(scrbook)             instead of `11pt', too.
+Class scrbook Info: You've used standard option `openright'.
+(scrbook)           This is correct!
+(scrbook)           Internally I'm using `open=right'.
+(scrbook)           If you'd like to set the option with \KOMAoptions,
+(scrbook)           you'd have to use `open=right' there
+(scrbook)           instead of `openright', too.
+Class scrbook Info: File `scrsize11pt.clo' used to setup font sizes on input li
+ne 2710.
+
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/koma-script\scrsize11pt
+.clo
+File: scrsize11pt.clo 2025/09/09 v3.48 KOMA-Script font size class option (11pt
+)
+)
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/koma-script\typearea.st
+y
+Package: typearea 2025/09/09 v3.48 KOMA-Script package (type area)
+\ta@bcor=\skip50
+\ta@div=\count275
+Package typearea Info: You've used standard option `a4paper'.
+(typearea)             This is correct!
+(typearea)             Internally I'm using `paper=a4'.
+(typearea)             If you'd like to set the option with \KOMAoptions,
+(typearea)             you'd have to use `paper=a4' there
+(typearea)             instead of `a4paper', too.
+\ta@hblk=\skip51
+\ta@vblk=\skip52
+\ta@temp=\skip53
+\footheight=\skip54
+Package typearea Info: These are the values describing the layout:
+(typearea)             DIV  = 10
+(typearea)             BCOR = 42.67912pt
+(typearea)             \paperwidth      = 597.50793pt
+(typearea)              \textwidth      = 388.38017pt
+(typearea)              DIV departure   = 0%
+(typearea)              \evensidemargin = 38.69577pt
+(typearea)              \oddsidemargin  = 25.89201pt
+(typearea)             \paperheight     = 845.04694pt
+(typearea)              \textheight     = 595.80026pt
+(typearea)              \topmargin      = -25.16531pt
+(typearea)              \headheight     = 17.0pt
+(typearea)              \headsep        = 20.40001pt
+(typearea)              \topskip        = 11.0pt
+(typearea)              \footskip       = 80.6pt
+(typearea)              \baselineskip   = 13.6pt
+(typearea)              on input line 1807.
+)
+\c@part=\count276
+\c@chapter=\count277
+\c@section=\count278
+\c@subsection=\count279
+\c@subsubsection=\count280
+\c@paragraph=\count281
+\c@subparagraph=\count282
+\scr@dte@chapter@maxnumwidth=\skip55
+Class scrbook Info: using compatibility default `afterindent=bysign'
+(scrbook)           for `\chapter on input line 6076.
+\scr@dte@section@maxnumwidth=\skip56
+Class scrbook Info: using compatibility default `runin=bysign'
+(scrbook)           for `\section on input line 6087.
+Class scrbook Info: using compatibility default `afterindent=bysign'
+(scrbook)           for `\section on input line 6087.
+\scr@dte@part@maxnumwidth=\skip57
+Class scrbook Info: using compatibility default `afterindent=true'
+(scrbook)           for `\part on input line 6096.
+\scr@dte@subsection@maxnumwidth=\skip58
+Class scrbook Info: using compatibility default `runin=bysign'
+(scrbook)           for `\subsection on input line 6106.
+Class scrbook Info: using compatibility default `afterindent=bysign'
+(scrbook)           for `\subsection on input line 6106.
+\scr@dte@subsubsection@maxnumwidth=\skip59
+Class scrbook Info: using compatibility default `runin=bysign'
+(scrbook)           for `\subsubsection on input line 6116.
+Class scrbook Info: using compatibility default `afterindent=bysign'
+(scrbook)           for `\subsubsection on input line 6116.
+\scr@dte@paragraph@maxnumwidth=\skip60
+Class scrbook Info: using compatibility default `runin=bysign'
+(scrbook)           for `\paragraph on input line 6127.
+Class scrbook Info: using compatibility default `afterindent=bysign'
+(scrbook)           for `\paragraph on input line 6127.
+\scr@dte@subparagraph@maxnumwidth=\skip61
+Class scrbook Info: using compatibility default `runin=bysign'
+(scrbook)           for `\subparagraph on input line 6137.
+Class scrbook Info: using compatibility default `afterindent=bysign'
+(scrbook)           for `\subparagraph on input line 6137.
+\abovecaptionskip=\skip62
+\belowcaptionskip=\skip63
+\c@pti@nb@sid@b@x=\box54
+Package tocbasic Info: omitting babel extension for `lof'
+(tocbasic)             because of feature `nobabel' available
+(tocbasic)             for `lof' on input line 7350.
+\scr@dte@figure@maxnumwidth=\skip64
+\c@figure=\count283
+Package tocbasic Info: omitting babel extension for `lot'
+(tocbasic)             because of feature `nobabel' available
+(tocbasic)             for `lot' on input line 7363.
+\scr@dte@table@maxnumwidth=\skip65
+\c@table=\count284
+Class scrbook Info: Redefining `\numberline' on input line 7534.
+\bibindent=\dimen148
+)
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/setspace\setspace.sty
+Package: setspace 2022/12/04 v6.7b set line spacing
+)
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/base\inputenc.sty
+Package: inputenc 2024/02/08 v1.3d Input encoding file
+\inpenc@prehook=\toks18
+\inpenc@posthook=\toks19
+)
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/generic/babel\babel.sty
+Package: babel 2025/10/22 v25.14 The multilingual framework for LuaLaTeX, pdfLa
+TeX and XeLaTeX
+\babel@savecnt=\count285
+LaTeX Encoding Info:    Redeclaring text command \ij (encoding OT1) on input li
+ne 2050.
+LaTeX Encoding Info:    Redeclaring text command \IJ (encoding OT1) on input li
+ne 2052.
+LaTeX Encoding Info:    Redeclaring text command \ij (encoding T1) on input lin
+e 2054.
+LaTeX Encoding Info:    Redeclaring text command \IJ (encoding T1) on input lin
+e 2055.
+LaTeX Encoding Info:    Ignoring declaration for text command \ij (encoding ?) 
+on input line 2056.
+LaTeX Encoding Info:    Ignoring declaration for text command \IJ (encoding ?) 
+on input line 2058.
+LaTeX Encoding Info:    Ignoring declaration for text command \SS (encoding ?) 
+on input line 2083.
+\U@D=\dimen149
+\l@unhyphenated=\language79
+
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/generic/babel\txtbabel.def)
+\bbl@readstream=\read2
+\bbl@dirlevel=\count286
+
+
+Package babel Warning: Configuration files are deprecated, as
+(babel)                they can break document portability.
+(babel)                Reported on input line 4172.
+
+*************************************
+* Local config file bblopts.cfg used
+*
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/arabi\bblopts.cfg
+File: bblopts.cfg 2005/09/08 v0.1 add Arabic and Farsi to "declared" options of
+ babel
+)
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/generic/babel/locale/pt\babel
+-portuguese.tex)
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/generic/babel/locale/en\babel
+-english.tex)
+Package babel Info: Importing font and identification data for portuguese
+(babel)             from babel-pt.ini. Reported on input line 4295.
+
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/babel-portuges\portugue
+se.ldf
+Language: portuges 2021/07/09 v1.2t Portuguese support from the babel system
+Package babel Info: Making " an active character on input line 143.
+)
+Package babel Info: Importing font and identification data for english
+(babel)             from babel-en.ini. Reported on input line 4295.
+
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/babel-english\english.l
+df
+Language: english 2017/06/06 v3.3r English support from the babel system
+Package babel Info: Hyphen rules for 'canadian' set to \l@english
+(babel)             (\language0). Reported on input line 102.
+Package babel Info: Hyphen rules for 'australian' set to \l@ukenglish
+(babel)             (\language73). Reported on input line 105.
+Package babel Info: Hyphen rules for 'newzealand' set to \l@ukenglish
+(babel)             (\language73). Reported on input line 108.
+)) (C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/natbib\natbib.sty
+Package: natbib 2010/09/13 8.31b (PWD, AO)
+\bibhang=\skip66
+\bibsep=\skip67
+LaTeX Info: Redefining \cite on input line 694.
+\c@NAT@ctr=\count287
+) (C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/graphics\graphicx.sty
+Package: graphicx 2024/12/31 v1.2e Enhanced LaTeX Graphics (DPC,SPQR)
+
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/graphics\graphics.sty
+Package: graphics 2024/08/06 v1.4g Standard LaTeX Graphics (DPC,SPQR)
+
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/graphics\trig.sty
+Package: trig 2023/12/02 v1.11 sin cos tan (DPC)
+)
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/graphics-cfg\graphics.c
+fg
+File: graphics.cfg 2016/06/04 v1.11 sample graphics configuration
+)
+Package graphics Info: Driver file: pdftex.def on input line 106.
+
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/graphics-def\pdftex.def
+File: pdftex.def 2025/09/29 v1.2d Graphics/color driver for pdftex
+))
+\Gin@req@height=\dimen150
+\Gin@req@width=\dimen151
+)
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\hyperref.sty
+Package: hyperref 2025-07-12 v7.01o Hypertext links for LaTeX
+
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/generic/iftex\iftex.sty
+Package: iftex 2024/12/12 v1.0g TeX engine tests
+)
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/kvsetkeys\kvsetkeys.sty
+Package: kvsetkeys 2022-10-05 v1.19 Key value parser (HO)
+)
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/generic/kvdefinekeys\kvdefine
+keys.sty
+Package: kvdefinekeys 2019-12-19 v1.6 Define keys (HO)
+)
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/generic/pdfescape\pdfescape.s
+ty
+Package: pdfescape 2019/12/09 v1.15 Implements pdfTeX's escape features (HO)
+
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/generic/ltxcmds\ltxcmds.sty
+Package: ltxcmds 2023-12-04 v1.26 LaTeX kernel commands for general use (HO)
+)
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/generic/pdftexcmds\pdftexcmds
+.sty
+Package: pdftexcmds 2020-06-27 v0.33 Utility functions of pdfTeX for LuaTeX (HO
+)
+
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/generic/infwarerr\infwarerr.s
+ty
+Package: infwarerr 2019/12/03 v1.5 Providing info/warning/error messages (HO)
+)
+Package pdftexcmds Info: \pdf@primitive is available.
+Package pdftexcmds Info: \pdf@ifprimitive is available.
+Package pdftexcmds Info: \pdfdraftmode found.
+))
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/hycolor\hycolor.sty
+Package: hycolor 2020-01-27 v1.10 Color options for hyperref/bookmark (HO)
+)
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\nameref.sty
+Package: nameref 2025-06-21 v2.57 Cross-referencing by name of section
+
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/refcount\refcount.sty
+Package: refcount 2019/12/15 v3.6 Data extraction from label references (HO)
+)
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/generic/gettitlestring\gettit
+lestring.sty
+Package: gettitlestring 2019/12/15 v1.6 Cleanup title references (HO)
+
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/kvoptions\kvoptions.sty
+Package: kvoptions 2022-06-15 v3.15 Key value format for package options (HO)
+))
+\c@section@level=\count288
+)
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/etoolbox\etoolbox.sty
+Package: etoolbox 2025/10/02 v2.5m e-TeX tools for LaTeX (JAW)
+\etb@tempcnta=\count289
+)
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/generic/stringenc\stringenc.s
+ty
+Package: stringenc 2019/11/29 v1.12 Convert strings between diff. encodings (HO
+)
+)
+\@linkdim=\dimen152
+\Hy@linkcounter=\count290
+\Hy@pagecounter=\count291
+ (C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\pd1enc.def
+File: pd1enc.def 2025-07-12 v7.01o Hyperref: PDFDocEncoding definition (HO)
+Now handling font encoding PD1 ...
+... no UTF-8 mapping file for font encoding PD1
+) (C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/generic/intcalc\intcalc.sty
+Package: intcalc 2019/12/15 v1.3 Expandable calculations with integers (HO)
+)
+\Hy@SavedSpaceFactor=\count292
+ (C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\puenc.def
+File: puenc.def 2025-07-12 v7.01o Hyperref: PDF Unicode definition (HO)
+Now handling font encoding PU ...
+... no UTF-8 mapping file for font encoding PU
+)
+Package hyperref Info: Hyper figures OFF on input line 4195.
+Package hyperref Info: Link nesting OFF on input line 4200.
+Package hyperref Info: Hyper index ON on input line 4203.
+Package hyperref Info: Plain pages OFF on input line 4210.
+Package hyperref Info: Backreferencing OFF on input line 4215.
+Package hyperref Info: Implicit mode ON; LaTeX internals redefined.
+Package hyperref Info: Bookmarks ON on input line 4462.
+\c@Hy@tempcnt=\count293
+
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/url\url.sty
+\Urlmuskip=\muskip17
+Package: url 2013/09/16  ver 3.4  Verb mode for urls, etc.
+)
+LaTeX Info: Redefining \url on input line 4801.
+\XeTeXLinkMargin=\dimen153
+
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/generic/bitset\bitset.sty
+Package: bitset 2019/12/09 v1.3 Handle bit-vector datatype (HO)
+
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/generic/bigintcalc\bigintcalc
+.sty
+Package: bigintcalc 2019/12/15 v1.5 Expandable calculations on big integers (HO
+)
+))
+\Fld@menulength=\count294
+\Field@Width=\dimen154
+\Fld@charsize=\dimen155
+Package hyperref Info: Hyper figures OFF on input line 6078.
+Package hyperref Info: Link nesting OFF on input line 6083.
+Package hyperref Info: Hyper index ON on input line 6086.
+Package hyperref Info: backreferencing OFF on input line 6093.
+Package hyperref Info: Link coloring OFF on input line 6098.
+Package hyperref Info: Link coloring with OCG OFF on input line 6103.
+Package hyperref Info: PDF/A mode OFF on input line 6108.
+\Hy@abspage=\count295
+\c@Item=\count296
+\c@Hfootnote=\count297
+)
+Package hyperref Info: Driver: hpdftex.
+
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\hpdftex.def
+File: hpdftex.def 2025-07-12 v7.01o Hyperref driver for pdfTeX
+\Fld@listcount=\count298
+\c@bookmark@seq@number=\count299
+
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/rerunfilecheck\rerunfil
+echeck.sty
+Package: rerunfilecheck 2025-06-21 v1.11 Rerun checks for auxiliary files (HO)
+
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/generic/uniquecounter\uniquec
+ounter.sty
+Package: uniquecounter 2019/12/15 v1.4 Provide unlimited unique counter (HO)
+)
+Package uniquecounter Info: New unique counter `rerunfilecheck' on input line 2
+84.
+)
+\Hy@SectionHShift=\skip68
+)
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/base\fontenc.sty
+Package: fontenc 2024/12/21 v2.1c Standard LaTeX package
+)
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/pdfpages\pdfpages.sty
+Package: pdfpages 2025/07/23 v0.6g Insert pages of external PDF documents (AM)
+
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/base\ifthen.sty
+Package: ifthen 2024/03/16 v1.1e Standard LaTeX ifthen package (DPC)
+)
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/tools\calc.sty
+Package: calc 2025/03/01 v4.3b Infix arithmetic (KKT,FJ)
+\calc@Acount=\count300
+\calc@Bcount=\count301
+\calc@Adimen=\dimen156
+\calc@Bdimen=\dimen157
+\calc@Askip=\skip69
+\calc@Bskip=\skip70
+LaTeX Info: Redefining \setlength on input line 86.
+LaTeX Info: Redefining \addtolength on input line 87.
+\calc@Ccount=\count302
+\calc@Cskip=\skip71
+)
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/eso-pic\eso-pic.sty
+Package: eso-pic 2023/05/03 v3.0c eso-pic (RN)
+\ESO@tempdima=\dimen158
+\ESO@tempdimb=\dimen159
+
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/xcolor\xcolor.sty
+Package: xcolor 2024/09/29 v3.02 LaTeX color extensions (UK)
+
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/graphics-cfg\color.cfg
+File: color.cfg 2016/01/02 v1.6 sample color configuration
+)
+Package xcolor Info: Driver file: pdftex.def on input line 274.
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/graphics\mathcolor.ltx)
+Package xcolor Info: Model `cmy' substituted by `cmy0' on input line 1349.
+Package xcolor Info: Model `hsb' substituted by `rgb' on input line 1353.
+Package xcolor Info: Model `RGB' extended on input line 1365.
+Package xcolor Info: Model `HTML' substituted by `rgb' on input line 1367.
+Package xcolor Info: Model `Hsb' substituted by `hsb' on input line 1368.
+Package xcolor Info: Model `tHsb' substituted by `hsb' on input line 1369.
+Package xcolor Info: Model `HSB' substituted by `hsb' on input line 1370.
+Package xcolor Info: Model `Gray' substituted by `gray' on input line 1371.
+Package xcolor Info: Model `wave' substituted by `hsb' on input line 1372.
+))
+\AM@pagewidth=\dimen160
+\AM@pageheight=\dimen161
+\AM@fboxrule=\dimen162
+
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/pdfpages\pppdftex.def
+File: pppdftex.def 2025/07/23 v0.6g Pdfpages driver for pdfTeX (AM)
+)
+\pdfpages@includegraphics@status=\count303
+\AM@pagebox=\box55
+\AM@global@opts=\toks20
+\AM@pagecnt=\count304
+\AM@toc@title=\toks21
+\AM@lof@heading=\toks22
+\c@AM@survey=\count305
+\AM@templatesizebox=\box56
+) (C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/lettrine\lettrine.sty
+File: lettrine.sty 2025-01-30 v2.80 (Daniel Flipo)
+
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/l3packages/xfp\xfp.sty
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/l3kernel\expl3.sty
+Package: expl3 2025-10-09 L3 programming layer (loader) 
+
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/l3backend\l3backend-pdf
+tex.def
+File: l3backend-pdftex.def 2025-10-09 L3 backend support: PDF output (pdfTeX)
+\l__color_backend_stack_int=\count306
+))
+Package: xfp 2025-10-09 L3 Floating point unit
+)
+\c@DefaultLines=\count307
+\c@DefaultDepth=\count308
+\DefaultFindent=\dimen163
+\DefaultNindent=\dimen164
+\DefaultSlope=\dimen165
+\DiscardVskip=\dimen166
+\L@lettrine=\box57
+\L@lbox=\box58
+\L@tbox=\box59
+\c@L@lines=\count309
+\c@L@depth=\count310
+\L@Pindent=\dimen167
+\L@Findent=\dimen168
+\L@Nindent=\dimen169
+\L@lraise=\dimen170
+\L@first=\dimen171
+\L@next=\dimen172
+\L@slope=\dimen173
+\L@height=\dimen174
+\L@novskip=\dimen175
+\L@target@ht=\dimen176
+\L@target@dp=\dimen177
+\L@target@tht=\dimen178
+\LettrineWidth=\dimen179
+\LettrineHeight=\dimen180
+\LettrineDepth=\dimen181
+\L@finalht=\dimen182
+\L@finaldp=\dimen183
+
+Loading lettrine.cfg
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/lettrine\lettrine.cfg)
+\Lettrine@tweaks=\toks23
+\Llist@everypar=\toks24
+) (C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/booktabs\booktabs.sty
+Package: booktabs 2020/01/12 v1.61803398 Publication quality tables
+\heavyrulewidth=\dimen184
+\lightrulewidth=\dimen185
+\cmidrulewidth=\dimen186
+\belowrulesep=\dimen187
+\belowbottomsep=\dimen188
+\aboverulesep=\dimen189
+\abovetopsep=\dimen190
+\cmidrulesep=\dimen191
+\cmidrulekern=\dimen192
+\defaultaddspace=\dimen193
+\@cmidla=\count311
+\@cmidlb=\count312
+\@aboverulesep=\dimen194
+\@belowrulesep=\dimen195
+\@thisruleclass=\count313
+\@lastruleclass=\count314
+\@thisrulewidth=\dimen196
+) (C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/scrhack\scrhack.sty
+Package: scrhack 2024-09-04 v3.42 scrhack emulation package
+
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/setspaceenhanced\setspa
+ceenhanced.sty
+Package: setspaceenhanced 2024-11-12 v1.04 improved setspace package
+))
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/koma-script\scrlayer-sc
+rpage.sty
+Package: scrlayer-scrpage 2025/09/09 v3.48 KOMA-Script package (end user interf
+ace for scrlayer)
+
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/koma-script\scrlayer.st
+y
+Package: scrlayer 2025/09/09 v3.48 KOMA-Script package (defining layers and pag
+e styles)
+Package scrlayer Info: patching LaTeX kernel macro \pagestyle on input line 217
+9.
+)
+Package scrlayer-scrpage Info: Makeing stand-alone element `pagehead' from
+(scrlayer-scrpage)             alias to `pageheadfoot' on input line 1106.
+) (C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/ulem\ulem.sty
+\UL@box=\box60
+\UL@hyphenbox=\box61
+\UL@skip=\skip72
+\UL@hook=\toks25
+\UL@height=\dimen197
+\UL@pe=\count315
+\UL@pixel=\dimen198
+\ULC@box=\box62
+Package: ulem 2019/11/18
+\ULdepth=\dimen199
+)
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\amssymb.sty
+Package: amssymb 2013/01/14 v3.01 AMS font symbols
+
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\amsfonts.sty
+Package: amsfonts 2013/01/14 v3.01 Basic AMSFonts support
+\@emptytoks=\toks26
+\symAMSa=\mathgroup4
+\symAMSb=\mathgroup5
+LaTeX Font Info:    Redeclaring math symbol \hbar on input line 98.
+LaTeX Font Info:    Overwriting math alphabet `\mathfrak' in version `bold'
+(Font)                  U/euf/m/n --> U/euf/b/n on input line 106.
+)) (C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/colortbl\colortbl.st
+y
+Package: colortbl 2024/10/29 v1.0k Color table columns (DPC)
+
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/tools\array.sty
+Package: array 2025/06/08 v2.6j Tabular extension package (FMi)
+\col@sep=\dimen256
+\ar@mcellbox=\box63
+\extrarowheight=\dimen257
+\NC@list=\toks27
+\extratabsurround=\skip73
+\backup@length=\skip74
+\ar@cellbox=\box64
+)
+\everycr=\toks28
+\minrowclearance=\skip75
+\rownum=\count316
+)
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/tools\tabularx.sty
+Package: tabularx 2023/12/11 v2.12a `tabularx' package (DPC)
+\TX@col@width=\dimen258
+\TX@old@table=\dimen259
+\TX@old@col=\dimen260
+\TX@target=\dimen261
+\TX@delta=\dimen262
+\TX@cols=\count317
+\TX@ftn=\toks29
+)
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/vhistory\vhistory.sty
+Package: vhistory 
+
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/carlisle\ltxtable.sty
+Package: ltxtable 2021/06/13 v0.4 longtable/tabularx merge (DPC)
+
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/tools\longtable.sty
+Package: longtable 2024-12-18 v4.23 Multi-page Table package (DPC)
+\LTleft=\skip76
+\LTright=\skip77
+\LTpre=\skip78
+\LTpost=\skip79
+\LTchunksize=\count318
+\LTcapwidth=\dimen263
+\LT@head=\box65
+\LT@firsthead=\box66
+\LT@foot=\box67
+\LT@lastfoot=\box68
+\LT@gbox=\box69
+\LT@cols=\count319
+\LT@rows=\count320
+\c@LT@tables=\count321
+\c@LT@chunks=\count322
+\LT@p@ftn=\toks30
+)
+Class scrbook Info: longtable captions redefined on input line 25.
+)
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/vhistory\sets.sty
+Package: sets 
+\c@s@tlength=\count323
+)
+File ADD.hst not found.
+\vh@verfile=\write3
+)
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/blindtext\blindtext.sty
+Package: blindtext 2012/01/06 V2.0 blindtext-Package
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/tools\xspace.sty
+Package: xspace 2014/10/28 v1.13 Space after command names (DPC,MH)
+)
+\c@blindtext=\count324
+\c@Blindtext=\count325
+\c@blind@countparstart=\count326
+\blind@countxx=\count327
+\blindtext@numBlindtext=\count328
+\blind@countyy=\count329
+\c@blindlist=\count330
+\c@blindlistlevel=\count331
+\c@blindlist@level=\count332
+\blind@listitem=\count333
+\c@blind@listcount=\count334
+\c@blind@levelcount=\count335
+\blind@mathformula=\count336
+\blind@Mathformula=\count337
+\c@blind@randomcount=\count338
+\c@blind@randommax=\count339
+\c@blind@pangramcount=\count340
+\c@blind@pangrammax=\count341
+)
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/listings\listings.sty
+\lst@mode=\count342
+\lst@gtempboxa=\box70
+\lst@token=\toks31
+\lst@length=\count343
+\lst@currlwidth=\dimen264
+\lst@column=\count344
+\lst@pos=\count345
+\lst@lostspace=\dimen265
+\lst@width=\dimen266
+\lst@newlines=\count346
+\lst@lineno=\count347
+\lst@maxwidth=\dimen267
+
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/listings\lstpatch.sty
+File: lstpatch.sty 2024/09/23 1.10c (Carsten Heinz)
+)
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/listings\lstmisc.sty
+File: lstmisc.sty 2024/09/23 1.10c (Carsten Heinz)
+\c@lstnumber=\count348
+\lst@skipnumbers=\count349
+\lst@framebox=\box71
+)
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/listings\listings.cfg
+File: listings.cfg 2024/09/23 1.10c listings configuration
+))
+Package: listings 2024/09/23 1.10c (Carsten Heinz)
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/fancyvrb\fancyvrb.sty
+Package: fancyvrb 2025/07/28 4.6 verbatim text (tvz,hv)
+\FV@CodeLineNo=\count350
+\FV@InFile=\read3
+\FV@TabBox=\box72
+\c@FancyVerbLine=\count351
+\FV@StepNumber=\count352
+\FV@OutFile=\write4
+)
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/float\float.sty
+Package: float 2001/11/08 v1.3d Float enhancements (AL)
+\c@float@type=\count353
+\float@exts=\toks32
+\float@box=\box73
+\@float@everytoks=\toks33
+\@floatcapt=\box74
+)
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/floatbytocbasic\floatby
+tocbasic.sty
+Package: floatbytocbasic 2023-08-16 v1.0 improved float package using tocbasic
+
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/xpatch\xpatch.sty
+Package: xpatch 2020/03/25 v0.3a Extending etoolbox patching commands
+
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/l3packages/xparse\xpars
+e.sty
+Package: xparse 2025-10-09 L3 Experimental document command parser
+)))
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/libertine\libertine.sty
+Package: libertine 2024/04/23 (Bob Tennent) Supports Libertine and Biolinum fon
+ts for all LaTeX engines.
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/generic/iftex\ifxetex.sty
+Package: ifxetex 2019/10/25 v0.7 ifxetex legacy package. Use iftex instead.
+)
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/generic/iftex\ifluatex.sty
+Package: ifluatex 2019/10/25 v1.5 ifluatex legacy package. Use iftex instead.
+)
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/xkeyval\xkeyval.sty
+Package: xkeyval 2022/06/16 v2.9 package option processing (HA)
+
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/generic/xkeyval\xkeyval.tex
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/generic/xkeyval\xkvutils.tex
+\XKV@toks=\toks34
+\XKV@tempa@toks=\toks35
+)
+\XKV@depth=\count354
+File: xkeyval.tex 2014/12/03 v2.7a key=value parser (HA)
+)) (C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/base\textcomp.sty
+Package: textcomp 2024/04/24 v2.1b Standard LaTeX package
+)
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/base\fontenc.sty
+Package: fontenc 2024/12/21 v2.1c Standard LaTeX package
+)
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/fontaxes\fontaxes.sty
+Package: fontaxes 2025-05-24 v2.0.1 Font selection axes (deprecated)
+
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/figureversions\figureve
+rsions.sty
+Package: figureversions 2025-04-29 v1.0.1 Figure versions
+))
+LaTeX Info: Redefining \oldstylenums on input line 485.
+
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/libertine\LinLibertine_
+I.tex))
+Class scrbook Info: loading recommended package `bookmark'.
+(scrbook)           Using `bookmark' together with `hyperref' is recommended,
+(scrbook)           because of handling of possible bookmark level gaps.
+(scrbook)           You can avoid loading `bookmark' with KOMA-Script option
+(scrbook)           `bookmarkpackage=false' before \begin{document} and
+(scrbook)           you can avoid this message adding:
+(scrbook)             \usepackage{bookmark}
+(scrbook)           before \begin{document} on input line 42.
+
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/bookmark\bookmark.sty
+Package: bookmark 2023-12-10 v1.31 PDF bookmarks (HO)
+
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/bookmark\bkm-pdftex.def
+File: bkm-pdftex.def 2023-12-10 v1.31 bookmark driver for pdfTeX and luaTeX (HO
+)
+\BKM@id=\count355
+))
+LaTeX Font Info:    Trying to load font information for T1+LinuxLibertineT-TLF 
+on input line 42.
+
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/libertine\t1linuxlibert
+inet-tlf.fd
+File: T1LinuxLibertineT-TLF.fd 2017/03/20 (autoinst) Font definitions for T1/Li
+nuxLibertineT-TLF.
+)
+LaTeX Font Info:    Font shape `T1/LinuxLibertineT-TLF/m/n' will be
+(Font)              scaled to size 10.95pt on input line 42.
+ (ADD.aux)
+\openout1 = `ADD.aux'.
+
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 42.
+LaTeX Font Info:    ... okay on input line 42.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 42.
+LaTeX Font Info:    ... okay on input line 42.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 42.
+LaTeX Font Info:    ... okay on input line 42.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 42.
+LaTeX Font Info:    ... okay on input line 42.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 42.
+LaTeX Font Info:    ... okay on input line 42.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 42.
+LaTeX Font Info:    ... okay on input line 42.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 42.
+LaTeX Font Info:    ... okay on input line 42.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 42.
+LaTeX Font Info:    ... okay on input line 42.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 42.
+LaTeX Font Info:    ... okay on input line 42.
+Package scrbase Info: activating english \partname on input line 42.
+Package scrbase Info: activating english \chaptername on input line 42.
+Package scrbase Info: activating english \appendixname on input line 42.
+Package scrbase Info: activating english \figurename on input line 42.
+Package scrbase Info: activating english \tablename on input line 42.
+Package scrbase Info: activating english \contentsname on input line 42.
+Package scrbase Info: activating english \listfigurename on input line 42.
+Package scrbase Info: activating english \listtablename on input line 42.
+Package scrbase Info: activating english \bibname on input line 42.
+Package scrbase Info: activating english \indexname on input line 42.
+
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/context/base/mkii\supp-pdf.mk
+ii
+[Loading MPS to PDF converter (version 2006.09.02).]
+\scratchcounter=\count356
+\scratchdimen=\dimen268
+\scratchbox=\box75
+\nofMPsegments=\count357
+\nofMParguments=\count358
+\everyMPshowfont=\toks36
+\MPscratchCnt=\count359
+\MPscratchDim=\dimen269
+\MPnumerator=\count360
+\makeMPintoPDFobject=\count361
+\everyMPtoPDFconversion=\toks37
+)
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/epstopdf-pkg\epstopdf-b
+ase.sty
+Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
+Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 4
+85.
+
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/00miktex\epstopdf-sys.c
+fg
+File: epstopdf-sys.cfg 2021/03/18 v2.0 Configuration of epstopdf for MiKTeX
+))
+Package hyperref Info: Link coloring OFF on input line 42.
+
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/pdflscape\pdflscape.sty
+Package: pdflscape 2022-10-27 v0.13 Display of landscape pages in PDF
+
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/pdflscape\pdflscape-nom
+etadata.sty
+Package: pdflscape-nometadata 2022-10-28 v0.13 Display of landscape pages in PD
+F (HO)
+
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/graphics\lscape.sty
+Package: lscape 2020/05/28 v3.02 Landscape Pages (DPC)
+)
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/lscapeenhanced\lscapeen
+hanced.sty
+Package: lscapeenhanced 2024-04-16 v1.0 improved lscape package
+Package lscapeenhanced Info: \landscape patched to make \textheight change opti
+onal on input line 72.
+\@lscapeenhanced@textheight=\skip80
+)
+Package pdflscape Info: Auto-detected driver: pdftex on input line 81.
+))
+\c@lstlisting=\count362
+Package tocbasic Info: setting babel extension for `lol' on input line 42.
+\scr@dte@lstlisting@maxnumwidth=\skip81
+\c@mv@tabular=\count363
+\c@mv@boldtabular=\count364
+<../Logos/logoisep.png, id=3, 886.31125pt x 338.26375pt>
+File: ../Logos/logoisep.png Graphic file (type png)
+<use ../Logos/logoisep.png>
+Package pdftex.def Info: ../Logos/logoisep.png  used on input line 65.
+(pdftex.def)             Requested size: 177.25911pt x 67.65154pt.
+<../Logos/logo_DEI_big_transparente.png, id=5, 642.4pt x 252.945pt>
+File: ../Logos/logo_DEI_big_transparente.png Graphic file (type png)
+<use ../Logos/logo_DEI_big_transparente.png>
+Package pdftex.def Info: ../Logos/logo_DEI_big_transparente.png  used on input 
+line 65.
+(pdftex.def)             Requested size: 73.87935pt x 29.08998pt.
+LaTeX Font Info:    Trying to load font information for T1+LinuxBiolinumT-TLF o
+n input line 65.
+
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/libertine\t1linuxbiolin
+umt-tlf.fd
+File: T1LinuxBiolinumT-TLF.fd 2017/03/20 (autoinst) Font definitions for T1/Lin
+uxBiolinumT-TLF.
+)
+LaTeX Font Info:    Font shape `T1/LinuxBiolinumT-TLF/m/n' will be
+(Font)              scaled to size 10.95pt on input line 65.
+LaTeX Font Info:    Font shape `T1/LinuxBiolinumT-TLF/b/n' will be
+(Font)              scaled to size 10.95pt on input line 65.
+LaTeX Font Info:    Font shape `T1/LinuxBiolinumT-TLF/b/n' will be
+(Font)              scaled to size 20.74pt on input line 65.
+LaTeX Font Info:    Font shape `T1/LinuxBiolinumT-TLF/b/n' will be
+(Font)              scaled to size 12.0pt on input line 65.
+LaTeX Font Info:    Font shape `T1/LinuxLibertineT-TLF/m/n' will be
+(Font)              scaled to size 14.4pt on input line 65.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 65.
+
+
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsa.fd
+File: umsa.fd 2013/01/14 v3.01 AMS symbols A
+)
+LaTeX Font Info:    Trying to load font information for U+msb on input line 65.
+
+
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsb.fd
+File: umsb.fd 2013/01/14 v3.01 AMS symbols B
+)
+
+[1
+
+
+
+
+
+{C:/Users/lmnam/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}{C:/Users/lmna
+m/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/libertine/lbtn_25tcsq.enc}{C:/U
+sers/lmnam/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/libertine/lbtn_76gpa5.
+enc} <../Logos/logoisep.png> <../Logos/logo_DEI_big_transparente.png>]
+
+[2
+
+
+] (ADD.toc
+
+LaTeX Font Info:    Font shape `T1/LinuxLibertineT-TLF/m/sl' in size <10.95> no
+t available
+(Font)              Font shape `T1/LinuxLibertineT-TLF/m/it' tried instead on i
+nput line 31.
+LaTeX Font Info:    Font shape `T1/LinuxLibertineT-TLF/m/it' will be
+(Font)              scaled to size 10.95pt on input line 31.
+[3])
+\tf@toc=\write5
+\openout5 = `ADD.toc'.
+
+
+
+<../logos/logo_DEI_big_transparente.png, id=103, 642.4pt x 252.945pt>
+File: ../logos/logo_DEI_big_transparente.png Graphic file (type png)
+<use ../logos/logo_DEI_big_transparente.png>
+Package pdftex.def Info: ../logos/logo_DEI_big_transparente.png  used on input 
+line 67.
+(pdftex.def)             Requested size: 38.84038pt x 15.29182pt.
+<../logos/logoisep.png, id=104, 886.31125pt x 338.26375pt>
+File: ../logos/logoisep.png Graphic file (type png)
+<use ../logos/logoisep.png>
+Package pdftex.def Info: ../logos/logoisep.png  used on input line 67.
+(pdftex.def)             Requested size: 58.25465pt x 22.2305pt.
+[4{C:/Users/lmnam/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/libertine/lbtn_
+7grukw.enc} <../logos/logo_DEI_big_transparente.png> <../logos/logoisep.png>]
+chapter 1.
+LaTeX Font Info:    Font shape `T1/LinuxBiolinumT-TLF/b/n' will be
+(Font)              scaled to size 14.4pt on input line 76.
+
+Overfull \hbox (17.69786pt too wide) in paragraph at lines 78--79
+\T1/LinuxLibertineT-TLF/m/n/10.95 O sis-tema LMS (Li-brary Man-age-ment Sys-tem
+) foi de-sen-volvido numa ar-quite-tura monolÌtica.
+ []
+
+LaTeX Font Info:    Font shape `T1/LinuxLibertineT-TLF/b/n' will be
+(Font)              scaled to size 10.95pt on input line 82.
+
+Overfull \hbox (17.91777pt too wide) in paragraph at lines 82--83
+\T1/LinuxLibertineT-TLF/m/n/10.95 Reengenhar o sis-tema LMS para uma \T1/LinuxL
+ibertineT-TLF/b/n/10.95 ar-quite-tura dis-tribuÌda baseada em mi-croserviÁos\T1
+/LinuxLibertineT-TLF/m/n/10.95 ,
+ []
+
+
+
+[1
+
+
+
+
+
+
+{C:/Users/lmnam/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/libertine/lbtn_nh
+77jq.enc}]
+
+[2
+
+
+]
+chapter 2.
+LaTeX Font Info:    Font shape `T1/LinuxLibertineT-TLF/m/n' will be
+(Font)              scaled to size 10.0pt on input line 151.
+
+Underfull \vbox (badness 2269) has occurred while \output is active []
+
+
+
+[3
+pdfTeX warning (ext4): destination with the same identifier (name{table.2.1}) h
+as been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.166 
+      
+pdfTeX warning (ext4): destination with the same identifier (name{table.2.2}) h
+as been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.166 
+      ]
+
+File: ../logos/logo_DEI_big_transparente.png Graphic file (type png)
+<use ../logos/logo_DEI_big_transparente.png>
+Package pdftex.def Info: ../logos/logo_DEI_big_transparente.png  used on input 
+line 210.
+(pdftex.def)             Requested size: 38.84038pt x 15.29182pt.
+File: ../logos/logoisep.png Graphic file (type png)
+<use ../logos/logoisep.png>
+Package pdftex.def Info: ../logos/logoisep.png  used on input line 210.
+(pdftex.def)             Requested size: 58.25465pt x 22.2305pt.
+[4
+pdfTeX warning (ext4): destination with the same identifier (name{table.2.3}) h
+as been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.210 \chapter
+              {Padr√µes de Microservi√ßos}
+pdfTeX warning (ext4): destination with the same identifier (name{table.2.4}) h
+as been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.210 \chapter
+              {Padr√µes de Microservi√ßos}
+pdfTeX warning (ext4): destination with the same identifier (name{table.2.5}) h
+as been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.210 \chapter
+              {Padr√µes de Microservi√ßos}]
+chapter 3.
+LaTeX Info: Symbol \textrightarrow not provided by
+            font family LinuxLibertineT-TLF in TS1 encoding.
+            Default family used instead on input line 226.
+LaTeX Info: Symbol \textrightarrow not provided by
+            font family LinuxLibertineT-TLF in TS1 encoding.
+            Default family used instead on input line 226.
+
+Underfull \vbox (badness 1968) has occurred while \output is active []
+
+
+
+[5
+
+
+]
+Underfull \hbox (badness 10000) in paragraph at lines 284--284
+[]|\T1/LinuxLibertineT-TLF/b/n/10 Workflow claro; con-trolo
+ []
+
+LaTeX Info: Symbol \textrightarrow not provided by
+            font family LinuxLibertineT-TLF in TS1 encoding.
+            Default family used instead on input line 293.
+LaTeX Info: Symbol \textrightarrow not provided by
+            font family LinuxLibertineT-TLF in TS1 encoding.
+            Default family used instead on input line 293.
+
+
+File: ../logos/logo_DEI_big_transparente.png Graphic file (type png)
+<use ../logos/logo_DEI_big_transparente.png>
+Package pdftex.def Info: ../logos/logo_DEI_big_transparente.png  used on input 
+line 294.
+(pdftex.def)             Requested size: 38.84038pt x 15.29182pt.
+File: ../logos/logoisep.png Graphic file (type png)
+<use ../logos/logoisep.png>
+Package pdftex.def Info: ../logos/logoisep.png  used on input line 294.
+(pdftex.def)             Requested size: 58.25465pt x 22.2305pt.
+[6
+pdfTeX warning (ext4): destination with the same identifier (name{table.3.1}) h
+as been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.294     \item S
+                 e Genre falha: aborta imediatamente
+pdfTeX warning (ext4): destination with the same identifier (name{table.3.2}) h
+as been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.294     \item S
+                 e Genre falha: aborta imediatamente]
+
+File: ../logos/logoisep.png Graphic file (type png)
+<use ../logos/logoisep.png>
+Package pdftex.def Info: ../logos/logoisep.png  used on input line 340.
+(pdftex.def)             Requested size: 58.25465pt x 22.2305pt.
+File: ../logos/logo_DEI_big_transparente.png Graphic file (type png)
+<use ../logos/logo_DEI_big_transparente.png>
+Package pdftex.def Info: ../logos/logo_DEI_big_transparente.png  used on input 
+line 340.
+(pdftex.def)             Requested size: 38.84038pt x 15.29182pt.
+[7
+pdfTeX warning (ext4): destination with the same identifier (name{table.3.3}) h
+as been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.340 \textbf{Justifica√ß√£o:}
+                               Permite otimizar independentemente. Writes ne...
+]
+LaTeX Font Info:    Trying to load font information for TS1+LinuxLibertineT-TLF
+ on input line 345.
+
+(C:\Users\lmnam\AppData\Local\Programs\MiKTeX\tex/latex/libertine\ts1linuxliber
+tinet-tlf.fd
+File: TS1LinuxLibertineT-TLF.fd 2017/03/20 (autoinst) Font definitions for TS1/
+LinuxLibertineT-TLF.
+)
+LaTeX Font Info:    Font shape `TS1/LinuxLibertineT-TLF/m/n' will be
+(Font)              scaled to size 10.95pt on input line 345.
+
+Overfull \hbox (1.99937pt too wide) in paragraph at lines 354--355
+\T1/LinuxLibertineT-TLF/b/n/10.95 JustificaÁ„o Rab-bitMQ: \T1/LinuxLibertineT-T
+LF/m/n/10.95 Rout-ing flex-i-bil-ity (top-ic/di-rect ex-changes), built-in DLQ 
+(Dead
+ []
+
+
+
+File: ../logos/logo_DEI_big_transparente.png Graphic file (type png)
+<use ../logos/logo_DEI_big_transparente.png>
+Package pdftex.def Info: ../logos/logo_DEI_big_transparente.png  used on input 
+line 367.
+(pdftex.def)             Requested size: 38.84038pt x 15.29182pt.
+File: ../logos/logoisep.png Graphic file (type png)
+<use ../logos/logoisep.png>
+Package pdftex.def Info: ../logos/logoisep.png  used on input line 367.
+(pdftex.def)             Requested size: 58.25465pt x 22.2305pt.
+[8{C:/Users/lmnam/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/libertine/lbtn_
+naooyc.enc}]
+chapter 4.
+
+
+[9
+
+
+
+pdfTeX warning (ext4): destination with the same identifier (name{table.4.1}) h
+as been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.399 \chapter
+              {Processo ADD - Itera√ß√µes}]
+
+[10
+
+
+]
+chapter 5.
+
+Underfull \hbox (badness 10000) in paragraph at lines 420--420
+[]|\T1/LinuxLibertineT-TLF/m/n/10.95 Microservices, Database-per-
+ []
+
+
+Underfull \hbox (badness 7344) in paragraph at lines 420--420
+[]|\T1/LinuxLibertineT-TLF/m/n/10.95 Saga, Out-box, Do-main Events,
+ []
+
+
+Underfull \hbox (badness 1199) in paragraph at lines 420--420
+[]|\T1/LinuxLibertineT-TLF/m/n/10.95 CQRS, Caching, Load Bal-anc-ing,
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 420--420
+[]|\T1/LinuxLibertineT-TLF/m/n/10.95 Circuit Breaker, Re-dun-dancy,
+ []
+
+
+
+[11
+pdfTeX warning (ext4): destination with the same identifier (name{table.5.1}) h
+as been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.442     \item E
+                 xperience API (BFF) - interface com clientes]
+Overfull \hbox (7.39066pt too wide) in paragraph at lines 477--478
+[]\T1/LinuxLibertineT-TLF/b/n/10.95 AlcanÁado: \T1/LinuxLibertineT-TLF/m/n/10.9
+5 Ar-quite-tura dis-tribuÌda, Database-per-Service, Poly-glot Per-sis-tence, St
+ran-
+ []
+
+
+
+File: ../logos/logo_DEI_big_transparente.png Graphic file (type png)
+<use ../logos/logo_DEI_big_transparente.png>
+Package pdftex.def Info: ../logos/logo_DEI_big_transparente.png  used on input 
+line 485.
+(pdftex.def)             Requested size: 38.84038pt x 15.29182pt.
+File: ../logos/logoisep.png Graphic file (type png)
+<use ../logos/logoisep.png>
+Package pdftex.def Info: ../logos/logoisep.png  used on input line 485.
+(pdftex.def)             Requested size: 58.25465pt x 22.2305pt.
+[12
+pdfTeX warning (ext4): destination with the same identifier (name{figure.5.1}) 
+has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.485 \textbf{Padr√µes Selecionados:}
+                                      Saga Orchestration, Outbox, Domain Eve...
+]
+LaTeX Info: Symbol \textrightarrow not provided by
+            font family LinuxLibertineT-TLF in TS1 encoding.
+            Default family used instead on input line 487.
+LaTeX Info: Symbol \textrightarrow not provided by
+            font family LinuxLibertineT-TLF in TS1 encoding.
+            Default family used instead on input line 487.
+LaTeX Info: Symbol \textrightarrow not provided by
+            font family LinuxLibertineT-TLF in TS1 encoding.
+            Default family used instead on input line 487.
+LaTeX Info: Symbol \textrightarrow not provided by
+            font family LinuxLibertineT-TLF in TS1 encoding.
+            Default family used instead on input line 487.
+LaTeX Info: Symbol \textrightarrow not provided by
+            font family LinuxLibertineT-TLF in TS1 encoding.
+            Default family used instead on input line 487.
+LaTeX Info: Symbol \textrightarrow not provided by
+            font family LinuxLibertineT-TLF in TS1 encoding.
+            Default family used instead on input line 487.
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+
+
+File: ../logos/logoisep.png Graphic file (type png)
+<use ../logos/logoisep.png>
+Package pdftex.def Info: ../logos/logoisep.png  used on input line 528.
+(pdftex.def)             Requested size: 58.25465pt x 22.2305pt.
+File: ../logos/logo_DEI_big_transparente.png Graphic file (type png)
+<use ../logos/logo_DEI_big_transparente.png>
+Package pdftex.def Info: ../logos/logo_DEI_big_transparente.png  used on input 
+line 528.
+(pdftex.def)             Requested size: 38.84038pt x 15.29182pt.
+[13]
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+
+
+File: ../logos/logo_DEI_big_transparente.png Graphic file (type png)
+<use ../logos/logo_DEI_big_transparente.png>
+Package pdftex.def Info: ../logos/logo_DEI_big_transparente.png  used on input 
+line 553.
+(pdftex.def)             Requested size: 38.84038pt x 15.29182pt.
+File: ../logos/logoisep.png Graphic file (type png)
+<use ../logos/logoisep.png>
+Package pdftex.def Info: ../logos/logoisep.png  used on input line 553.
+(pdftex.def)             Requested size: 58.25465pt x 22.2305pt.
+[14
+pdfTeX warning (ext4): destination with the same identifier (name{figure.5.2}) 
+has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.553 
+      ]
+
+File: ../logos/logoisep.png Graphic file (type png)
+<use ../logos/logoisep.png>
+Package pdftex.def Info: ../logos/logoisep.png  used on input line 588.
+(pdftex.def)             Requested size: 58.25465pt x 22.2305pt.
+File: ../logos/logo_DEI_big_transparente.png Graphic file (type png)
+<use ../logos/logo_DEI_big_transparente.png>
+Package pdftex.def Info: ../logos/logo_DEI_big_transparente.png  used on input 
+line 588.
+(pdftex.def)             Requested size: 38.84038pt x 15.29182pt.
+[15
+pdfTeX warning (ext4): destination with the same identifier (name{figure.5.3}) 
+has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.588 
+      
+pdfTeX warning (ext4): destination with the same identifier (name{table.5.2}) h
+as been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.588 
+      ]
+Overfull \hbox (3.71123pt too wide) in paragraph at lines 626--627
+[]\T1/LinuxLibertineT-TLF/b/n/10.95 Observability: \T1/LinuxLibertineT-TLF/m/n/
+10.95 Prometheus (mÈtri-cas RP-S/la-ten-cy/er-rors), Grafana (dash-board-s/aler
+t-
+ []
+
+
+
+File: ../logos/logo_DEI_big_transparente.png Graphic file (type png)
+<use ../logos/logo_DEI_big_transparente.png>
+Package pdftex.def Info: ../logos/logo_DEI_big_transparente.png  used on input 
+line 633.
+(pdftex.def)             Requested size: 38.84038pt x 15.29182pt.
+File: ../logos/logoisep.png Graphic file (type png)
+<use ../logos/logoisep.png>
+Package pdftex.def Info: ../logos/logoisep.png  used on input line 633.
+(pdftex.def)             Requested size: 58.25465pt x 22.2305pt.
+[16
+pdfTeX warning (ext4): destination with the same identifier (name{table.5.3}) h
+as been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.633 \chapter
+              {Arquitetura Final}]
+chapter 6.
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+
+
+[17
+
+
+]
+Overfull \vbox (261.28273pt too high) has occurred while \output is active []
+
+
+
+File: ../logos/logo_DEI_big_transparente.png Graphic file (type png)
+<use ../logos/logo_DEI_big_transparente.png>
+Package pdftex.def Info: ../logos/logo_DEI_big_transparente.png  used on input 
+line 694.
+(pdftex.def)             Requested size: 38.84038pt x 15.29182pt.
+File: ../logos/logoisep.png Graphic file (type png)
+<use ../logos/logoisep.png>
+Package pdftex.def Info: ../logos/logoisep.png  used on input line 694.
+(pdftex.def)             Requested size: 58.25465pt x 22.2305pt.
+[18
+pdfTeX warning (ext4): destination with the same identifier (name{figure.6.1}) 
+has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.694 
+      ]
+Underfull \hbox (badness 1142) in paragraph at lines 719--719
+[]|\T1/LinuxLibertineT-TLF/m/n/10 Routing, auth, rate limit,
+ []
+
+
+Underfull \hbox (badness 3019) in paragraph at lines 719--719
+\T1/LinuxLibertineT-TLF/m/n/10 cir-cuit breaker, Stran-gler
+ []
+
+
+Underfull \hbox (badness 2903) in paragraph at lines 719--719
+[]|\T1/LinuxLibertineT-TLF/m/n/10 Saga or-ches-tra-tion, com-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 719--719
+[]|\T1/LinuxLibertineT-TLF/m/n/10 CQRS, CRUD, out-box,
+ []
+
+
+Underfull \hbox (badness 5637) in paragraph at lines 719--719
+[]|\T1/LinuxLibertineT-TLF/m/n/10 Event dis-tri-bu-tion, com-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 719--719
+[]|\T1/LinuxLibertineT-TLF/m/n/10 Orchestration, auto-
+ []
+
+
+
+File: ../logos/logoisep.png Graphic file (type png)
+<use ../logos/logoisep.png>
+Package pdftex.def Info: ../logos/logoisep.png  used on input line 756.
+(pdftex.def)             Requested size: 58.25465pt x 22.2305pt.
+File: ../logos/logo_DEI_big_transparente.png Graphic file (type png)
+<use ../logos/logo_DEI_big_transparente.png>
+Package pdftex.def Info: ../logos/logo_DEI_big_transparente.png  used on input 
+line 756.
+(pdftex.def)             Requested size: 38.84038pt x 15.29182pt.
+[19
+pdfTeX warning (ext4): destination with the same identifier (name{table.6.1}) h
+as been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.756 \chapter
+              {Decis√µes T√©cnicas}
+pdfTeX warning (ext4): destination with the same identifier (name{table.6.2}) h
+as been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.756 \chapter
+              {Decis√µes T√©cnicas}]
+
+[20
+
+
+]
+chapter 7.
+LaTeX Info: Symbol \textrightarrow not provided by
+            font family LinuxLibertineT-TLF in TS1 encoding.
+            Default family used instead on input line 775.
+LaTeX Info: Symbol \textrightarrow not provided by
+            font family LinuxLibertineT-TLF in TS1 encoding.
+            Default family used instead on input line 775.
+LaTeX Info: Symbol \textrightarrow not provided by
+            font family LinuxLibertineT-TLF in TS1 encoding.
+            Default family used instead on input line 775.
+LaTeX Info: Symbol \textrightarrow not provided by
+            font family LinuxLibertineT-TLF in TS1 encoding.
+            Default family used instead on input line 775.
+
+
+[21
+pdfTeX warning (ext4): destination with the same identifier (name{table.7.1}) h
+as been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.837 
+      
+pdfTeX warning (ext4): destination with the same identifier (name{table.7.2}) h
+as been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.837 
+      
+pdfTeX warning (ext4): destination with the same identifier (name{table.7.3}) h
+as been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.837 
+      ]
+LaTeX Info: Symbol \textrightarrow not provided by
+            font family LinuxLibertineT-TLF in TS1 encoding.
+            Default family used instead on input line 872.
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+
+
+File: ../logos/logo_DEI_big_transparente.png Graphic file (type png)
+<use ../logos/logo_DEI_big_transparente.png>
+Package pdftex.def Info: ../logos/logo_DEI_big_transparente.png  used on input 
+line 896.
+(pdftex.def)             Requested size: 38.84038pt x 15.29182pt.
+File: ../logos/logoisep.png Graphic file (type png)
+<use ../logos/logoisep.png>
+Package pdftex.def Info: ../logos/logoisep.png  used on input line 896.
+(pdftex.def)             Requested size: 58.25465pt x 22.2305pt.
+[22
+pdfTeX warning (ext4): destination with the same identifier (name{table.7.4}) h
+as been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.896 
+      
+pdfTeX warning (ext4): destination with the same identifier (name{table.7.5}) h
+as been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.896 
+      
+pdfTeX warning (ext4): destination with the same identifier (name{table.7.6}) h
+as been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.896 
+      ]
+
+File: ../logos/logoisep.png Graphic file (type png)
+<use ../logos/logoisep.png>
+Package pdftex.def Info: ../logos/logoisep.png  used on input line 900.
+(pdftex.def)             Requested size: 58.25465pt x 22.2305pt.
+File: ../logos/logo_DEI_big_transparente.png Graphic file (type png)
+<use ../logos/logo_DEI_big_transparente.png>
+Package pdftex.def Info: ../logos/logo_DEI_big_transparente.png  used on input 
+line 900.
+(pdftex.def)             Requested size: 38.84038pt x 15.29182pt.
+[23
+pdfTeX warning (ext4): destination with the same identifier (name{table.7.7}) h
+as been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.900 \chapter
+              {Roadmap de Implementa√ß√£o}]
+
+[24
+
+
+]
+chapter 8.
+
+Underfull \hbox (badness 1917) in paragraph at lines 956--956
+[]|\T1/LinuxLibertineT-TLF/m/n/10 Monitoring, alert-ing, SLAs
+ []
+
+
+Underfull \hbox (badness 4543) in paragraph at lines 956--956
+[]|\T1/LinuxLibertineT-TLF/m/n/10 Monitoring pro-jec-tor, fall-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 956--956
+[]|\T1/LinuxLibertineT-TLF/m/n/10 Load test-ing con-tÌnuo,
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 956--956
+[]|\T1/LinuxLibertineT-TLF/m/n/10 Event-driven in-val-i-da-tion,
+ []
+
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+
+
+[25
+pdfTeX warning (ext4): destination with the same identifier (name{table.8.1}) h
+as been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.959 
+      ]
+
+File: ../logos/logo_DEI_big_transparente.png Graphic file (type png)
+<use ../logos/logo_DEI_big_transparente.png>
+Package pdftex.def Info: ../logos/logo_DEI_big_transparente.png  used on input 
+line 963.
+(pdftex.def)             Requested size: 38.84038pt x 15.29182pt.
+File: ../logos/logoisep.png Graphic file (type png)
+<use ../logos/logoisep.png>
+Package pdftex.def Info: ../logos/logoisep.png  used on input line 963.
+(pdftex.def)             Requested size: 58.25465pt x 22.2305pt.
+[26
+pdfTeX warning (ext4): destination with the same identifier (name{table.8.2}) h
+as been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.963 \chapter
+              {M√©tricas de Sucesso}]
+chapter 9.
+
+Overfull \hbox (2.79973pt too wide) in paragraph at lines 1004--1005
+[]\T1/LinuxLibertineT-TLF/b/n/10.95 Funcionalidade: \T1/LinuxLibertineT-TLF/m/n
+/10.95 FR-1 im-ple-men-tado, Saga roll-back fun-cional, testes in-te-graÁ„o 100
+%,
+ []
+
+
+
+[27
+
+
+
+pdfTeX warning (ext4): destination with the same identifier (name{table.9.1}) h
+as been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.1013 \chapter
+               {Conclus√£o}]
+
+[28
+
+
+]
+chapter 10.
+
+Underfull \vbox (badness 6510) has occurred while \output is active []
+
+
+
+[29]
+
+File: ../logos/logo_DEI_big_transparente.png Graphic file (type png)
+<use ../logos/logo_DEI_big_transparente.png>
+Package pdftex.def Info: ../logos/logo_DEI_big_transparente.png  used on input 
+line 1080.
+(pdftex.def)             Requested size: 38.84038pt x 15.29182pt.
+File: ../logos/logoisep.png Graphic file (type png)
+<use ../logos/logoisep.png>
+Package pdftex.def Info: ../logos/logoisep.png  used on input line 1080.
+(pdftex.def)             Requested size: 58.25465pt x 22.2305pt.
+[30
+pdfTeX warning (ext4): destination with the same identifier (name{table.10.1}) 
+has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.1080 \end{itemize}
+                    ]
+
+File: ../logos/logoisep.png Graphic file (type png)
+<use ../logos/logoisep.png>
+Package pdftex.def Info: ../logos/logoisep.png  used on input line 1087.
+(pdftex.def)             Requested size: 58.25465pt x 22.2305pt.
+File: ../logos/logo_DEI_big_transparente.png Graphic file (type png)
+<use ../logos/logo_DEI_big_transparente.png>
+Package pdftex.def Info: ../logos/logo_DEI_big_transparente.png  used on input 
+line 1087.
+(pdftex.def)             Requested size: 38.84038pt x 15.29182pt.
+[31]
+
+[32
+
+
+]
+
+[33] (ADD.aux)
+ ***********
+LaTeX2e <2025-06-01> patch level 1
+L3 programming layer <2020/03/25>
+ ***********
+ ) 
+Here is how much of TeX's memory you used:
+ 21910 strings out of 468080
+ 420463 string characters out of 5425772
+ 1011762 words of memory out of 5000000
+ 50087 multiletter control sequences out of 15000+600000
+ 697139 words of font info for 103 fonts, out of 8000000 for 9000
+ 1141 hyphenation exceptions out of 8191
+ 108i,24n,124p,11208b,710s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ <C:\Users\lmnam\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ectt
+1095.pk> <C:\Users\lmnam\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi60
+0\tcrm1000.pk> <C:\Users\lmnam\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec
+/dpi600\ectt1000.pk> <C:\Users\lmnam\AppData\Local\MiKTeX\fonts/pk/ljfour/jknap
+pen/ec/dpi600\tcrm1095.pk> <C:\Users\lmnam\AppData\Local\MiKTeX\fonts/pk/ljfour
+/jknappen/ec/dpi600\ectt1440.pk><C:/Users/lmnam/AppData/Local/Programs/MiKTeX/f
+onts/type1/public/libertine/LinBiolinumTB.pfb><C:/Users/lmnam/AppData/Local/Pro
+grams/MiKTeX/fonts/type1/public/libertine/LinLibertineT.pfb><C:/Users/lmnam/App
+Data/Local/Programs/MiKTeX/fonts/type1/public/libertine/LinLibertineTB.pfb><C:/
+Users/lmnam/AppData/Local/Programs/MiKTeX/fonts/type1/public/libertine/LinLiber
+tineTI.pfb><C:/Users/lmnam/AppData/Local/Programs/MiKTeX/fonts/type1/public/ams
+fonts/symbols/msam10.pfb>
+Output written on ADD.pdf (37 pages, 569172 bytes).
+PDF statistics:
+ 661 PDF objects out of 1000 (max. 8388607)
+ 137 named destinations out of 1000 (max. 500000)
+ 429 words of extra memory for PDF output out of 10000 (max. 10000000)
+

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ExternalStorageConfigurationManager" enabled="true" />
+  <component name="MavenProjectsManager">
+    <option name="originalFiles">
+      <list>
+        <option value="$PROJECT_DIR$/pom.xml" />
+        <option value="$PROJECT_DIR$/shared-kernel/pom.xml" />
+        <option value="$PROJECT_DIR$/genre-service/pom.xml" />
+        <option value="$PROJECT_DIR$/author-service/pom.xml" />
+        <option value="$PROJECT_DIR$/auhtor-service/pom.xml" />
+        <option value="$PROJECT_DIR$/saga-orchestrator/pom.xml" />
+        <option value="$PROJECT_DIR$/AuthUsers/pom.xml" />
+        <option value="$PROJECT_DIR$/AuthUsersQ/pom.xml" />
+        <option value="$PROJECT_DIR$/AuthUsersC/pom.xml" />
+        <option value="$PROJECT_DIR$/BookC/pom.xml" />
+        <option value="$PROJECT_DIR$/BookQ/pom.xml" />
+        <option value="$PROJECT_DIR$/AuthorsC/pom.xml" />
+        <option value="$PROJECT_DIR$/AuthorsQ/pom.xml" />
+        <option value="$PROJECT_DIR$/GenreC/pom.xml" />
+        <option value="$PROJECT_DIR$/GenreQ/pom.xml" />
+        <option value="$PROJECT_DIR$/AuthorMicroService/pom.xml" />
+        <option value="$PROJECT_DIR$/BookMicroService/pom.xml" />
+        <option value="$PROJECT_DIR$/GenreMicroService/pom.xml" />
+      </list>
+    </option>
+    <option name="ignoredFiles">
+      <set>
+        <option value="$PROJECT_DIR$/AuthUsersC/pom.xml" />
+        <option value="$PROJECT_DIR$/AuthUsersQ/pom.xml" />
+        <option value="$PROJECT_DIR$/AuthorsQ/pom.xml" />
+        <option value="$PROJECT_DIR$/BookC/pom.xml" />
+        <option value="$PROJECT_DIR$/BookQ/pom.xml" />
+        <option value="$PROJECT_DIR$/GenreC/pom.xml" />
+        <option value="$PROJECT_DIR$/GenreQ/pom.xml" />
+        <option value="$PROJECT_DIR$/author-service/pom.xml" />
+      </set>
+    </option>
+  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_21" default="true" project-jdk-name="21" project-jdk-type="JavaSDK" />
+</project>

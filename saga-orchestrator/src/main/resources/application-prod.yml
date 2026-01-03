@@ -1,0 +1,47 @@
+# ====================================
+# SAGA ORCHESTRATOR - application-prod.properties (CORRIGIDO)
+# Location: saga-orchestrator/src/main/resources/application-prod.properties
+# ====================================
+
+# Server
+server.port=${SERVER_PORT:8084}
+server.shutdown=graceful
+  
+  # Redis (Saga State Management)
+spring.data.redis.host=${REDIS_HOST:localhost}
+spring.data.redis.port=${REDIS_PORT:6379}
+spring.cache.type=redis
+spring.session.store-type=redis
+  
+  # ====================================
+  # ✅ CORRIGIDO: Feign URLs DIRETAS aos serviços
+  # ====================================
+  # Comunicação inter-service usa DNS do Swarm (load balancing automático)
+  # NÃO usar NGINX para comunicação interna!
+
+genre.service.url=http://${GENRE_SERVICE_HOST:genre-service}:${GENRE_SERVICE_PORT:8080}
+author.service.url=http://${AUTHOR_SERVICE_HOST:author-service}:${AUTHOR_SERVICE_PORT:8082}
+book.service.url=http://${BOOK_SERVICE_HOST:book-service}:${BOOK_SERVICE_PORT:8083}
+  
+  # Feign Client Configuration
+feign.client.config.default.connectTimeout=5000
+feign.client.config.default.readTimeout=10000
+feign.client.config.default.loggerLevel=basic
+  
+  # Circuit Breaker (Resilience4j)
+resilience4j.circuitbreaker.instances.default.registerHealthIndicator=true
+resilience4j.circuitbreaker.instances.default.slidingWindowSize=10
+resilience4j.circuitbreaker.instances.default.minimumNumberOfCalls=5
+resilience4j.circuitbreaker.instances.default.failureRateThreshold=50
+resilience4j.circuitbreaker.instances.default.waitDurationInOpenState=10s
+  
+  # Retry
+resilience4j.retry.instances.default.maxAttempts=3
+resilience4j.retry.instances.default.waitDuration=500ms
+resilience4j.retry.instances.default.exponentialBackoffMultiplier=2
+  
+  # Actuator (Health Checks)
+management.endpoints.web.exposure.include=health,info,metrics
+management.endpoint.health.show-details=always
+management.endpoint.health.probes.enabled=true
+management.health.redis.enabled=true

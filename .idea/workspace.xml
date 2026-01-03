@@ -1,0 +1,982 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="255a66fb-01d5-4802-a9d5-15ffc8ae6f17" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/AuthorMicroService/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AuthorMicroService/.mvn/wrapper/maven-wrapper.properties" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AuthorMicroService/Dockerfile" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AuthorMicroService/pom.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AuthorMicroService/src/main/java/pt/psoft/author/AuthorServiceApplication.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AuthorMicroService/src/main/java/pt/psoft/author/api/controller/AuthorCommandController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AuthorMicroService/src/main/java/pt/psoft/author/api/controller/AuthorQueryController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AuthorMicroService/src/main/java/pt/psoft/author/api/dto/AuthorDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AuthorMicroService/src/main/java/pt/psoft/author/api/dto/AuthorView.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AuthorMicroService/src/main/java/pt/psoft/author/api/dto/AuthorViewDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AuthorMicroService/src/main/java/pt/psoft/author/api/dto/CreateAuthorRequest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AuthorMicroService/src/main/java/pt/psoft/author/api/dto/UpdateAuthorRequest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AuthorMicroService/src/main/java/pt/psoft/author/bootstrapping/Bootstrapper.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AuthorMicroService/src/main/java/pt/psoft/author/bootstrapping/UserBootstrapper.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AuthorMicroService/src/main/java/pt/psoft/author/config/MongoConfig.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AuthorMicroService/src/main/java/pt/psoft/author/config/RabbitMQConfig.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AuthorMicroService/src/main/java/pt/psoft/author/config/RedisConfig.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AuthorMicroService/src/main/java/pt/psoft/author/exceptions/BusinessException.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AuthorMicroService/src/main/java/pt/psoft/author/exceptions/ConflictException.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AuthorMicroService/src/main/java/pt/psoft/author/exceptions/NotFoundException.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AuthorMicroService/src/main/java/pt/psoft/author/exceptions/OutboxException.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AuthorMicroService/src/main/java/pt/psoft/author/exceptions/SagaException.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AuthorMicroService/src/main/java/pt/psoft/author/external/service/ApiNinjasService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AuthorMicroService/src/main/java/pt/psoft/author/external/service/HistoricalEventsResponse.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AuthorMicroService/src/main/java/pt/psoft/author/messaging/AuthorEventConsumer.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AuthorMicroService/src/main/java/pt/psoft/author/messaging/AuthorEventHandler.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AuthorMicroService/src/main/java/pt/psoft/author/messaging/AuthorEventPublisher.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AuthorMicroService/src/main/java/pt/psoft/author/messaging/OutboxEventPublisher.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AuthorMicroService/src/main/java/pt/psoft/author/model/command/AuthorEntity.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AuthorMicroService/src/main/java/pt/psoft/author/model/command/valueobjets/AuthorName.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AuthorMicroService/src/main/java/pt/psoft/author/model/command/valueobjets/Bio.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AuthorMicroService/src/main/java/pt/psoft/author/model/query/AuthorReadModel.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AuthorMicroService/src/main/java/pt/psoft/author/repositories/jpa/AuthorRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AuthorMicroService/src/main/java/pt/psoft/author/repositories/jpa/OutboxRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AuthorMicroService/src/main/java/pt/psoft/author/repositories/mongo/AuthorQueryRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AuthorMicroService/src/main/java/pt/psoft/author/services/AuthorCommandService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AuthorMicroService/src/main/java/pt/psoft/author/services/AuthorCommandServiceImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AuthorMicroService/src/main/java/pt/psoft/author/services/AuthorQueryService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AuthorMicroService/src/main/java/pt/psoft/author/services/AuthorQueryServiceImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AuthorMicroService/src/main/java/pt/psoft/author/shared/api/ListResponse.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AuthorMicroService/src/main/java/pt/psoft/author/shared/api/MapperInterface.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AuthorMicroService/src/main/java/pt/psoft/author/shared/api/UploadFileResponse.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AuthorMicroService/src/main/java/pt/psoft/author/shared/infrastructure/repositories/impl/mappers/ForbiddenNameEntityMapper.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AuthorMicroService/src/main/java/pt/psoft/author/shared/infrastructure/repositories/impl/mappers/NameEntityMapper.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AuthorMicroService/src/main/java/pt/psoft/author/shared/infrastructure/repositories/impl/mappers/PhotoEntityMapper.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AuthorMicroService/src/main/java/pt/psoft/author/shared/infrastructure/repositories/impl/sql/ForbiddenNameRepositoryImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AuthorMicroService/src/main/java/pt/psoft/author/shared/infrastructure/repositories/impl/sql/PhotoRepositoryImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AuthorMicroService/src/main/java/pt/psoft/author/shared/infrastructure/repositories/impl/sql/SpringDataForbiddenNameRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AuthorMicroService/src/main/java/pt/psoft/author/shared/infrastructure/repositories/impl/sql/SpringDataPhotoRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AuthorMicroService/src/main/java/pt/psoft/author/shared/model/BookEvents.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AuthorMicroService/src/main/java/pt/psoft/author/shared/model/EntityWithPhoto.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AuthorMicroService/src/main/java/pt/psoft/author/shared/model/FileUtils.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AuthorMicroService/src/main/java/pt/psoft/author/shared/model/ForbiddenName.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AuthorMicroService/src/main/java/pt/psoft/author/shared/model/Name.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AuthorMicroService/src/main/java/pt/psoft/author/shared/model/Photo.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AuthorMicroService/src/main/java/pt/psoft/author/shared/model/StringUtilsCustom.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AuthorMicroService/src/main/java/pt/psoft/author/shared/model/sql/EntityWithPhotoSqlEntity.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AuthorMicroService/src/main/java/pt/psoft/author/shared/model/sql/ForbiddenNameSqlEntity.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AuthorMicroService/src/main/java/pt/psoft/author/shared/model/sql/NameSqlEntity.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AuthorMicroService/src/main/java/pt/psoft/author/shared/model/sql/PhotoSqlEntity.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AuthorMicroService/src/main/java/pt/psoft/author/shared/repositories/ForbiddenNameRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AuthorMicroService/src/main/java/pt/psoft/author/shared/repositories/PhotoRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AuthorMicroService/src/main/java/pt/psoft/author/shared/services/ConcurrencyService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AuthorMicroService/src/main/java/pt/psoft/author/shared/services/FileStorageProperties.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AuthorMicroService/src/main/java/pt/psoft/author/shared/services/FileStorageService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AuthorMicroService/src/main/java/pt/psoft/author/shared/services/ForbiddenNameService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AuthorMicroService/src/main/java/pt/psoft/author/shared/services/ForbiddenNameServiceImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AuthorMicroService/src/main/java/pt/psoft/author/shared/services/Page.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AuthorMicroService/src/main/java/pt/psoft/author/shared/services/SearchRequest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AuthorMicroService/src/main/resources/application-prod.yml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AuthorMicroService/src/main/resources/application.yml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AuthorMicroService/src/test/java/pt/psoft/author/AuthorServiceApplicationTests.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AuthorMicroService/uploads-psoft-g1/authorPhotoTest.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AuthorMicroService/uploads-psoft-g1/bookPhotoTest.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AuthorMicroService/uploads-psoft-g1/c0197eab-88c7-4706-a6c6-4323813ad94f.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AuthorMicroService/uploads-psoft-g1/fe3e0f6b-c395-4ce7-b38c-f412573830d1.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AuthorMicroService/uploads-psoft-g1/photoTest.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AuthorMicroService/uploads-psoft-g1/readerPhotoTest.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/Dockerfile" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/bookmanagement/api/BookAverageLendingDurationView.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/bookmanagement/api/BookController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/bookmanagement/api/BookCountView.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/bookmanagement/api/BookRabbitmqController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/bookmanagement/api/BookShortView.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/bookmanagement/api/BookView.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/bookmanagement/api/BookViewAMQP.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/bookmanagement/api/BookViewAMQPMapper.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/bookmanagement/api/BookViewMapper.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/bookmanagement/infrastructure/pusblishers/impl/BookEventsRabbitmqPublisherImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/bookmanagement/infrastructure/repositories/impl/mappers/BookEntityMapper.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/bookmanagement/infrastructure/repositories/impl/mappers/BookRedisMapper.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/bookmanagement/infrastructure/repositories/impl/redis/BookRepositoryRedisImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/bookmanagement/infrastructure/repositories/impl/sql/BookRepositoryImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/bookmanagement/infrastructure/repositories/impl/sql/SpringDataBookRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/bookmanagement/model/Book.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/bookmanagement/model/Description.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/bookmanagement/model/Isbn.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/bookmanagement/model/Title.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/bookmanagement/model/redis/BookRedisDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/bookmanagement/model/sql/BookSqlEntity.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/bookmanagement/model/sql/DescriptionSqlEntity.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/bookmanagement/model/sql/IsbnSqlEntity.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/bookmanagement/model/sql/TitleSqlEntity.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/bookmanagement/publishers/BookEventsPublishers.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/bookmanagement/repositories/BookRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/bookmanagement/services/BookCountDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/bookmanagement/services/BookService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/bookmanagement/services/BookServiceImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/bookmanagement/services/CreateBookRequest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/bookmanagement/services/GenreBookCountDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/bookmanagement/services/SearchBooksQuery.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/bookmanagement/services/UpdateBookRequest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/genremanagement/api/GenreBookCountView.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/genremanagement/api/GenreController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/genremanagement/api/GenreLendingsAvgPerMonthView.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/genremanagement/api/GenreLendingsCountPerMonthView.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/genremanagement/api/GenreLendingsView.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/genremanagement/api/GenreView.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/genremanagement/api/GenreViewMapper.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/genremanagement/infrastructure/repositories/impl/mappers/GenreEntityMapper.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/genremanagement/infrastructure/repositories/impl/mappers/GenreRedisMapper.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/genremanagement/infrastructure/repositories/impl/redis/GenreRepositoryRedisImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/genremanagement/infrastructure/repositories/impl/sql/GenreRepositoryImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/genremanagement/infrastructure/repositories/impl/sql/SpringDataGenreRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/genremanagement/model/Genre.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/genremanagement/model/redis/GenreRedisDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/genremanagement/model/sql/GenreSqlEntity.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/genremanagement/repositories/GenreRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/genremanagement/services/GenreLendingsDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/genremanagement/services/GenreLendingsPerMonthDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/genremanagement/services/GenreService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/genremanagement/services/GenreServiceImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/genremanagement/services/GetAverageLendingsQuery.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/shared/dto/author/AuthorDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/shared/dto/author/AuthorViewDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/shared/dto/author/CreateAuthorRequest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/shared/dto/book/BookDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/shared/dto/book/BookViewDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/shared/dto/book/CreateBookRequest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/shared/dto/genre/CreateGenreRequest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/shared/dto/genre/GenreDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/shared/dto/genre/GenreViewDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/shared/events/DomainEvent.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/shared/events/author/AuthorCreatedEvent.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/shared/events/author/AuthorDeletedEvent.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/shared/events/author/AuthorUpdatedEvent.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/shared/events/book/BookCreatedEvent.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/shared/events/book/BookDeletedEvent.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/shared/events/book/BookUpdatedEvent.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/shared/events/genre/GenreCreatedEvent.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/shared/events/genre/GenreDeletedEvent.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/shared/events/genre/GenreUpdatedEvent.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/shared/exceptions/BusinessException.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/shared/exceptions/ConflictException.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/shared/exceptions/NotFoundException.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/shared/exceptions/OutboxException.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/shared/exceptions/SagaException.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/shared/messaging/EventPublisher.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/shared/messaging/OutboxEvent.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/shared/messaging/OutboxStatus.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/shared/model/BaseEntity.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/shared/shared/api/ListResponse.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/shared/shared/api/MapperInterface.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/shared/shared/api/UploadFileResponse.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/shared/shared/infrastructure/repositories/impl/mappers/ForbiddenNameEntityMapper.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/shared/shared/infrastructure/repositories/impl/mappers/NameEntityMapper.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/shared/shared/infrastructure/repositories/impl/mappers/PhotoEntityMapper.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/shared/shared/infrastructure/repositories/impl/sql/ForbiddenNameRepositoryImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/shared/shared/infrastructure/repositories/impl/sql/PhotoRepositoryImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/shared/shared/infrastructure/repositories/impl/sql/SpringDataForbiddenNameRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/shared/shared/infrastructure/repositories/impl/sql/SpringDataPhotoRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/shared/shared/model/BookEvents.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/shared/shared/model/EntityWithPhoto.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/shared/shared/model/FileUtils.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/shared/shared/model/ForbiddenName.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/shared/shared/model/Name.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/shared/shared/model/Photo.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/shared/shared/model/StringUtilsCustom.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/shared/shared/model/sql/EntityWithPhotoSqlEntity.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/shared/shared/model/sql/ForbiddenNameSqlEntity.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/shared/shared/model/sql/NameSqlEntity.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/shared/shared/model/sql/PhotoSqlEntity.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/shared/shared/repositories/ForbiddenNameRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/shared/shared/repositories/PhotoRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/shared/shared/services/ConcurrencyService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/shared/shared/services/FileStorageProperties.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/shared/shared/services/FileStorageService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/shared/shared/services/ForbiddenNameService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/shared/shared/services/ForbiddenNameServiceImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/shared/shared/services/Page.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/shared/shared/services/SearchRequest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/shared/utils/IsbnGenerator.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/shared/utils/JsonUtils.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/src/main/resources/application-prod.yml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/uploads-psoft-g1/authorPhotoTest.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/uploads-psoft-g1/bookPhotoTest.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/uploads-psoft-g1/c0197eab-88c7-4706-a6c6-4323813ad94f.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/uploads-psoft-g1/fe3e0f6b-c395-4ce7-b38c-f412573830d1.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/uploads-psoft-g1/photoTest.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/BookMicroService/uploads-psoft-g1/readerPhotoTest.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Docs/ARQSoft/P2/ADD/ADD.log" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Extra/ProjetoBase/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Extra/ProjetoBase/.idea/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Extra/ProjetoBase/.idea/ProjetoBase.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Extra/ProjetoBase/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Extra/ProjetoBase/.idea/modules.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Extra/ProjetoBase/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Extra/ProjetoBase/mvnw" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Extra/ProjetoBase/mvnw.cmd" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Extra/ProjetoBase/pom.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Extra/ProjetoBase/psoft-g1.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/Dockerfile" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/bootstrapping/Bootstrapper.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/bootstrapping/UserBootstrapper.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/config/ApiConfig.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/config/ApiNinjasConfig.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/config/JpaConfig.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/config/RedisConfig.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/config/RedisFlushDB.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/config/SecurityConfig.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/dto/author/AuthorDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/dto/author/AuthorViewDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/dto/author/CreateAuthorRequest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/dto/book/BookDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/dto/book/BookViewDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/dto/book/CreateBookRequest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/dto/genre/CreateGenreRequest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/dto/genre/GenreDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/dto/genre/GenreViewDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/events/DomainEvent.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/events/author/AuthorCreatedEvent.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/events/author/AuthorDeletedEvent.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/events/author/AuthorUpdatedEvent.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/events/book/BookCreatedEvent.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/events/book/BookDeletedEvent.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/events/book/BookUpdatedEvent.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/events/genre/GenreCreatedEvent.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/events/genre/GenreDeletedEvent.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/events/genre/GenreUpdatedEvent.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/exceptions/BusinessException.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/exceptions/ConflictException.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/exceptions/NotFoundException.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/exceptions/OutboxException.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/exceptions/SagaException.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/genremanagement/api/GenreBookCountView.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/genremanagement/api/GenreController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/genremanagement/api/GenreLendingsAvgPerMonthView.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/genremanagement/api/GenreLendingsCountPerMonthView.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/genremanagement/api/GenreLendingsView.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/genremanagement/api/GenreView.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/genremanagement/api/GenreViewMapper.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/genremanagement/infrastructure/repositories/impl/mappers/GenreEntityMapper.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/genremanagement/infrastructure/repositories/impl/mappers/GenreRedisMapper.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/genremanagement/infrastructure/repositories/impl/redis/GenreRepositoryRedisImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/genremanagement/infrastructure/repositories/impl/sql/GenreRepositoryImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/genremanagement/infrastructure/repositories/impl/sql/SpringDataGenreRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/genremanagement/model/Genre.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/genremanagement/model/redis/GenreRedisDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/genremanagement/model/sql/GenreSqlEntity.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/genremanagement/repositories/GenreRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/genremanagement/services/GenreLendingsDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/genremanagement/services/GenreLendingsPerMonthDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/genremanagement/services/GenreService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/genremanagement/services/GenreServiceImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/genremanagement/services/GetAverageLendingsQuery.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/shared/api/ListResponse.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/shared/api/MapperInterface.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/shared/api/UploadFileResponse.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/shared/infrastructure/repositories/impl/mappers/ForbiddenNameEntityMapper.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/shared/infrastructure/repositories/impl/mappers/NameEntityMapper.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/shared/infrastructure/repositories/impl/mappers/PhotoEntityMapper.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/shared/infrastructure/repositories/impl/sql/ForbiddenNameRepositoryImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/shared/infrastructure/repositories/impl/sql/PhotoRepositoryImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/shared/infrastructure/repositories/impl/sql/SpringDataForbiddenNameRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/shared/infrastructure/repositories/impl/sql/SpringDataPhotoRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/shared/model/BookEvents.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/shared/model/EntityWithPhoto.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/shared/model/FileUtils.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/shared/model/ForbiddenName.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/shared/model/Name.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/shared/model/Photo.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/shared/model/StringUtilsCustom.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/shared/model/sql/EntityWithPhotoSqlEntity.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/shared/model/sql/ForbiddenNameSqlEntity.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/shared/model/sql/NameSqlEntity.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/shared/model/sql/PhotoSqlEntity.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/shared/repositories/ForbiddenNameRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/shared/repositories/PhotoRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/shared/services/ConcurrencyService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/shared/services/FileStorageProperties.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/shared/services/FileStorageService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/shared/services/ForbiddenNameService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/shared/services/ForbiddenNameServiceImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/shared/services/Page.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/shared/services/SearchRequest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/utils/IsbnGenerator.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/utils/JsonUtils.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/src/main/resources/application-prod.yml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/uploads-psoft-g1/authorPhotoTest.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/uploads-psoft-g1/bookPhotoTest.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/uploads-psoft-g1/c0197eab-88c7-4706-a6c6-4323813ad94f.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/uploads-psoft-g1/fe3e0f6b-c395-4ce7-b38c-f412573830d1.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/uploads-psoft-g1/photoTest.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GenreMicroService/uploads-psoft-g1/readerPhotoTest.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docker-compose-swarm.yml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/init-databases.sql" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/nginx.conf" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/saga-orchestrator/src/main/resources/application-prod.yml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared-kernel/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared-kernel/src/main/java/pt/psoft/shared/shared/api/ListResponse.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared-kernel/src/main/java/pt/psoft/shared/shared/api/MapperInterface.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared-kernel/src/main/java/pt/psoft/shared/shared/api/UploadFileResponse.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared-kernel/src/main/java/pt/psoft/shared/shared/infrastructure/repositories/impl/mappers/ForbiddenNameEntityMapper.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared-kernel/src/main/java/pt/psoft/shared/shared/infrastructure/repositories/impl/mappers/NameEntityMapper.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared-kernel/src/main/java/pt/psoft/shared/shared/infrastructure/repositories/impl/mappers/PhotoEntityMapper.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared-kernel/src/main/java/pt/psoft/shared/shared/infrastructure/repositories/impl/sql/ForbiddenNameRepositoryImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared-kernel/src/main/java/pt/psoft/shared/shared/infrastructure/repositories/impl/sql/PhotoRepositoryImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared-kernel/src/main/java/pt/psoft/shared/shared/infrastructure/repositories/impl/sql/SpringDataForbiddenNameRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared-kernel/src/main/java/pt/psoft/shared/shared/infrastructure/repositories/impl/sql/SpringDataPhotoRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared-kernel/src/main/java/pt/psoft/shared/shared/model/BookEvents.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared-kernel/src/main/java/pt/psoft/shared/shared/model/EntityWithPhoto.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared-kernel/src/main/java/pt/psoft/shared/shared/model/FileUtils.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared-kernel/src/main/java/pt/psoft/shared/shared/model/ForbiddenName.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared-kernel/src/main/java/pt/psoft/shared/shared/model/Name.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared-kernel/src/main/java/pt/psoft/shared/shared/model/Photo.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared-kernel/src/main/java/pt/psoft/shared/shared/model/StringUtilsCustom.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared-kernel/src/main/java/pt/psoft/shared/shared/model/sql/EntityWithPhotoSqlEntity.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared-kernel/src/main/java/pt/psoft/shared/shared/model/sql/ForbiddenNameSqlEntity.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared-kernel/src/main/java/pt/psoft/shared/shared/model/sql/NameSqlEntity.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared-kernel/src/main/java/pt/psoft/shared/shared/model/sql/PhotoSqlEntity.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared-kernel/src/main/java/pt/psoft/shared/shared/repositories/ForbiddenNameRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared-kernel/src/main/java/pt/psoft/shared/shared/repositories/PhotoRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared-kernel/src/main/java/pt/psoft/shared/shared/services/ConcurrencyService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared-kernel/src/main/java/pt/psoft/shared/shared/services/FileStorageProperties.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared-kernel/src/main/java/pt/psoft/shared/shared/services/FileStorageService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared-kernel/src/main/java/pt/psoft/shared/shared/services/ForbiddenNameService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared-kernel/src/main/java/pt/psoft/shared/shared/services/ForbiddenNameServiceImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared-kernel/src/main/java/pt/psoft/shared/shared/services/Page.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared-kernel/src/main/java/pt/psoft/shared/shared/services/SearchRequest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared-kernel/target/classes/pt/psoft/shared/dto/author/AuthorDTO.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared-kernel/target/classes/pt/psoft/shared/dto/author/AuthorViewDTO.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared-kernel/target/classes/pt/psoft/shared/dto/author/CreateAuthorRequest.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared-kernel/target/classes/pt/psoft/shared/dto/book/BookDTO.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared-kernel/target/classes/pt/psoft/shared/dto/book/BookViewDTO.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared-kernel/target/classes/pt/psoft/shared/dto/book/CreateBookRequest.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared-kernel/target/classes/pt/psoft/shared/dto/genre/CreateGenreRequest.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared-kernel/target/classes/pt/psoft/shared/dto/genre/GenreDTO.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared-kernel/target/classes/pt/psoft/shared/dto/genre/GenreViewDTO.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared-kernel/target/classes/pt/psoft/shared/events/DomainEvent.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared-kernel/target/classes/pt/psoft/shared/events/author/AuthorCreatedEvent.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared-kernel/target/classes/pt/psoft/shared/events/author/AuthorDeletedEvent.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared-kernel/target/classes/pt/psoft/shared/events/author/AuthorUpdatedEvent.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared-kernel/target/classes/pt/psoft/shared/events/book/BookCreatedEvent.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared-kernel/target/classes/pt/psoft/shared/events/book/BookDeletedEvent.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared-kernel/target/classes/pt/psoft/shared/events/book/BookUpdatedEvent.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared-kernel/target/classes/pt/psoft/shared/events/genre/GenreCreatedEvent.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared-kernel/target/classes/pt/psoft/shared/events/genre/GenreDeletedEvent.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared-kernel/target/classes/pt/psoft/shared/events/genre/GenreUpdatedEvent.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared-kernel/target/classes/pt/psoft/shared/exceptions/BusinessException.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared-kernel/target/classes/pt/psoft/shared/exceptions/ConflictException.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared-kernel/target/classes/pt/psoft/shared/exceptions/NotFoundException.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared-kernel/target/classes/pt/psoft/shared/exceptions/OutboxException.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared-kernel/target/classes/pt/psoft/shared/exceptions/SagaException.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared-kernel/target/classes/pt/psoft/shared/messaging/EventPublisher.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared-kernel/target/classes/pt/psoft/shared/messaging/OutboxEvent.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared-kernel/target/classes/pt/psoft/shared/messaging/OutboxStatus.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared-kernel/target/classes/pt/psoft/shared/model/BaseEntity.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared-kernel/target/classes/pt/psoft/shared/utils/IsbnGenerator.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared-kernel/target/classes/pt/psoft/shared/utils/JsonUtils.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared-kernel/target/lms-shared-kernel-1.0.0.jar" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared-kernel/target/maven-archiver/pom.properties" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared-kernel/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/shared-kernel/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.vscode/settings.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/HELP.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/author-service/.gitattributes" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/author-service/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/author-service/.mvn/wrapper/maven-wrapper.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/author-service/Dockerfile" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/author-service/mvnw" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/author-service/mvnw.cmd" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/author-service/pom.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/author-service/src/main/java/pt/psoft/author/AuthorServiceApplication.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/author-service/src/main/java/pt/psoft/author/api/controller/AuthorCommandController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/author-service/src/main/java/pt/psoft/author/api/controller/AuthorQueryController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/author-service/src/main/java/pt/psoft/author/api/dto/AuthorView.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/author-service/src/main/java/pt/psoft/author/api/dto/UpdateAuthorRequest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/author-service/src/main/java/pt/psoft/author/config/MongoConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/author-service/src/main/java/pt/psoft/author/config/RabbitMQConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/author-service/src/main/java/pt/psoft/author/config/RedisConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/author-service/src/main/java/pt/psoft/author/messaging/AuthorEventConsumer.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/author-service/src/main/java/pt/psoft/author/messaging/AuthorEventHandler.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/author-service/src/main/java/pt/psoft/author/messaging/AuthorEventPublisher.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/author-service/src/main/java/pt/psoft/author/messaging/OutboxEventPublisher.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/author-service/src/main/java/pt/psoft/author/model/command/AuthorEntity.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/author-service/src/main/java/pt/psoft/author/model/command/valueobjets/AuthorName.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/author-service/src/main/java/pt/psoft/author/model/command/valueobjets/Bio.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/author-service/src/main/java/pt/psoft/author/model/query/AuthorReadModel.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/author-service/src/main/java/pt/psoft/author/repositories/jpa/AuthorRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/author-service/src/main/java/pt/psoft/author/repositories/jpa/OutboxRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/author-service/src/main/java/pt/psoft/author/repositories/mongo/AuthorQueryRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/author-service/src/main/java/pt/psoft/author/services/AuthorCommandService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/author-service/src/main/java/pt/psoft/author/services/AuthorCommandServiceImpl.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/author-service/src/main/java/pt/psoft/author/services/AuthorQueryService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/author-service/src/main/java/pt/psoft/author/services/AuthorQueryServiceImpl.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/author-service/src/main/resources/application.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/author-service/src/test/java/pt/psoft/author/AuthorServiceApplicationTests.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/book-service/Dockerfile" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/book-service/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/BookMicroService/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/book-service/src/main/java/pt/psoft/book/BookServiceApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/BookServiceApplication.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/book-service/src/main/java/pt/psoft/book/api/BookView.java" beforeDir="false" afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/api/BookView.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/book-service/src/main/java/pt/psoft/book/api/BookViewMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/api/BookViewMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/book-service/src/main/java/pt/psoft/book/api/GlobalExceptionHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/api/GlobalExceptionHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/book-service/src/main/java/pt/psoft/book/api/SearchBooksQuery.java" beforeDir="false" afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/api/SearchBooksQuery.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/book-service/src/main/java/pt/psoft/book/api/UpdateBookRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/api/UpdateBookRequest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/book-service/src/main/java/pt/psoft/book/api/controller/BookCommandController.java" beforeDir="false" afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/api/controller/BookCommandController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/book-service/src/main/java/pt/psoft/book/api/controller/BookQueryController.java" beforeDir="false" afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/api/controller/BookQueryController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/book-service/src/main/java/pt/psoft/book/config/CacheConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/config/CacheConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/book-service/src/main/java/pt/psoft/book/config/RabbitMQConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/config/RabbitMQConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/book-service/src/main/java/pt/psoft/book/messaging/BookEventConsumer.java" beforeDir="false" afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/messaging/BookEventConsumer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/book-service/src/main/java/pt/psoft/book/messaging/BookEventHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/messaging/BookEventHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/book-service/src/main/java/pt/psoft/book/messaging/BookEventPublisher.java" beforeDir="false" afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/messaging/BookEventPublisher.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/book-service/src/main/java/pt/psoft/book/messaging/OutboxEventPublisher.java" beforeDir="false" afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/messaging/OutboxEventPublisher.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/book-service/src/main/java/pt/psoft/book/model/command/BookEntity.java" beforeDir="false" afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/model/command/BookEntity.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/book-service/src/main/java/pt/psoft/book/model/command/Description.java" beforeDir="false" afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/model/command/Description.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/book-service/src/main/java/pt/psoft/book/model/command/Isbn.java" beforeDir="false" afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/model/command/Isbn.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/book-service/src/main/java/pt/psoft/book/model/command/Title.java" beforeDir="false" afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/model/command/Title.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/book-service/src/main/java/pt/psoft/book/model/query/BookReadModel.java" beforeDir="false" afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/model/query/BookReadModel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/book-service/src/main/java/pt/psoft/book/repositories/BookQueryRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/repositories/BookQueryRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/book-service/src/main/java/pt/psoft/book/repositories/BookRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/repositories/BookRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/book-service/src/main/java/pt/psoft/book/repositories/OutboxRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/repositories/OutboxRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/book-service/src/main/java/pt/psoft/book/services/BookCommandService.java" beforeDir="false" afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/services/BookCommandService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/book-service/src/main/java/pt/psoft/book/services/BookCommandServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/services/BookCommandServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/book-service/src/main/java/pt/psoft/book/services/BookQueryService.java" beforeDir="false" afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/services/BookQueryService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/book-service/src/main/java/pt/psoft/book/services/BookQueryServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/BookMicroService/src/main/java/pt/psoft/book/services/BookQueryServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/book-service/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/BookMicroService/src/main/resources/application.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/genre-service/Dockerfile" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/genre-service/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/GenreMicroService/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/genre-service/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/GenreMicroService/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/genre-service/src/main/java/pt/psoft/genre/GenreServiceApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/GenreServiceApplication.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/genre-service/src/main/java/pt/psoft/genre/api/GenreController.java" beforeDir="false" afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/api/GenreController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/genre-service/src/main/java/pt/psoft/genre/api/GenreViewMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/api/GenreViewMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/genre-service/src/main/java/pt/psoft/genre/config/RabbitMQConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/config/RabbitMQConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/genre-service/src/main/java/pt/psoft/genre/messaging/GenreEventPublisher.java" beforeDir="false" afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/messaging/GenreEventPublisher.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/genre-service/src/main/java/pt/psoft/genre/messaging/OutboxEventPublisher.java" beforeDir="false" afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/messaging/OutboxEventPublisher.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/genre-service/src/main/java/pt/psoft/genre/model/Genre.java" beforeDir="false" afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/model/Genre.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/genre-service/src/main/java/pt/psoft/genre/repositories/GenreRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/repositories/GenreRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/genre-service/src/main/java/pt/psoft/genre/repositories/OutboxRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/repositories/OutboxRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/genre-service/src/main/java/pt/psoft/genre/services/GenreService.java" beforeDir="false" afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/services/GenreService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/genre-service/src/main/java/pt/psoft/genre/services/GenreServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/GenreMicroService/src/main/java/pt/psoft/genre/services/GenreServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/genre-service/src/main/resources/application-dev.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/genre-service/src/main/resources/application-prod.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/genre-service/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/GenreMicroService/src/main/resources/application.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/infrastructure/docker-compose.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/infrastructure/init-databases.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/mvnw" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/mvnw.cmd" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/psoft-g1.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/saga-orchestrator/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/saga-orchestrator/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/saga-orchestrator/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/saga-orchestrator/Dockerfile" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="EmbeddingIndexingInfo">
+    <option name="cachedIndexableFilesCount" value="424" />
+    <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
+  </component>
+  <component name="ExternalProjectsData">
+    <projectState path="$PROJECT_DIR$/genre-service">
+      <ProjectState />
+    </projectState>
+  </component>
+  <component name="ExternalProjectsManager">
+    <system id="GRADLE">
+      <state>
+        <task path="$PROJECT_DIR$/genre-service">
+          <activation />
+        </task>
+        <projects_view>
+          <tree_state>
+            <expand>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="genre-service" type="f1a62948:ProjectNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="genre-service" type="f1a62948:ProjectNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+              </path>
+            </expand>
+            <select />
+          </tree_state>
+        </projects_view>
+      </state>
+    </system>
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Interface" />
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="microservices-impl" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;LuygiZ&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/LuygiZ/ARQ-OD-SOFT.git&quot;,
+    &quot;accountId&quot;: &quot;8ff173ac-2a4e-4691-b356-896db442aca3&quot;
+  }
+}</component>
+  <component name="KubernetesApiPersistence">{}</component>
+  <component name="KubernetesApiProvider">{
+  &quot;isMigrated&quot;: true
+}</component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="McpProjectServerCommands">
+    <commands />
+    <urls />
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 1
+}</component>
+  <component name="ProjectId" id="33R9OCWWQlVF6oaxKBF9CqS4Ef8" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_MARK_IGNORED_FILES_AS_EXCLUDED": "true",
+    "JUnit.AuthorControllerIntegrationTest.executor": "Run",
+    "JUnit.AuthorControllerTest.executor": "Run",
+    "JUnit.AuthorRepositoryIntegrationTest.executor": "Run",
+    "JUnit.AuthorServiceImplIntegrationTest.executor": "Run",
+    "JUnit.AuthorTest.executor": "Run",
+    "JUnit.BioTest.executor": "Run",
+    "JUnit.IsbnOpaqueBoxTest.executor": "Run",
+    "JUnit.LendingRepositoryIntegrationTest.executor": "Debug",
+    "JUnit.TitleTest.executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "Notification.DisplayName-DoNotAsk-DatabaseConfigFileWatcher.found": "New/updated database configurations found",
+    "Notification.DoNotAsk-DatabaseConfigFileWatcher.found": "true",
+    "RequestMappingsPanelOrder0": "0",
+    "RequestMappingsPanelOrder1": "1",
+    "RequestMappingsPanelWidth0": "75",
+    "RequestMappingsPanelWidth1": "75",
+    "RunOnceActivity.MCP Project settings loaded": "true",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "Spring Boot.PsoftG1Application.executor": "Run",
+    "git-widget-placeholder": "teste",
+    "ignore.virus.scanning.warn.message": "true",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "D:/PrimeiroSemestre/ARQ-OD-SOFT/BookMicroService/src/main/java/pt/psoft/book",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "run.code.analysis.last.selected.profile": "pProject Default",
+    "run.configurations.included.in.services": "true",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "vue.rearranger.settings.migration": "true"
+  },
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "redis"
+    ]
+  }
+}]]></component>
+  <component name="ReactorSettings">
+    <option name="notificationShown" value="true" />
+  </component>
+  <component name="RecapUselessUpdatesCounter">
+    <option name="suspendCountdown" value="0" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CreateClassDialog.RecentsKey">
+      <recent name="pt.psoft.shared.events" />
+    </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="D:\PrimeiroSemestre\ARQ-OD-SOFT\BookMicroService\src\main\java\pt\psoft\book" />
+      <recent name="D:\PrimeiroSemestre\ARQ-OD-SOFT\GenreMicroService\src\main\java\pt\psoft\genre" />
+      <recent name="D:\PrimeiroSemestre\ARQ-OD-SOFT\GenreMicroService\src\main\java\pt\psoft\genre\config" />
+      <recent name="D:\PrimeiroSemestre\ARQ-OD-SOFT\shared-kernel\src\main\java\pt\psoft\shared" />
+      <recent name="D:\PrimeiroSemestre\ARQ-OD-SOFT\AuthorMicroService\src\main\java\pt\psoft\author" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\PrimeiroSemestre\ARQ-OD-SOFT\AuthorMicroService" />
+      <recent name="D:\PrimeiroSemestre\ARQ-OD-SOFT\GenreMicroService" />
+      <recent name="D:\PrimeiroSemestre\ARQ-OD-SOFT" />
+      <recent name="D:\PrimeiroSemestre\ARQ-OD-SOFT\Extra\ProjetoBase" />
+      <recent name="D:\PrimeiroSemestre\ARQ-OD-SOFT\infrastructure" />
+    </key>
+    <key name="MoveClassesOrPackagesDialog.RECENTS_KEY">
+      <recent name="pt.psoft.book.api" />
+      <recent name="pt.psoft.g1.psoftg1.authormanagement.infrastructure.repositories.impl" />
+      <recent name="pt.psoft.g1.psoftg1.authormanagement.infrastructure.repositories.impl.sqlmapper" />
+      <recent name="pt.psoft.g1.psoftg1.readermanagement.infraestructure.repositories.impl.sql" />
+    </key>
+  </component>
+  <component name="RunDashboard">
+    <option name="configurationTypes">
+      <set>
+        <option value="KtorApplicationConfigurationType" />
+        <option value="MicronautRunConfigurationType" />
+        <option value="QuarkusRunConfigurationType" />
+        <option value="SpringBootApplicationConfigurationType" />
+      </set>
+    </option>
+    <option name="configurationStatuses">
+      <map>
+        <entry key="SpringBootApplicationConfigurationType">
+          <value>
+            <map>
+              <entry key="PsoftG1Application" value="FAILED" />
+            </map>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="RunManager" selected="Spring Boot.PsoftG1Application">
+    <configuration default="true" type="JetRunConfigurationType">
+      <module name="ARQ-SOFT-PROJECT" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
+      <module name="ARQ-SOFT-PROJECT" />
+      <option name="filePath" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="AuhtorServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="author-service" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="pt.psoft.author.AuhtorServiceApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="AuthUsersApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="AuthUsersC" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="pt.psoft.authusers.AuthUsersApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="AuthUsersCApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="AuthUsersC" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="pt.psoft.authusersc.AuthUsersCApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="AuthUsersQApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="AuthUsersQ" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="pt.psoft.authusersq.AuthUsersQApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="AuthorMicroServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="AuthorMicroService" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="pt.psoft.authormicroservice.AuthorMicroServiceApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="AuthorServiceApplication (1)" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="author-service (1)" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="pt.psoft.author.AuthorServiceApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="AuthorServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="AuthorMicroService" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="pt.psoft.author.AuthorServiceApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="AuthorsCApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="AuthorsC" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="pt.psoft.authorsc.AuthorsCApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="AuthorsQApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="AuthorsQ" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="pt.psoft.authorsq.AuthorsQApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="BookCApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="BookC" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="pt.psoft.bookc.BookCApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="BookMicroServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="BookMicroService" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="pt.psoft.bookmicroservice.BookMicroServiceApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="BookQApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="BookQ" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="pt.psoft.bookq.BookQApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="BookServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="BookMicroService" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="pt.psoft.book.BookServiceApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="GenreCApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="GenreC" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="pt.psoft.genrec.GenreCApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="GenreMicroServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="GenreMicroService" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="pt.psoft.genremicroservice.GenreMicroServiceApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="GenreQApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="GenreQ" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="pt.psoft.genreq.GenreQApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="GenreServiceApplication (1)" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="genre-service (1)" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="pt.psoft.genre.GenreServiceApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="GenreServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="GenreMicroService" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="pt.psoft.genre.GenreServiceApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="PsoftG1Application" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="psoft-g1" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="pt.psoft.g1.psoftg1.PsoftG1Application" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="ReaderServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="reader-service" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="pt.psoft.reader.ReaderServiceApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="SagaOrchestratorApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="saga-orchestrator" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="pt.psoft.saga.SagaOrchestratorApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="UserServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="user-service" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="pt.psoft.user.UserServiceApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-30f59d01ecdd-26cb7f24e5b0-intellij.indexing.shared.core-IU-253.29346.138" />
+        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-IU-253.29346.138" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="SpringGeneralSettings">
+    <option name="showProfilesPanel" value="false" />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="255a66fb-01d5-4802-a9d5-15ffc8ae6f17" name="Changes" comment="" />
+      <created>1759268982483</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1759268982483</updated>
+      <workItem from="1759268983547" duration="1367000" />
+      <workItem from="1759524682095" duration="49000" />
+      <workItem from="1759524794890" duration="71000" />
+      <workItem from="1759870799152" duration="62000" />
+      <workItem from="1759871471574" duration="3217000" />
+      <workItem from="1759958762293" duration="24000" />
+      <workItem from="1760475804071" duration="73000" />
+      <workItem from="1760475898019" duration="1175000" />
+      <workItem from="1760563298219" duration="7000" />
+      <workItem from="1760795899959" duration="146000" />
+      <workItem from="1760923134564" duration="2171000" />
+      <workItem from="1760963392725" duration="164000" />
+      <workItem from="1760964121450" duration="4213000" />
+      <workItem from="1760968958421" duration="50000" />
+      <workItem from="1760969923584" duration="6302000" />
+      <workItem from="1760987857669" duration="1056000" />
+      <workItem from="1761046992482" duration="8557000" />
+      <workItem from="1761079977718" duration="5284000" />
+      <workItem from="1761133026323" duration="5158000" />
+      <workItem from="1761163720963" duration="3346000" />
+      <workItem from="1761180632520" duration="24000" />
+      <workItem from="1761231115794" duration="9037000" />
+      <workItem from="1761263492435" duration="4053000" />
+      <workItem from="1761323645506" duration="707000" />
+      <workItem from="1761324415006" duration="14245000" />
+      <workItem from="1761406383450" duration="2632000" />
+      <workItem from="1761519149758" duration="1804000" />
+      <workItem from="1761603683031" duration="10712000" />
+      <workItem from="1761655757278" duration="15682000" />
+      <workItem from="1761755603206" duration="15255000" />
+      <workItem from="1761834313104" duration="33844000" />
+      <workItem from="1761915727496" duration="15211000" />
+      <workItem from="1761949619533" duration="107000" />
+      <workItem from="1761949745472" duration="229000" />
+      <workItem from="1761950000768" duration="3676000" />
+      <workItem from="1762013116760" duration="17869000" />
+      <workItem from="1762051457991" duration="3754000" />
+      <workItem from="1762089640026" duration="28716000" />
+      <workItem from="1762797109803" duration="5326000" />
+      <workItem from="1762804856234" duration="10897000" />
+      <workItem from="1763938754777" duration="20000" />
+      <workItem from="1763938785438" duration="11000" />
+      <workItem from="1763947632593" duration="6140000" />
+      <workItem from="1764009225945" duration="29000" />
+      <workItem from="1764017496077" duration="2281000" />
+      <workItem from="1764020393124" duration="73000" />
+      <workItem from="1764020486677" duration="10401000" />
+      <workItem from="1764079648593" duration="5206000" />
+      <workItem from="1764094158755" duration="1618000" />
+      <workItem from="1764105723553" duration="2429000" />
+      <workItem from="1764109640163" duration="214000" />
+      <workItem from="1764109874611" duration="3583000" />
+      <workItem from="1764118031861" duration="327000" />
+      <workItem from="1764118616964" duration="7896000" />
+      <workItem from="1764193696603" duration="3000000" />
+      <workItem from="1764197901631" duration="34000" />
+      <workItem from="1765986156859" duration="893000" />
+      <workItem from="1766069563319" duration="3087000" />
+      <workItem from="1766260029753" duration="610000" />
+      <workItem from="1766337417348" duration="8596000" />
+      <workItem from="1766361985243" duration="5440000" />
+      <workItem from="1766417650048" duration="7250000" />
+      <workItem from="1766430943917" duration="284000" />
+      <workItem from="1766431244617" duration="316000" />
+      <workItem from="1766431830019" duration="4632000" />
+      <workItem from="1766509122941" duration="5426000" />
+      <workItem from="1766544943777" duration="4149000" />
+      <workItem from="1766588276682" duration="12897000" />
+      <workItem from="1766610528173" duration="2369000" />
+      <workItem from="1766683798105" duration="13220000" />
+      <workItem from="1766712200981" duration="6035000" />
+      <workItem from="1766778287535" duration="2645000" />
+      <workItem from="1766894492398" duration="956000" />
+      <workItem from="1766931045407" duration="7433000" />
+      <workItem from="1766972714407" duration="7568000" />
+      <workItem from="1767022963242" duration="208000" />
+      <workItem from="1767023191150" duration="1427000" />
+      <workItem from="1767053750269" duration="14313000" />
+      <workItem from="1767107323581" duration="18451000" />
+      <workItem from="1767190531010" duration="16753000" />
+      <workItem from="1767278320130" duration="20630000" />
+      <workItem from="1767469631057" duration="919000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="UnknownFeatures">
+    <option featureType="com.intellij.fileTypeFactory" implementationName="Jenkinsfile" />
+    <option featureType="com.intellij.fileTypeFactory" implementationName="*.jmx" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="origin/microservices-impl" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <breakpoint enabled="true" type="java-exception">
+          <properties class="org.springframework.dao.InvalidDataAccessApiUsageException" package="org.springframework.dao" />
+          <option name="timeStamp" value="2" />
+        </breakpoint>
+        <breakpoint enabled="true" type="java-exception">
+          <properties class="java.lang.IllegalArgumentException" package="java.lang" />
+          <option name="timeStamp" value="3" />
+        </breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
+  </component>
+</project>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Encoding">
+    <file url="file://$PROJECT_DIR$/AuthUsersC/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/AuthUsersQ/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/AuthorMicroService/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/BookMicroService/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/GenreMicroService/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/author-service/AuthorsQ/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/author-service/BookC/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/author-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/reader-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/saga-orchestrator/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/shared-kernel/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/user-service/src/main/java" charset="UTF-8" />
+  </component>
+</project>

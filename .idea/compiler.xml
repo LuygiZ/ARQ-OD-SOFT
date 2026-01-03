@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile default="true" name="Default" enabled="true" />
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="lms-shared-kernel" />
+        <module name="GenreMicroService" />
+        <module name="saga-orchestrator" />
+      </profile>
+      <profile name="Annotation profile for Book Service" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/mapstruct/mapstruct-processor/1.5.5.Final/mapstruct-processor-1.5.5.Final.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.30/lombok-1.18.30.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok-mapstruct-binding/0.2.0/lombok-mapstruct-binding-0.2.0.jar" />
+        </processorPath>
+        <module name="BookMicroService" />
+        <module name="AuthorMicroService" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="author" target="21" />
+      <module name="author-service" target="21" />
+      <module name="author-service (1)" target="21" />
+      <module name="AuthorsC" target="17" />
+      <module name="AuthorsQ" target="17" />
+      <module name="AuthUsersC" target="21" />
+      <module name="AuthUsersQ" target="17" />
+      <module name="book-service" target="21" />
+      <module name="book-service (1)" target="1.8" />
+      <module name="BookC" target="17" />
+      <module name="BookQ" target="17" />
+      <module name="genre-service" target="21" />
+      <module name="genre-service (1)" target="21" />
+      <module name="genre-service (2)" target="21" />
+      <module name="GenreC" target="17" />
+      <module name="GenreQ" target="17" />
+      <module name="lms-microservices-parent" target="21" />
+      <module name="psoft-g1" target="21" />
+      <module name="reader-service" target="21" />
+      <module name="user-service" target="21" />
+    </bytecodeTargetLevel>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="AuthUsersC" options="-parameters" />
+      <module name="AuthUsersQ" options="-parameters" />
+      <module name="AuthorMicroService" options="-parameters" />
+      <module name="AuthorsC" options="-parameters" />
+      <module name="AuthorsQ" options="-parameters" />
+      <module name="BookC" options="-parameters" />
+      <module name="BookMicroService" options="-parameters" />
+      <module name="BookQ" options="-parameters" />
+      <module name="GenreC" options="-parameters" />
+      <module name="GenreMicroService" options="-parameters" />
+      <module name="GenreQ" options="-parameters" />
+      <module name="author" options="-parameters" />
+      <module name="author-service" options="-parameters" />
+      <module name="author-service (1)" options="-parameters" />
+      <module name="book-service" options="-parameters" />
+      <module name="book-service (1)" options="-parameters" />
+      <module name="genre-service" options="-parameters" />
+      <module name="genre-service (1)" options="-parameters" />
+      <module name="genre-service (2)" options="-parameters" />
+      <module name="lms-shared-kernel" options="-parameters" />
+      <module name="psoft-g1" options="" />
+      <module name="reader-service" options="-parameters" />
+      <module name="saga-orchestrator" options="-parameters" />
+      <module name="user-service" options="-parameters" />
+    </option>
+  </component>
+</project>
