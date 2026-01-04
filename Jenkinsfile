@@ -258,11 +258,11 @@ pipeline {
                         // but sticking to docker command for visible evidence.
                         
                         // User Service
-                        sh "docker build -t ${registry}/user-service:${env.BUILD_NUMBER} -f user-service/Dockerfile user-service"
+                        sh "docker build -t ${registry}/user-service:${env.BUILD_NUMBER} -f user-service/Dockerfile ."
                         sh "docker push ${registry}/user-service:${env.BUILD_NUMBER} || echo '⚠️ Registry not reachable, skipping push'"
                         
                         // Reader Service
-                        sh "docker build -t ${registry}/reader-service:${env.BUILD_NUMBER} -f reader-service/Dockerfile reader-service"
+                        sh "docker build -t ${registry}/reader-service:${env.BUILD_NUMBER} -f reader-service/Dockerfile ."
                         sh "docker push ${registry}/reader-service:${env.BUILD_NUMBER} || echo '⚠️ Registry not reachable, skipping push'"
                     }
                 }
