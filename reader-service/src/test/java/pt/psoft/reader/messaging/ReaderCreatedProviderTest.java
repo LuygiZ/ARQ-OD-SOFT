@@ -34,16 +34,9 @@ public class ReaderCreatedProviderTest {
     public String verifyReaderCreatedEvent() throws JsonProcessingException {
         // Here we create an instance of the EVENT that the service ACTUALLY produces
         ReaderCreatedEvent event = new ReaderCreatedEvent(
-            123L,
             "pact_reader@mail.com",
             "password123",
-            "Pact Reader",
-            "999888777",
-            LocalDate.of(1999, 9, 9),
-            true,
-            false,
-            null,
-            null
+            "Pact Reader"
         );
         
         // Serialize it exactly as the production code would
