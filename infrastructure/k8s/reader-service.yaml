@@ -35,7 +35,7 @@ spec:
         readinessProbe:
           httpGet:
             path: /actuator/health
-            port: 9999 # SABOTAGE: Wrong port to trigger rollback
+            port: 8084
           initialDelaySeconds: 20
           periodSeconds: 5
         livenessProbe:
