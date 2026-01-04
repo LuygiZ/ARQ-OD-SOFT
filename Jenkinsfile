@@ -75,11 +75,11 @@ pipeline {
 							echo '🧪 Running unit tests...'
 							try {
 								if (isUnix()) {
-							// ODSOFT: Only test the services we own (Student B) + Shared Kernel
-							sh "mvn surefire:test -pl shared-kernel,reader-service,user-service -am"
-						} else {
-							bat "mvn surefire:test -pl shared-kernel,reader-service,user-service -am"
-						}		}
+									// ODSOFT: Only test the services we own (Student B) + Shared Kernel
+									sh "mvn surefire:test -pl shared-kernel,reader-service,user-service -am"
+								} else {
+									bat "mvn surefire:test -pl shared-kernel,reader-service,user-service -am"
+								}
 							} catch (Exception e) {
 								echo "⚠️ Some unit tests failed, but continuing..."
 								currentBuild.result = 'UNSTABLE'
