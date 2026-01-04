@@ -748,7 +748,7 @@ EOF
             if not exist Dockerfile (
                 echo Creating Dockerfile...
                 (
-                    echo FROM openjdk:17-jdk-slim
+                    echo FROM eclipse-temurin:21-jre-alpine
                     echo WORKDIR /app
                     echo COPY target/*.jar app.jar
                     echo EXPOSE 8080
