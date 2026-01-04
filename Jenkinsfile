@@ -144,6 +144,7 @@ pipeline {
 						if (isUnix()) {
 							// Generate the Pact file (Consumer)
 							sh "mvn test -Dtest=ReaderCreatedConsumerTest -pl user-service -am -DfailIfNoSpecifiedTests=false"
+                            sh "ls -R user-service/target"
 							// Verify the Pact file (Provider)
 							sh "mvn test -Dtest=ReaderCreatedProviderTest -pl reader-service -am -DfailIfNoSpecifiedTests=false"
 						} else {
@@ -653,7 +654,7 @@ def deployDocker(environment, port) {
             if [ ! -f Dockerfile ]; then
                 echo "Creating Dockerfile..."
                 cat > Dockerfile << 'EOF'
-FROM openjdk:17-jdk-slim
+FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 COPY target/*.jar app.jar
 EXPOSE 8080
