@@ -87,10 +87,11 @@ pipeline {
 							echo '🧪 Running unit tests...'
 							try {
 								if (isUnix()) {
-									sh "mvn surefire:test"
-								} else {
-									bat "mvn surefire:test"
-								}
+							// ODSOFT: Only test the services we own (Student B) + Shared Kernel
+							sh "mvn surefire:test -pl shared-kernel,reader-service,user-service -am"
+						} else {
+							bat "mvn surefire:test -pl shared-kernel,reader-service,user-service -am"
+						}		}
 							} catch (Exception e) {
 								echo "⚠️ Some unit tests failed, but continuing..."
 								currentBuild.result = 'UNSTABLE'
@@ -110,9 +111,9 @@ pipeline {
 							echo '🔗 Running integration tests...'
 							try {
 								if (isUnix()) {
-									sh "mvn failsafe:integration-test failsafe:verify"
+									sh "mvn failsafe:integration-test failsafe:verify -pl shared-kernel,reader-service,user-service -am"
 								} else {
-									bat "mvn failsafe:integration-test failsafe:verify"
+									bat "mvn failsafe:integration-test failsafe:verify -pl shared-kernel,reader-service,user-service -am"
 								}
 							} catch (Exception e) {
 								echo "⚠️ Some integration tests failed, but continuing..."
