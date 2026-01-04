@@ -1,0 +1,78 @@
+@startuml CQRS_Book_Services
+title CQRS Pattern - Book Command & Query Services
+
+skinparam packageStyle rectangle
+skinparam componentStyle rectangle
+
+package "Book Command Service (Port 8083)" {
+    [BookCommandController] as cmd_ctrl
+    [BookCommandService] as cmd_svc
+    [BookEventPublisher] as event_pub
+    [OutboxEventPublisher] as outbox_pub
+
+    database "book_db\n(BookEntity)" as cmd_db
+    database "outbox_events" as outbox
+
+    cmd_ctrl --> cmd_svc : createBook()\nupdateBook()\ndeleteBook()
+    cmd_svc --> cmd_db : save()
+    cmd_svc --> event_pub : publishEvent()
+    event_pub --> outbox : save(OutboxEvent)
+    outbox_pub --> outbox : poll PENDING
+}
+
+package "Book Query Service (Port 8085)" {
+    [BookQueryController] as qry_ctrl
+    [BookQueryService] as qry_svc
+    [BookEventConsumer] as event_con
+    [BookEventHandler] as event_hdl
+
+    database "book_db\n(BookReadModel,\nBookReview)" as qry_db
+    database "Redis Cache" as cache
+
+    qry_ctrl --> qry_svc : findByIsbn()\nfindAll()\nsearchBooks()
+    qry_svc --> cache : @Cacheable
+    cache --> qry_db : miss
+    event_con --> event_hdl : handleEvent()
+    event_hdl --> qry_db : sync read model
+    event_hdl --> cache : @CacheEvict
+}
+
+cloud "RabbitMQ\nlms.events" as mq
+
+outbox_pub --> mq : publish
+mq --> event_con : consume
+
+note right of cmd_svc
+  **Write Operations:**
+  - POST /api/books (create)
+  - PUT /api/books/{isbn} (create with ISBN)
+  - PATCH /api/books/{isbn} (update)
+  - DELETE /api/books/{isbn}
+
+  Uses Outbox Pattern for
+  reliable event publishing
+end note
+
+note right of qry_svc
+  **Read Operations:**
+  - GET /api/books (list all)
+  - GET /api/books/{isbn}
+  - GET /api/books/search/*
+  - GET /api/books/{isbn}/reviews
+
+  Denormalized data for fast queries
+  Redis caching for performance
+end note
+
+note bottom of event_hdl
+  **Events Handled:**
+  - BookCreatedEvent → Create BookReadModel
+  - BookUpdatedEvent → Update BookReadModel
+  - BookDeletedEvent → Delete BookReadModel
+  - LendingReturnedEvent → Create BookReview
+
+  **Idempotency:**
+  - lendingNumber is unique constraint
+end note
+
+@enduml

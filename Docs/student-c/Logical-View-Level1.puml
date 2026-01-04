@@ -1,0 +1,17 @@
+@startuml Logical_View_Level1
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+title Context Diagram (Level 1) - LMS System
+
+Person(reader, "Reader", "Library member who borrows books")
+Person(librarian, "Librarian", "Library staff managing books and lendings")
+
+System(lms, "Library Management System", "Manages books, authors, genres, readers and lendings with reviews")
+
+System_Ext(email, "Email System", "Sends notifications")
+
+Rel(reader, lms, "Borrows and returns books, leaves reviews")
+Rel(librarian, lms, "Manages catalog, creates books/authors/genres")
+Rel(lms, email, "Sends overdue notifications")
+
+@enduml

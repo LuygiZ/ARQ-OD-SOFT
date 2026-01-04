@@ -1,0 +1,64 @@
+@startuml Logical_View_Level2
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+title Container Diagram (Level 2) - LMS Microservices Architecture
+
+Person(reader, "Reader", "Library member")
+Person(librarian, "Librarian", "Library staff")
+
+System_Boundary(lms, "Library Management System") {
+
+    Container(api_gw, "Traefik", "API Gateway", "Load balancing\nRoute by method")
+
+    Container(genre_svc, "Genre Service", "Spring Boot", "Genre management\n2 replicas")
+
+    Container(author_svc, "Author Service", "Spring Boot", "Author management\nCQRS: PostgreSQL + MongoDB\n2 replicas")
+
+    Container(book_cmd, "Book Command Service", "Spring Boot", "CQRS Write Side\nCreates/Updates books\n2 replicas")
+
+    Container(book_qry, "Book Query Service", "Spring Boot", "CQRS Read Side\nQueries, Reviews\n2 replicas")
+
+    Container(lending_svc, "Lending Service", "Spring Boot", "Lending lifecycle\nReturns with reviews\n2 replicas")
+
+    Container(reader_svc, "Reader Service", "Spring Boot", "Authentication\nReader management\n2 replicas")
+
+    Container(saga, "Saga Orchestrator", "Spring Boot", "Distributed transactions\nBook+Author+Genre creation\n2 replicas")
+
+    ContainerDb(postgres, "PostgreSQL", "Database", "Relational storage")
+    ContainerDb(mongodb, "MongoDB", "Database", "Author read model")
+    ContainerDb(redis, "Redis", "Cache", "Query cache, Saga state")
+    ContainerQueue(rabbitmq, "RabbitMQ", "Message Broker", "Domain events")
+}
+
+Rel(reader, api_gw, "HTTPS")
+Rel(librarian, api_gw, "HTTPS")
+
+Rel(api_gw, genre_svc, "/api/genres")
+Rel(api_gw, author_svc, "/api/authors")
+Rel(api_gw, book_cmd, "/api/books [POST/PUT/PATCH/DELETE]")
+Rel(api_gw, book_qry, "/api/books [GET]")
+Rel(api_gw, lending_svc, "/api/lendings")
+Rel(api_gw, reader_svc, "/api/readers")
+Rel(api_gw, saga, "/api/catalog")
+
+Rel(saga, genre_svc, "Feign")
+Rel(saga, author_svc, "Feign")
+Rel(saga, book_cmd, "Feign")
+
+Rel(genre_svc, postgres, "JDBC")
+Rel(author_svc, postgres, "JDBC")
+Rel(author_svc, mongodb, "MongoDB Driver")
+Rel(book_cmd, postgres, "JDBC")
+Rel(book_qry, postgres, "JDBC")
+Rel(lending_svc, postgres, "JDBC")
+Rel(reader_svc, postgres, "JDBC")
+
+Rel(book_cmd, rabbitmq, "Publishes")
+Rel(lending_svc, rabbitmq, "Publishes")
+Rel(book_qry, rabbitmq, "Consumes")
+Rel(author_svc, rabbitmq, "Publishes/Consumes")
+
+Rel(book_qry, redis, "Cache")
+Rel(saga, redis, "State")
+
+@enduml

@@ -1,0 +1,85 @@
+@startuml Deployment_Diagram
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Deployment.puml
+
+title Deployment Diagram - LMS Microservices (Docker Compose)
+
+Deployment_Node(docker, "Docker Host", "Docker Compose") {
+
+    Deployment_Node(traefik_node, "API Gateway", "Traefik v3.1") {
+        Container(traefik, "Traefik", "Load Balancer", "Ports: 80 (HTTP), 8090 (Dashboard)")
+    }
+
+    Deployment_Node(infrastructure, "Infrastructure") {
+        Deployment_Node(postgres_node, "PostgreSQL 15", "") {
+            ContainerDb(postgres, "PostgreSQL", "Port: 5432", "genre_db, author_db, book_db,\nlending_db, reader_db")
+        }
+
+        Deployment_Node(mongodb_node, "MongoDB 7", "") {
+            ContainerDb(mongodb, "MongoDB", "Port: 27017", "author_read_db")
+        }
+
+        Deployment_Node(redis_node, "Redis 7", "") {
+            ContainerDb(redis, "Redis", "Port: 6379", "Cache, Saga State")
+        }
+
+        Deployment_Node(rabbitmq_node, "RabbitMQ 3", "") {
+            ContainerQueue(rabbitmq, "RabbitMQ", "Ports: 5672, 15672", "Topic Exchange: lms.events")
+        }
+    }
+
+    Deployment_Node(microservices, "Microservices") {
+
+        Deployment_Node(genre_cluster, "Genre Service Cluster") {
+            Container(genre1, "Genre Service #1", "Spring Boot", "Port: 8080")
+            Container(genre2, "Genre Service #2", "Spring Boot", "Port: 8080")
+        }
+
+        Deployment_Node(author_cluster, "Author Service Cluster") {
+            Container(author1, "Author Service #1", "Spring Boot", "Port: 8082")
+            Container(author2, "Author Service #2", "Spring Boot", "Port: 8082")
+        }
+
+        Deployment_Node(book_cmd_cluster, "Book Command Service Cluster (CQRS Write)") {
+            Container(book_cmd1, "Book Command #1", "Spring Boot", "Port: 8083")
+            Container(book_cmd2, "Book Command #2", "Spring Boot", "Port: 8083")
+        }
+
+        Deployment_Node(book_qry_cluster, "Book Query Service Cluster (CQRS Read)") {
+            Container(book_qry1, "Book Query #1", "Spring Boot", "Port: 8085")
+            Container(book_qry2, "Book Query #2", "Spring Boot", "Port: 8085")
+        }
+
+        Deployment_Node(lending_cluster, "Lending Service Cluster") {
+            Container(lending1, "Lending Service #1", "Spring Boot", "Port: 8086")
+            Container(lending2, "Lending Service #2", "Spring Boot", "Port: 8086")
+        }
+
+        Deployment_Node(saga_cluster, "Saga Orchestrator Cluster") {
+            Container(saga1, "Saga Orchestrator #1", "Spring Boot", "Port: 8084")
+            Container(saga2, "Saga Orchestrator #2", "Spring Boot", "Port: 8084")
+        }
+    }
+}
+
+Rel(traefik, genre_cluster, "PathPrefix(/api/genres)")
+Rel(traefik, author_cluster, "PathPrefix(/api/authors)")
+Rel(traefik, book_cmd_cluster, "PathPrefix(/api/books) && Method(POST|PUT|PATCH|DELETE)")
+Rel(traefik, book_qry_cluster, "PathPrefix(/api/books) && Method(GET)")
+Rel(traefik, lending_cluster, "PathPrefix(/api/lendings)")
+Rel(traefik, saga_cluster, "PathPrefix(/api/catalog)")
+
+Rel(genre_cluster, postgres, "genre_db")
+Rel(author_cluster, postgres, "author_db")
+Rel(author_cluster, mongodb, "author_read_db")
+Rel(book_cmd_cluster, postgres, "book_db (writes)")
+Rel(book_qry_cluster, postgres, "book_db (reads)")
+Rel(lending_cluster, postgres, "lending_db")
+
+Rel(book_qry_cluster, redis, "Cache")
+Rel(saga_cluster, redis, "Saga State")
+
+Rel(book_cmd_cluster, rabbitmq, "Publishes events")
+Rel(lending_cluster, rabbitmq, "Publishes events")
+Rel(book_qry_cluster, rabbitmq, "Consumes events")
+
+@enduml
