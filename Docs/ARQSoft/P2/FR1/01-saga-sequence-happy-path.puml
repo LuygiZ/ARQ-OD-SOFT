@@ -1,0 +1,346 @@
+@startuml saga-sequence-happy-path
+!theme plain
+title FR-1: Create Book + Author + Genre - Saga Happy Path\nDetailed Sequence Diagram (Level 3)
+
+autonumber
+
+actor "Bibliotecário" as librarian
+participant "API Gateway\n(Traefik)" as gateway
+participant "Saga Orchestrator\n:8084" as saga
+participant "Redis\n(Saga State)" as redis
+participant "Genre Service\n:8080" as genre
+participant "PostgreSQL\n(genre_db)" as genreDB
+participant "Author Service\n:8082" as author
+participant "PostgreSQL\n(author_db)" as authorCmdDB
+participant "MongoDB\n(author_read_db)" as authorReadDB
+participant "Book Command\n:8083" as book
+participant "PostgreSQL\n(book_db)" as bookDB
+participant "RabbitMQ\n(lms.events)" as rabbit
+participant "Outbox Publishers\n(Background)" as outbox
+
+== Request Initiation ==
+
+librarian -> gateway: POST /api/catalog/books\n**Request Body:**\n{\n  "genre": {"name": "Fiction"},\n  "author": {"name": "John Doe", "bio": "..."},\n  "book": {"title": "My Book", "description": "..."}\n}
+activate gateway
+gateway -> gateway: Validate JWT Token
+gateway -> saga: POST /api/catalog/books\n(with CreateBookSagaRequest)
+activate saga
+
+saga -> saga: createBook(request)
+saga -> saga: **Create SagaInstance**\n- UUID: random\n- State: STARTED\n- Timestamp
+
+saga -> redis: HSET saga:{uuid}\n(Store SagaInstance)
+activate redis
+redis --> saga: OK
+deactivate redis
+
+note right of saga
+  **SagaInstance stored in Redis:**
+  {
+    "sagaId": "uuid-1234",
+    "state": "STARTED",
+    "startedAt": "2026-01-04T23:00:00",
+    "requestPayload": "{json}",
+    "steps": []
+  }
+  **TTL: 3600 seconds (1 hour)**
+end note
+
+== STEP 1: Genre Creation ==
+
+saga -> saga: executeGenreCreation()
+saga -> saga: **State: CREATING_GENRE**
+
+saga -> redis: HSET saga:{uuid}\nstate=CREATING_GENRE
+activate redis
+redis --> saga: OK
+deactivate redis
+
+saga -> genre: GET /api/genres/search?name=Fiction\n**(Circuit Breaker: genreService)**
+activate genre
+
+genre -> genreDB: SELECT * FROM genres\nWHERE name = 'Fiction'
+activate genreDB
+genreDB --> genre: [] (not found)
+deactivate genreDB
+
+genre --> saga: 404 Not Found
+
+note right of saga
+  **Genre doesn't exist**
+  → Create new genre
+end note
+
+saga -> genre: POST /api/genres\n**Request Body:**\n{\n  "name": "Fiction"\n}
+
+genre -> genre: create(CreateGenreRequest)
+genre -> genre: **@Transactional BEGIN**
+
+genre -> genreDB: BEGIN TRANSACTION
+activate genreDB
+
+genre -> genre: Validate: existsByName("Fiction")
+genre -> genreDB: SELECT COUNT(*) FROM genres\nWHERE name = 'Fiction'
+genreDB --> genre: 0
+
+genre -> genre: Create Genre entity\nGenre(name="Fiction")
+
+genre -> genreDB: INSERT INTO genres\n(name, version, created_at)\nVALUES ('Fiction', 0, NOW())
+genreDB --> genre: id = 1
+
+genre -> genre: Create GenreCreatedEvent\n{\n  "genreId": 1,\n  "name": "Fiction"\n}
+
+genre -> genre: genreEventPublisher.publish(event)
+
+genre -> genreDB: INSERT INTO outbox_events\n(id, aggregate_type, aggregate_id, event_type,\n payload, status, created_at)\nVALUES (uuid(), 'GENRE', '1', 'CREATED',\n '{"genreId":1,"name":"Fiction"}',\n 'PENDING', NOW())
+genreDB --> genre: OK
+
+genre -> genreDB: COMMIT TRANSACTION
+deactivate genreDB
+
+genre -> genre: **@Transactional END**
+
+note right of genre
+  **Atomicity Guarantee:**
+  Genre entity + Outbox event
+  saved in SAME transaction
+end note
+
+genre --> saga: 201 Created\n**Response:**\n{\n  "id": 1,\n  "genre": "Fiction"\n}
+deactivate genre
+
+saga -> saga: Store genreId = 1 in saga
+saga -> saga: **State: GENRE_CREATED**
+saga -> saga: Add SagaStep(GENRE_CREATED, success)
+
+saga -> redis: HSET saga:{uuid}\ngenreId=1\nstate=GENRE_CREATED\nsteps=[...]
+activate redis
+redis --> saga: OK
+deactivate redis
+
+== STEP 2: Author Creation ==
+
+saga -> saga: executeAuthorCreation()
+saga -> saga: **State: CREATING_AUTHOR**
+
+saga -> redis: HSET saga:{uuid}\nstate=CREATING_AUTHOR
+activate redis
+redis --> saga: OK
+deactivate redis
+
+saga -> author: GET /api/authors?name=John+Doe\n**(Circuit Breaker: authorService)**
+activate author
+
+author -> authorReadDB: db.authors.find(\n  {"name": {$regex: "^John Doe", $options: "i"}}\n)
+activate authorReadDB
+authorReadDB --> author: [] (not found)
+deactivate authorReadDB
+
+author --> saga: 200 OK\n[]
+
+note right of saga
+  **Author doesn't exist**
+  → Create new author
+end note
+
+saga -> author: POST /api/authors\n**Request Body:**\n{\n  "name": "John Doe",\n  "bio": "Famous writer",\n  "photoURI": null\n}
+
+author -> author: createAuthor(CreateAuthorRequest)
+author -> author: **@Transactional BEGIN**
+
+author -> authorCmdDB: BEGIN TRANSACTION
+activate authorCmdDB
+
+author -> author: Create AuthorEntity\nwith Value Objects:\n- AuthorName("John Doe")\n- Bio("Famous writer")
+
+author -> authorCmdDB: INSERT INTO authors\n(name, bio, photo_uri, version, created_at)\nVALUES ('John Doe', 'Famous writer', null, 0, NOW())
+authorCmdDB --> author: authorNumber = 42
+
+author -> author: Create AuthorCreatedEvent\n{\n  "authorNumber": 42,\n  "name": "John Doe",\n  "bio": "Famous writer"\n}
+
+author -> author: authorEventPublisher.publish(event)
+
+author -> authorCmdDB: INSERT INTO outbox_events\n(id, aggregate_type, aggregate_id, event_type,\n payload, status, created_at)\nVALUES (uuid(), 'AUTHOR', '42', 'CREATED',\n '{"authorNumber":42,...}', 'PENDING', NOW())
+authorCmdDB --> author: OK
+
+author -> authorCmdDB: COMMIT TRANSACTION
+deactivate authorCmdDB
+
+author -> author: **@Transactional END**
+
+author --> saga: 201 Created\n**Response:**\n**ETag: "0"** (version)\n{\n  "authorNumber": 42,\n  "name": "John Doe",\n  "bio": "Famous writer",\n  "version": 0\n}
+deactivate author
+
+saga -> saga: Store authorNumber = 42 in saga
+saga -> saga: **State: AUTHOR_CREATED**
+saga -> saga: Add SagaStep(AUTHOR_CREATED, success)
+
+saga -> redis: HSET saga:{uuid}\nauthorNumber=42\nstate=AUTHOR_CREATED\nsteps=[...]
+activate redis
+redis --> saga: OK
+deactivate redis
+
+== STEP 3: Book Creation ==
+
+saga -> saga: executeBookCreation()
+saga -> saga: **State: CREATING_BOOK**
+
+saga -> redis: HSET saga:{uuid}\nstate=CREATING_BOOK
+activate redis
+redis --> saga: OK
+deactivate redis
+
+saga -> book: POST /api/books\n**Request Body:**\n{\n  "title": "My Book",\n  "description": "An amazing book",\n  "genre": "Fiction",\n  "authorIds": [42],\n  "photoURI": null\n}
+activate book
+
+book -> book: createBook(isbn=null, request)
+book -> book: **@Transactional BEGIN**
+
+book -> bookDB: BEGIN TRANSACTION
+activate bookDB
+
+book -> book: **Auto-generate ISBN**\nisbn = IsbnGenerator.generateValidIsbn()\n→ "978-3-16-148410-0"
+
+book -> book: Validate: !existsByIsbn(isbn)
+book -> bookDB: SELECT COUNT(*) FROM books\nWHERE isbn = '978-3-16-148410-0'
+bookDB --> book: 0
+
+book -> book: Create BookEntity\nwith Value Objects:\n- Isbn("978-3-16-148410-0")\n- Title("My Book")\n- Description("An amazing book")\n- genreName = "Fiction"\n- authorIds = [42]
+
+book -> bookDB: INSERT INTO books\n(isbn, title, description, genre_name,\n photo_uri, version, created_at)\nVALUES ('978-3-16-148410-0', 'My Book', ..., 0, NOW())
+bookDB --> book: pk = 100
+
+book -> bookDB: INSERT INTO book_command_authors\n(book_pk, author_id)\nVALUES (100, 42)
+bookDB --> book: OK
+
+book -> book: Create BookCreatedEvent\n{\n  "isbn": "978-3-16-148410-0",\n  "title": "My Book",\n  "genreName": "Fiction",\n  "authorIds": [42]\n}
+
+book -> book: bookEventPublisher.publish(event)
+
+book -> bookDB: INSERT INTO outbox_events\n(id, aggregate_type, aggregate_id, event_type,\n payload, status, created_at)\nVALUES (uuid(), 'BOOK', '978-3-16-148410-0',\n 'CREATED', '{"isbn":...}', 'PENDING', NOW())
+bookDB --> book: OK
+
+book -> bookDB: COMMIT TRANSACTION
+deactivate bookDB
+
+book -> book: **@Transactional END**
+
+book --> saga: 201 Created\n**Response:**\n**ETag: "0"** (version)\n{\n  "isbn": "978-3-16-148410-0",\n  "title": "My Book",\n  "description": "An amazing book",\n  "genre": "Fiction",\n  "authors": [42],\n  "version": 0\n}
+deactivate book
+
+saga -> saga: Store bookIsbn in saga
+saga -> saga: **State: BOOK_CREATED**
+saga -> saga: Add SagaStep(BOOK_CREATED, success)
+
+== Saga Completion ==
+
+saga -> saga: saga.complete()
+saga -> saga: **State: COMPLETED**
+
+saga -> redis: HSET saga:{uuid}\nstate=COMPLETED\ncompletedAt=NOW()
+activate redis
+redis --> saga: OK
+deactivate redis
+
+saga -> saga: Build CreateBookSagaResponse\n{\n  "sagaId": "uuid-1234",\n  "state": "COMPLETED",\n  "genre": {"id": 1, "name": "Fiction"},\n  "author": {"authorNumber": 42, ...},\n  "book": {"isbn": "978-3-16-148410-0", ...}\n}
+
+saga --> gateway: 201 Created\n**CreateBookSagaResponse**
+deactivate saga
+
+gateway --> librarian: 201 Created\n**Complete aggregated response**
+deactivate gateway
+
+== Asynchronous Event Publishing (Background) ==
+
+note over outbox
+  **Scheduled @Scheduled(fixedDelay=1000)**
+  Runs every 1 second in each service
+end note
+
+outbox -> genreDB: SELECT * FROM outbox_events\nWHERE status = 'PENDING'\nORDER BY created_at ASC
+activate genreDB
+genreDB --> outbox: [GenreCreatedEvent]
+deactivate genreDB
+
+outbox -> rabbit: PUBLISH to exchange 'lms.events'\n**Routing Key:** catalog.genre.created\n**Payload:** {"genreId":1,"name":"Fiction"}
+activate rabbit
+rabbit --> outbox: ACK
+deactivate rabbit
+
+outbox -> genreDB: UPDATE outbox_events\nSET status='PUBLISHED',\n published_at=NOW()\nWHERE id=...
+activate genreDB
+genreDB --> outbox: OK
+deactivate genreDB
+
+outbox -> authorCmdDB: SELECT * FROM outbox_events\nWHERE status = 'PENDING'
+activate authorCmdDB
+authorCmdDB --> outbox: [AuthorCreatedEvent]
+deactivate authorCmdDB
+
+outbox -> rabbit: PUBLISH to exchange 'lms.events'\n**Routing Key:** catalog.author.created\n**Payload:** {"authorNumber":42,...}
+activate rabbit
+rabbit --> outbox: ACK
+deactivate rabbit
+
+outbox -> authorCmdDB: UPDATE outbox_events\nSET status='PUBLISHED',\n published_at=NOW()
+activate authorCmdDB
+authorCmdDB --> outbox: OK
+deactivate authorCmdDB
+
+note right of rabbit
+  **Event Published!**
+  Will be consumed by:
+  - Author Event Handler (CQRS sync)
+  - Book Query Service
+  - Any future consumers
+end note
+
+== CQRS Synchronization (Author Service) ==
+
+rabbit -> author: **@RabbitListener**\nqueue: author-service.events\n**Message:** AuthorCreatedEvent
+activate author
+
+author -> author: @TransactionalEventListener\nhandleAuthorCreated(event)
+
+author -> author: Create AuthorReadModel from event
+
+author -> authorReadDB: db.authors.insertOne({\n  "authorNumber": 42,\n  "name": "John Doe",\n  "bio": "Famous writer",\n  "version": 0,\n  "createdAt": NOW()\n})
+activate authorReadDB
+authorReadDB --> author: inserted
+deactivate authorReadDB
+
+author -> author: @CacheEvict(value="authors")\nInvalidate Redis cache
+
+note right of author
+  **CQRS Synchronized!**
+  PostgreSQL (write) → MongoDB (read)
+  Typical lag: <500ms
+end note
+
+deactivate author
+
+outbox -> bookDB: SELECT * FROM outbox_events\nWHERE status = 'PENDING'
+activate bookDB
+bookDB --> outbox: [BookCreatedEvent]
+deactivate bookDB
+
+outbox -> rabbit: PUBLISH to exchange 'lms.events'\n**Routing Key:** catalog.book.created\n**Payload:** {"isbn":"978-3-16-148410-0",...}
+activate rabbit
+rabbit --> outbox: ACK
+deactivate rabbit
+
+outbox -> bookDB: UPDATE outbox_events\nSET status='PUBLISHED'
+activate bookDB
+bookDB --> outbox: OK
+deactivate bookDB
+
+note over librarian, rabbit
+  **SUCCESS!**
+  - Book, Author, and Genre created atomically
+  - Saga completed with all steps successful
+  - Events published to RabbitMQ
+  - CQRS read models synchronized
+  - All within <3 seconds (P95 target)
+end note
+
+@enduml

@@ -1008,7 +1008,312 @@ Redis Hit Rate & N/A & >70\% & Redis metrics \\
 \textbf{Produção:} Circuit breakers, zero downtime deployment, monitoring/logging/tracing operacionais, alerting, documentação completa, 100\% traffic novo sistema.
 
 % ===========================
-% 10. CONCLUSÃO
+% 10. VISTAS ARQUITETURAIS
+% ===========================
+\chapter{Vistas Arquiteturais (4+1 View Model)}
+
+Este capítulo apresenta a arquitetura do sistema LMS segundo o modelo de vistas 4+1 de Philippe Kruchten, que organiza a descrição arquitetural em cinco vistas interligadas: Lógica, Física, Implementação, Processo e Cenários.
+
+\section{Vista Lógica}
+
+A Vista Lógica descreve a estrutura funcional do sistema em termos de componentes, suas responsabilidades e relacionamentos.
+
+\subsection{Nível 1: Contexto do Sistema}
+
+O diagrama de contexto (Nível 1) apresenta o sistema LMS e suas interações com atores externos e sistemas adjacentes.
+
+\textbf{Atores Principais:}
+\begin{itemize}
+    \item \textbf{Bibliotecário (Librarian):} Gere catálogo (Books, Authors, Genres), empréstimos e estatísticas
+    \item \textbf{Leitor (Reader):} Pesquisa livros, requisita empréstimos, devolve com avaliações
+    \item \textbf{Administrador (Admin):} Gere utilizadores, configura sistema, monitoriza métricas
+\end{itemize}
+
+\textbf{Sistemas Externos:}
+\begin{itemize}
+    \item Sistema de Autenticação (OAuth 2.0/JWT)
+    \item Serviço de Fotos/Media (Storage + CDN)
+    \item Sistema de Notificações (Email/SMS)
+\end{itemize}
+
+\textit{Diagrama: vista-logica-nivel1.puml}
+
+\subsection{Nível 2: Decomposição em Microserviços}
+
+O Nível 2 decompõe o sistema LMS em microserviços segundo bounded contexts do Domain-Driven Design.
+
+\textbf{System API Layer - Catalog Bounded Context:}
+\begin{itemize}
+    \item \textbf{Genre Service (Port 8080):} CRUD de géneros, eventos GenreCreated/Updated/Deleted
+    \item \textbf{Author Service (Port 8082):} CRUD de autores com CQRS (PostgreSQL write + MongoDB read)
+    \item \textbf{Book Command Service (Port 8083):} Operações de escrita (CQRS write side)
+    \item \textbf{Book Query Service (Port 8085):} Operações de leitura otimizadas (CQRS read side)
+\end{itemize}
+
+\textbf{System API Layer - User Management Bounded Context:}
+\begin{itemize}
+    \item \textbf{Reader Service (Port 8087):} CRUD de leitores, autenticação JWT
+\end{itemize}
+
+\textbf{System API Layer - Lending Bounded Context:}
+\begin{itemize}
+    \item \textbf{Lending Service (Port 8086):} Requisitar/devolver livros, gerir multas
+\end{itemize}
+
+\textbf{Process API Layer:}
+\begin{itemize}
+    \item \textbf{Saga Orchestrator (Port 8084):} Coordena FR-1 via Saga Pattern, gere compensações
+\end{itemize}
+
+\textbf{Comunicação:}
+\begin{itemize}
+    \item \textbf{Síncrona:} REST APIs via Traefik (routing por path prefix)
+    \item \textbf{Assíncrona:} Domain Events via RabbitMQ (topic exchange lms.events)
+\end{itemize}
+
+\textit{Diagrama: vista-logica-nivel2.puml}
+
+\subsection{Nível 3: Estrutura Interna de Microserviço}
+
+O Nível 3 detalha a arquitetura interna de um microserviço típico (Book Command Service como exemplo).
+
+\textbf{Camadas (Layered Architecture):}
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabularx}{\textwidth}{|l|X|}
+\hline
+\rowcolor{primarycolor!20}
+\textbf{Camada} & \textbf{Responsabilidades} \\
+\hline
+API Layer & Controllers, validation, DTO mapping, exception handling \\
+\hline
+Service Layer & Business logic, transaction management, event publishing \\
+\hline
+Domain Layer & Entities, Value Objects, domain rules, optimistic locking \\
+\hline
+Repository Layer & Data access (JPA), Outbox persistence \\
+\hline
+Messaging Layer & Event publishing (Outbox Pattern), RabbitMQ configuration \\
+\hline
+Configuration & Security (JWT), Caching (Redis), cross-cutting concerns \\
+\hline
+\end{tabularx}
+\caption{Camadas Arquiteturais}
+\end{table}
+
+\textbf{Fluxo de Request:}
+\begin{enumerate}
+    \item API Gateway encaminha request
+    \item Controller valida e mapeia DTO
+    \item Service executa lógica de negócio
+    \item Repository persiste Entity + OutboxEvent (mesma transação)
+    \item Response devolvido ao cliente
+    \item (Assíncrono) OutboxEventPublisher lê PENDING events e publica para RabbitMQ
+\end{enumerate}
+
+\textbf{Padrões Implementados:}
+\begin{itemize}
+    \item Outbox Pattern para consistência eventual
+    \item Optimistic Locking (@Version) para concorrência
+    \item Value Objects imutáveis (Isbn, Title, Description)
+    \item Scheduled polling (1s) do Outbox
+    \item At-least-once delivery (retry até 3x, DLQ para falhas)
+\end{itemize}
+
+\textit{Diagrama: vista-logica-nivel3.puml}
+
+\section{Vista Física}
+
+A Vista Física descreve o mapeamento dos componentes de software em infraestrutura física (deployment).
+
+\subsection{Nível 2: Deployment com Docker Swarm}
+
+\textbf{Cluster Docker Swarm:}
+\begin{itemize}
+    \item \textbf{Manager Node:} Executa todos os serviços (desenvolvimento single-node)
+    \item \textbf{Overlay Network:} lms\_prod (attachable) para comunicação inter-serviços
+    \item \textbf{Volumes:} Persistent storage (postgres\_prod, mongodb\_prod, redis\_prod, rabbitmq\_prod)
+\end{itemize}
+
+\textbf{Load Balancer:}
+\begin{itemize}
+    \item \textbf{Traefik (Port 80, 8090):} Routing baseado em path prefix, health checks, service discovery
+\end{itemize}
+
+\textbf{Infrastructure Services (1 replica each):}
+\begin{itemize}
+    \item PostgreSQL (Port 5432): 5 databases (genre\_db, author\_db, book\_db, lending\_db, reader\_db)
+    \item MongoDB (Port 27017): author\_read\_db (CQRS read model)
+    \item Redis (Port 6379): L2 cache + Saga state (maxmemory 1GB, LRU eviction)
+    \item RabbitMQ (Ports 5672, 15672): Message broker (lms.events exchange)
+\end{itemize}
+
+\textbf{Microservices (3 replicas each):}
+\begin{itemize}
+    \item Cada serviço: CPU limit 0.5, Memory limit 512M
+    \item Health checks: /actuator/health (interval 30s, start period 60s)
+    \item Rolling updates: parallelism 1, delay 10s, rollback on failure
+\end{itemize}
+
+\textbf{High Availability:}
+\begin{itemize}
+    \item 3 replicas por microserviço (horizontal scaling)
+    \item Traefik load balances automaticamente entre replicas saudáveis
+    \item Health checks removem instâncias não-saudáveis do balanceamento
+    \item Restart policy: on-failure, delay 5s, max 3 attempts
+\end{itemize}
+
+\textit{Diagrama: vista-fisica-nivel2.puml}
+
+\section{Vista de Implementação}
+
+A Vista de Implementação descreve a organização do código-fonte, módulos e dependências.
+
+\subsection{Nível 2: Estrutura Multi-Módulo Maven}
+
+\textbf{Root POM (lms-microservices-parent):}
+\begin{itemize}
+    \item Plugin Management: Checkstyle, JaCoCo, PIT, SonarQube
+    \item Quality Gates: Coverage ≥70\%, Mutation ≥60\%, Checkstyle violations = 0
+    \item Java 21, Spring Boot, Spring Cloud
+\end{itemize}
+
+\textbf{Shared Kernel Module:}
+\begin{itemize}
+    \item \textbf{DTOs:} Transferência de dados entre serviços (GenreDTO, AuthorDTO, BookDTO, etc.)
+    \item \textbf{Domain Events:} Hierarquia polimórfica com @JsonTypeInfo (GenreCreatedEvent, etc.)
+    \item \textbf{Messaging:} OutboxEvent, OutboxStatus, EventPublisher (infraestrutura reutilizável)
+    \item \textbf{Exceptions:} BusinessException, NotFoundException, ConflictException
+    \item \textbf{Base Classes:} BaseEntity, EntityWithVersion, AuditableEntity
+\end{itemize}
+
+\textbf{Service Modules (genre-service, author-service, etc.):}
+
+Cada módulo segue estrutura:
+\begin{verbatim}
+src/main/java/pt/psoft/{service}/
+  ├── api/controller/       (REST endpoints)
+  ├── services/             (Business logic)
+  ├── model/                (Entities, VOs)
+  ├── repositories/         (JPA/MongoDB)
+  ├── messaging/            (Event pub/sub)
+  └── config/               (Security, Cache)
+src/main/resources/
+  ├── application.yml       (Configuration)
+  └── rsa.public.key        (JWT validation)
+src/test/java/
+  ├── unit/                 (Surefire)
+  ├── integration/          (Failsafe)
+  └── cdc/                  (Pact contracts)
+Dockerfile                  (Multi-stage build)
+pom.xml                     (Dependencies)
+\end{verbatim}
+
+\textbf{Infrastructure:}
+\begin{itemize}
+    \item \textbf{docker-compose.yml:} Desenvolvimento local
+    \item \textbf{docker-swarm-stack.yml:} Produção com 3 replicas
+    \item \textbf{Jenkinsfile-microservices:} CI/CD pipeline (17 stages)
+    \item \textbf{init-databases.sql:} Database bootstrapping
+\end{itemize}
+
+\textbf{Dependências Maven:}
+
+Todos os service modules dependem de shared-kernel. Saga Orchestrator usa Feign Clients para comunicação síncrona com Genre/Author/Book Services (com @CircuitBreaker e @Retry para resiliência).
+
+\textit{Diagrama: vista-implementacao-nivel2.puml}
+
+\section{Vista de Processo}
+
+A Vista de Processo descreve os aspectos dinâmicos do sistema: concorrência, threads, processos, sincronização.
+
+\subsection{FR-1: Saga Orchestration Process}
+
+\textbf{Workflow Distribuído (Happy Path):}
+
+\begin{enumerate}
+    \item Bibliotecário envia POST /api/catalog/books via API Gateway
+    \item Saga Orchestrator cria SagaInstance (armazenado em Redis com TTL 1h)
+    \item Chama Genre Service (sync REST): CreateGenre → GenreCreated event (via Outbox)
+    \item Chama Author Service (sync REST): CreateAuthor → AuthorCreated event (via Outbox)
+    \item Chama Book Command Service (sync REST): CreateBook → BookCreated event (via Outbox)
+    \item Saga transita para COMPLETED, retorna resposta agregada ao cliente
+    \item (Async) Outbox Publishers em cada serviço publicam events para RabbitMQ (1s polling)
+    \item Book Query Service consome BookCreated e atualiza read model
+\end{enumerate}
+
+\textbf{Compensating Transactions (Failure Path):}
+
+Se Book Command falha:
+\begin{enumerate}
+    \item Saga transita para COMPENSATING
+    \item Executa DeleteAuthor via Author Service REST API
+    \item Executa DeleteGenre via Genre Service REST API
+    \item Saga transita para COMPENSATED, retorna erro ao cliente
+\end{enumerate}
+
+\textbf{Concorrência e Sincronização:}
+\begin{itemize}
+    \item \textbf{Optimistic Locking:} @Version em todas entities (previne concurrent updates)
+    \item \textbf{Saga State:} Armazenado em Redis (single source of truth)
+    \item \textbf{Outbox Polling:} Scheduled task @Scheduled(fixedDelay=1000) por serviço
+    \item \textbf{Thread Pools:} Bulkhead pattern isola falhas (Resilience4j)
+    \item \textbf{Circuit Breaker:} 50\% failure rate threshold, 30s wait
+\end{itemize}
+
+\subsection{CQRS Synchronization Process}
+
+\textbf{Author Service (PostgreSQL → MongoDB):}
+
+\begin{enumerate}
+    \item Write: AuthorCommandService.createAuthor() persiste em PostgreSQL + Outbox (transação)
+    \item Outbox Publisher publica AuthorCreatedEvent para RabbitMQ
+    \item AuthorEventConsumer (mesma JVM) consome event
+    \item AuthorEventHandler persiste em MongoDB (AuthorReadModel)
+    \item @CacheEvict invalida Redis cache
+\end{enumerate}
+
+Lag típico: <500ms (eventual consistency aceitável para reads).
+
+\section{Vista de Cenários (+1)}
+
+A Vista de Cenários valida as outras vistas através de casos de uso concretos.
+
+\subsection{Cenário: Criar Book + Author + Genre (FR-1)}
+
+\textbf{Pré-condições:} Bibliotecário autenticado, JWT válido.
+
+\textbf{Fluxo Normal:}
+\begin{enumerate}
+    \item Bibliotecário submete pedido via UI/Postman
+    \item API Gateway valida JWT, encaminha para Saga Orchestrator
+    \item Saga cria Genre (se não existe)
+    \item Saga cria Author (se não existe)
+    \item Saga cria Book com referências a Genre/Author IDs
+    \item Retorna BookView agregado (incluindo genre e author details)
+    \item Events propagados via RabbitMQ atualizam read models
+\end{enumerate}
+
+\textbf{Fluxo Alternativo (Author Service Down):}
+\begin{enumerate}
+    \item Circuit breaker deteta 50\% falhas após 5 chamadas
+    \item Abre circuito, próximas chamadas falham imediatamente (fail-fast)
+    \item Saga executa compensação: DeleteGenre
+    \item Retorna 503 Service Unavailable ao cliente
+    \item Após 30s, circuit breaker tenta half-open (probing)
+\end{enumerate}
+
+\textbf{Atributos Validados:}
+\begin{itemize}
+    \item \textbf{Consistência (QA-6):} Saga garante atomicidade via compensations, 100\% consistência
+    \item \textbf{Disponibilidade (QA-1):} Circuit breaker previne cascading failures, graceful degradation
+    \item \textbf{Performance (QA-2):} P95 <3s (target), distribuição de carga por 3 replicas
+\end{itemize}
+
+% ===========================
+% 11. CONCLUSÃO
 % ===========================
 \chapter{Conclusão}
 

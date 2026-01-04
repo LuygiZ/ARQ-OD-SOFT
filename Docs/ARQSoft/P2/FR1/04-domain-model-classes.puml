@@ -1,0 +1,475 @@
+@startuml domain-model-classes
+!theme plain
+title FR-1: Domain Model - Class Diagram (Level 3)\nEntities, Value Objects, Events, and Repositories
+
+skinparam class {
+    BackgroundColor<<Entity>> LightBlue
+    BackgroundColor<<ValueObject>> LightYellow
+    BackgroundColor<<Event>> LightGreen
+    BackgroundColor<<Repository>> LightGray
+    BackgroundColor<<Service>> Orange
+    BorderColor Black
+}
+
+package "Genre Service" {
+    class Genre <<Entity>> {
+        - Long id {PK, IDENTITY}
+        - String name {UNIQUE, NOT NULL, max 100}
+        - Long version {@Version}
+        - LocalDateTime createdAt
+        - LocalDateTime updatedAt
+        ____
+        + Genre(String name)
+        + getName() : String
+        + updateName(String name) : void
+        + validate() : void
+    }
+
+    class GenreEventPublisher <<Service>> {
+        - OutboxRepository outboxRepository
+        - ObjectMapper objectMapper
+        ____
+        + publish(GenreCreatedEvent event) : void
+        + publish(GenreUpdatedEvent event) : void
+        + publish(GenreDeletedEvent event) : void
+    }
+
+    interface GenreRepository <<Repository>> {
+        + save(Genre) : Genre
+        + findById(Long) : Optional<Genre>
+        + findByName(String) : Optional<Genre>
+        + existsByName(String) : boolean
+        + deleteById(Long) : void
+    }
+
+    class GenreCreatedEvent <<Event>> {
+        - Long genreId
+        - String name
+        - LocalDateTime timestamp
+        ____
+        + GenreCreatedEvent(Long genreId, String name)
+        + getGenreId() : Long
+        + getName() : String
+    }
+
+    class GenreDeletedEvent <<Event>> {
+        - Long genreId
+        - String name
+        - LocalDateTime timestamp
+    }
+
+    Genre "1" -- "0..*" GenreCreatedEvent : publishes >
+    Genre "1" -- "0..*" GenreDeletedEvent : publishes >
+    GenreEventPublisher ..> GenreCreatedEvent : creates
+    GenreEventPublisher ..> GenreDeletedEvent : creates
+    GenreRepository ..> Genre : manages
+}
+
+package "Author Service - Command Model" {
+    class AuthorEntity <<Entity>> {
+        - Long authorNumber {PK, IDENTITY}
+        - AuthorName name {Embedded}
+        - Bio bio {Embedded}
+        - String photoURI {max 512}
+        - Long version {@Version}
+        - LocalDateTime createdAt
+        - LocalDateTime updatedAt
+        ____
+        + AuthorEntity(AuthorName name, Bio bio, String photoURI)
+        + getAuthorNumber() : Long
+        + getNameValue() : String
+        + getBioValue() : String
+        + updateDetails(AuthorName name, Bio bio) : void
+        + validate() : void
+    }
+
+    class AuthorName <<ValueObject>> {
+        - String value {NOT NULL, 1-100 chars}
+        ____
+        + AuthorName(String value)
+        + getValue() : String
+        + validate() : void
+        ____
+        {immutable}
+    }
+
+    class Bio <<ValueObject>> {
+        - String value {max 4000 chars}
+        ____
+        + Bio(String value)
+        + getValue() : String
+        + validate() : void
+        ____
+        {immutable}
+    }
+
+    interface AuthorRepository <<Repository>> {
+        + save(AuthorEntity) : AuthorEntity
+        + findByAuthorNumber(Long) : Optional<AuthorEntity>
+        + deleteByAuthorNumber(Long) : void
+    }
+
+    class AuthorCreatedEvent <<Event>> {
+        - Long authorNumber
+        - String name
+        - String bio
+        - String photoURI
+        - Long version
+        - LocalDateTime timestamp
+        ____
+        + AuthorCreatedEvent(...)
+    }
+
+    class AuthorDeletedEvent <<Event>> {
+        - Long authorNumber
+        - LocalDateTime timestamp
+    }
+
+    AuthorEntity *-- "1" AuthorName : contains
+    AuthorEntity *-- "1" Bio : contains
+    AuthorEntity "1" -- "0..*" AuthorCreatedEvent : publishes >
+    AuthorEntity "1" -- "0..*" AuthorDeletedEvent : publishes >
+    AuthorRepository ..> AuthorEntity : manages
+}
+
+package "Author Service - Query Model (CQRS)" {
+    class AuthorReadModel <<Entity>> {
+        - String id {MongoDB ObjectId}
+        - Long authorNumber {UNIQUE INDEX, business key}
+        - String name {INDEXED}
+        - String bio
+        - String photoURI
+        - Long version
+        - LocalDateTime createdAt
+        - LocalDateTime updatedAt
+        ____
+        + static fromEvent(AuthorCreatedEvent) : AuthorReadModel
+        + update(AuthorUpdatedEvent) : void
+    }
+
+    interface AuthorQueryRepository <<Repository>> {
+        + save(AuthorReadModel) : AuthorReadModel
+        + findByAuthorNumber(Long) : Optional<AuthorReadModel>
+        + findByNameStartingWithIgnoreCase(String) : List<AuthorReadModel>
+        + deleteByAuthorNumber(Long) : void
+    }
+
+    class AuthorEventHandler <<Service>> {
+        - AuthorQueryRepository queryRepository
+        ____
+        + handleAuthorCreated(AuthorCreatedEvent) : void
+        + handleAuthorUpdated(AuthorUpdatedEvent) : void
+        + handleAuthorDeleted(AuthorDeletedEvent) : void
+    }
+
+    AuthorCreatedEvent .down.> AuthorReadModel : creates
+    AuthorEventHandler ..> AuthorReadModel : manages
+    AuthorQueryRepository ..> AuthorReadModel : persists
+}
+
+package "Book Command Service" {
+    class BookEntity <<Entity>> {
+        - Long pk {PK, IDENTITY}
+        - Isbn isbn {Embedded, UNIQUE}
+        - Title title {Embedded}
+        - Description description {Embedded}
+        - String genreName {NOT NULL, max 100}
+        - List<Long> authorIds {ElementCollection}
+        - String photoURI {max 512}
+        - Double averageRating
+        - Integer totalReviews
+        - Long version {@Version}
+        - LocalDateTime createdAt
+        - LocalDateTime updatedAt
+        ____
+        + BookEntity(Isbn isbn, Title title, ...)
+        + getIsbn() : String
+        + getTitleValue() : String
+        + updateDetails(...) : void
+        + addReview(int rating) : void
+        + validate() : void
+    }
+
+    class Isbn <<ValueObject>> {
+        - String value {13 digits, checksum validated}
+        ____
+        + Isbn(String value)
+        + getValue() : String
+        + validate() : void
+        + static generate() : Isbn
+        ____
+        {immutable}
+        **Validation:**
+        - 13 digits
+        - Valid ISBN-13 checksum
+        - Format: 978-X-XX-XXXXXX-X
+    }
+
+    class Title <<ValueObject>> {
+        - String value {NOT NULL, 1-255 chars}
+        ____
+        + Title(String value)
+        + getValue() : String
+        + validate() : void
+        ____
+        {immutable}
+    }
+
+    class Description <<ValueObject>> {
+        - String value {max 4000 chars}
+        ____
+        + Description(String value)
+        + getValue() : String
+        + validate() : void
+        ____
+        {immutable}
+    }
+
+    interface BookRepository <<Repository>> {
+        + save(BookEntity) : BookEntity
+        + findByIsbn(String) : Optional<BookEntity>
+        + existsByIsbn(String) : boolean
+        + findAll() : List<BookEntity>
+    }
+
+    class BookCreatedEvent <<Event>> {
+        - String isbn
+        - String title
+        - String description
+        - String genreName
+        - List<Long> authorIds
+        - LocalDateTime timestamp
+    }
+
+    BookEntity *-- "1" Isbn : contains
+    BookEntity *-- "1" Title : contains
+    BookEntity *-- "1" Description : contains
+    BookEntity "1" -- "0..*" BookCreatedEvent : publishes >
+    BookRepository ..> BookEntity : manages
+}
+
+package "Saga Orchestrator" {
+    class SagaInstance <<Entity>> {
+        - String sagaId {PK, UUID} {@RedisHash}
+        - SagaState state {enum}
+        - LocalDateTime startedAt
+        - LocalDateTime completedAt
+        - LocalDateTime compensatedAt
+        - String requestPayload {JSON}
+        - Long genreId
+        - Long authorNumber
+        - String bookIsbn
+        - String genreResponse {JSON}
+        - String authorResponse {JSON}
+        - String bookResponse {JSON}
+        - String errorMessage
+        - Integer retryCount
+        - List<SagaStep> steps {audit trail}
+        - Long ttl = 3600L {@TimeToLive}
+        ____
+        + SagaInstance(String sagaId)
+        + start() : void
+        + complete() : void
+        + fail(String errorMessage) : void
+        + startCompensation() : void
+        + compensated() : void
+        + addStep(SagaStep step) : void
+    }
+
+    enum SagaState {
+        STARTED
+        CREATING_GENRE
+        GENRE_CREATED
+        CREATING_AUTHOR
+        AUTHOR_CREATED
+        CREATING_BOOK
+        BOOK_CREATED
+        COMPLETED
+        FAILED
+        COMPENSATING
+        COMPENSATED
+        COMPENSATION_FAILED
+    }
+
+    class SagaStep {
+        - String step
+        - String status {SUCCESS/FAILED}
+        - LocalDateTime timestamp
+        - String errorMessage
+        ____
+        + static success(String step, String response) : SagaStep
+        + static failure(String step, String error) : SagaStep
+    }
+
+    class SagaOrchestrator <<Service>> {
+        - GenreServiceClient genreClient
+        - AuthorServiceClient authorClient
+        - BookServiceClient bookClient
+        - SagaRepository sagaRepository
+        ____
+        + createBook(CreateBookSagaRequest) : CreateBookSagaResponse
+        - executeGenreCreation(SagaInstance) : SagaInstance
+        - executeAuthorCreation(SagaInstance) : SagaInstance
+        - executeBookCreation(SagaInstance) : SagaInstance
+        - compensate(SagaInstance) : void
+        - compensateGenre(SagaInstance) : void
+        - compensateAuthor(SagaInstance) : void
+    }
+
+    interface SagaRepository <<Repository>> {
+        + save(SagaInstance) : SagaInstance
+        + findById(String) : Optional<SagaInstance>
+    }
+
+    SagaInstance *-- "1" SagaState : has
+    SagaInstance o-- "0..*" SagaStep : contains
+    SagaOrchestrator ..> SagaInstance : manages
+    SagaRepository ..> SagaInstance : persists
+}
+
+package "Shared Kernel - Events" {
+    abstract class DomainEvent <<Event>> {
+        - String eventId {UUID}
+        - LocalDateTime timestamp
+        - String eventType
+        ____
+        + getEventId() : String
+        + getTimestamp() : LocalDateTime
+        + getEventType() : String
+        ____
+        {@JsonTypeInfo}
+        {@JsonSubTypes}
+    }
+
+    GenreCreatedEvent --|> DomainEvent
+    GenreDeletedEvent --|> DomainEvent
+    AuthorCreatedEvent --|> DomainEvent
+    AuthorDeletedEvent --|> DomainEvent
+    BookCreatedEvent --|> DomainEvent
+}
+
+package "Shared Kernel - Outbox Pattern" {
+    class OutboxEvent <<Entity>> {
+        - String id {PK, UUID}
+        - String aggregateType {GENRE/AUTHOR/BOOK}
+        - String aggregateId
+        - String eventType {CREATED/UPDATED/DELETED}
+        - String payload {JSON, TEXT column}
+        - OutboxStatus status {enum}
+        - LocalDateTime createdAt
+        - LocalDateTime publishedAt
+        - Integer retryCount
+        - String errorMessage
+        ____
+        + OutboxEvent(String aggregateType, String aggregateId, ...)
+        + markAsPublished() : void
+        + incrementRetryCount() : void
+        + markAsFailed(String error) : void
+    }
+
+    enum OutboxStatus {
+        PENDING
+        PUBLISHED
+        FAILED
+    }
+
+    class OutboxEventPublisher <<Service>> {
+        - OutboxRepository outboxRepository
+        - RabbitTemplate rabbitTemplate
+        ____
+        + @Scheduled(fixedDelay=1000)
+        + publishPendingEvents() : void
+        - buildRoutingKey(OutboxEvent) : String
+    }
+
+    interface OutboxRepository <<Repository>> {
+        + save(OutboxEvent) : OutboxEvent
+        + findByStatusOrderByCreatedAtAsc(OutboxStatus) : List<OutboxEvent>
+        + findPendingEvents() : List<OutboxEvent>
+    }
+
+    OutboxEvent *-- "1" OutboxStatus : has
+    OutboxEventPublisher ..> OutboxEvent : processes
+    OutboxRepository ..> OutboxEvent : manages
+}
+
+' Relationships
+
+note top of DomainEvent
+  **Polymorphic Deserialization:**
+
+  @JsonTypeInfo(use = NAME, property = "@type")
+  @JsonSubTypes({
+    @Type(value = GenreCreatedEvent.class, name = "GenreCreated"),
+    @Type(value = AuthorCreatedEvent.class, name = "AuthorCreated"),
+    @Type(value = BookCreatedEvent.class, name = "BookCreated"),
+    ...
+  })
+
+  Allows RabbitMQ consumers to deserialize
+  events to correct concrete class.
+end note
+
+note right of SagaInstance
+  **Redis Storage:**
+
+  Key pattern: saga:{sagaId}
+  Data structure: Redis Hash
+
+  Fields:
+  • All primitive fields
+  • JSON-serialized complex fields
+
+  **TTL: 1 hour**
+  Automatic cleanup
+  after completion
+end note
+
+note bottom of OutboxEvent
+  **Transactional Guarantee:**
+
+  Entity + OutboxEvent saved in
+  SAME database transaction.
+
+  Ensures at-least-once delivery:
+  - Event exists ⇔ Entity exists
+  - No lost events
+  - Idempotent consumers
+
+  **Retry Strategy:**
+  - Max 3 attempts
+  - Exponential backoff
+  - Failed → Manual intervention
+end note
+
+note right of BookEntity
+  **ElementCollection:**
+
+  author_ids stored in separate
+  table: book_command_authors
+
+  Schema:
+  - book_pk (FK)
+  - author_id (Long)
+
+  One-to-many relationship
+  without entity mapping.
+end note
+
+note bottom of Isbn
+  **ISBN Generation:**
+
+  IsbnGenerator.generateValidIsbn()
+
+  Algorithm:
+  1. Prefix: 978 (book identifier)
+  2. Random 9 digits
+  3. Calculate checksum digit
+  4. Format: 978-X-XX-XXXXXX-X
+
+  **Uniqueness:**
+  Guaranteed by database
+  UNIQUE constraint.
+end note
+
+@enduml

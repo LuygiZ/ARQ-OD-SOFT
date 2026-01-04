@@ -1,0 +1,181 @@
+@startuml internal-components-architecture
+!theme plain
+title FR-1: Internal Components Architecture (Level 3)\nLayered Architecture of Microservices Involved in Saga
+
+skinparam component {
+    BackgroundColor<<controller>> LightGreen
+    BackgroundColor<<service>> LightBlue
+    BackgroundColor<<repository>> LightYellow
+    BackgroundColor<<messaging>> Orange
+    BackgroundColor<<config>> LightGray
+    BorderColor Black
+}
+
+package "Saga Orchestrator (Port 8084)" {
+    component CatalogController <<controller>>
+    component SagaOrchestrator <<service>>
+    component SagaRepository <<repository>>
+    component GenreServiceClient <<service>>
+    component AuthorServiceClient <<service>>
+    component BookServiceClient <<service>>
+    component Resilience4jConfig <<config>>
+}
+
+package "Genre Service (Port 8080)" {
+    package "API Layer" {
+        component GenreController <<controller>>
+    }
+    package "Service Layer" {
+        component GenreServiceImpl <<service>>
+        component GenreViewMapper <<service>>
+    }
+    package "Domain" {
+        component Genre <<service>>
+    }
+    package "Repository" {
+        component GenreRepository <<repository>>
+        component GenreOutboxRepo <<repository>>
+    }
+    package "Messaging" {
+        component GenreEventPublisher <<messaging>>
+        component GenreOutboxPublisher <<messaging>>
+    }
+    package "Config" {
+        component GenreRabbitMQConfig <<config>>
+        component GenreCacheConfig <<config>>
+    }
+}
+
+package "Author Service (Port 8082)" {
+    package "API Layer" {
+        component AuthorCommandController <<controller>>
+        component AuthorQueryController <<controller>>
+    }
+    package "Service (CQRS)" {
+        component AuthorCommandService <<service>>
+        component AuthorQueryService <<service>>
+    }
+    package "Domain" {
+        component AuthorEntity <<service>>
+        component AuthorReadModel <<service>>
+        component AuthorName <<service>>
+        component Bio <<service>>
+    }
+    package "Repository" {
+        component AuthorRepository <<repository>>
+        component AuthorQueryRepository <<repository>>
+    }
+    package "Messaging" {
+        component AuthorEventHandler <<messaging>>
+        component AuthorEventPublisher <<messaging>>
+    }
+}
+
+package "Book Command Service (Port 8083)" {
+    package "API Layer" {
+        component BookCommandController <<controller>>
+    }
+    package "Service Layer" {
+        component BookCommandServiceImpl <<service>>
+    }
+    package "Domain" {
+        component BookEntity <<service>>
+        component Isbn <<service>>
+        component Title <<service>>
+    }
+    package "Repository" {
+        component BookRepository <<repository>>
+    }
+}
+
+database "PostgreSQL" as postgres
+database "MongoDB" as mongo
+database "Redis" as redis
+queue "RabbitMQ" as rabbit
+
+' Saga Orchestrator connections
+CatalogController --> SagaOrchestrator
+SagaOrchestrator --> SagaRepository
+SagaOrchestrator --> GenreServiceClient
+SagaOrchestrator --> AuthorServiceClient
+SagaOrchestrator --> BookServiceClient
+GenreServiceClient ..> Resilience4jConfig
+AuthorServiceClient ..> Resilience4jConfig
+BookServiceClient ..> Resilience4jConfig
+SagaRepository --> redis
+
+' Genre Service connections
+GenreController --> GenreServiceImpl
+GenreServiceImpl --> Genre
+GenreServiceImpl --> GenreRepository
+GenreServiceImpl --> GenreEventPublisher
+GenreServiceImpl --> GenreViewMapper
+GenreEventPublisher --> GenreOutboxRepo
+GenreOutboxPublisher --> GenreOutboxRepo
+GenreOutboxPublisher --> rabbit
+GenreRepository --> postgres
+GenreOutboxRepo --> postgres
+GenreServiceImpl ..> GenreCacheConfig
+GenreCacheConfig --> redis
+
+' Author Service connections
+AuthorCommandController --> AuthorCommandService
+AuthorQueryController --> AuthorQueryService
+AuthorCommandService --> AuthorEntity
+AuthorCommandService --> AuthorRepository
+AuthorCommandService --> AuthorEventPublisher
+AuthorQueryService --> AuthorReadModel
+AuthorQueryService --> AuthorQueryRepository
+AuthorEntity *-- AuthorName
+AuthorEntity *-- Bio
+AuthorEventHandler --> AuthorQueryRepository
+AuthorEventHandler --> rabbit
+AuthorRepository --> postgres
+AuthorQueryRepository --> mongo
+AuthorQueryService --> redis
+
+' Book Command Service connections
+BookCommandController --> BookCommandServiceImpl
+BookCommandServiceImpl --> BookEntity
+BookCommandServiceImpl --> BookRepository
+BookEntity *-- Isbn
+BookEntity *-- Title
+BookRepository --> postgres
+
+note right of SagaOrchestrator
+  Orchestrates distributed transaction:
+  1. Genre Service (REST + Circuit Breaker)
+  2. Author Service (REST + Circuit Breaker)
+  3. Book Command (REST + Circuit Breaker)
+  On failure: Automatic compensation
+end note
+
+note bottom of GenreServiceImpl
+  @Transactional ensures:
+  - Genre entity save
+  - OutboxEvent save
+  Are atomic (same DB transaction)
+end note
+
+note bottom of AuthorEventHandler
+  @TransactionalEventListener
+  Synchronizes PostgreSQL → MongoDB
+  Eventual consistency lag: <500ms
+end note
+
+note bottom of BookCommandServiceImpl
+  Auto-generates ISBN if not provided:
+  IsbnGenerator.generateValidIsbn()
+  Format: 978-X-XX-XXXXXX-X
+end note
+
+legend right
+  |= Layer |= Color |
+  | Controller | Green |
+  | Service | Blue |
+  | Repository | Yellow |
+  | Messaging | Orange |
+  | Config | Gray |
+endlegend
+
+@enduml

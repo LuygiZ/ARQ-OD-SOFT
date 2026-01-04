@@ -1,0 +1,196 @@
+@startuml deployment-diagram
+!theme plain
+title FR-1: Deployment Diagram - Docker Swarm Infrastructure (Level 3)\nProduction Deployment for Saga Orchestration
+
+skinparam node {
+    BackgroundColor LightBlue
+    BorderColor Black
+}
+
+skinparam component {
+    BackgroundColor<<service>> LightGreen
+    BackgroundColor<<infrastructure>> Orange
+    BorderColor Black
+}
+
+actor "Bibliotecário" as user
+cloud "Internet" as internet
+
+node "Docker Swarm Manager Node" {
+
+    component "Traefik\n:80, :8090\n(1 replica)" <<infrastructure>> as traefik
+
+    package "Microservices (3 replicas each)" {
+        component "Saga Orchestrator\n:8084 (x3)" <<service>> as saga
+        component "Genre Service\n:8080 (x3)" <<service>> as genre
+        component "Author Service\n:8082 (x3)" <<service>> as author
+        component "Book Command\n:8083 (x3)" <<service>> as book
+    }
+
+    package "Infrastructure (1 replica each)" {
+        component "PostgreSQL\n:5432" <<infrastructure>> as postgres
+        component "MongoDB\n:27017" <<infrastructure>> as mongodb
+        component "Redis\n:6379" <<infrastructure>> as redis
+        component "RabbitMQ\n:5672, :15672" <<infrastructure>> as rabbitmq
+    }
+
+    database "Docker Volumes" {
+        folder "postgres_prod" as pgvol
+        folder "mongodb_prod" as mongvol
+        folder "redis_prod" as redvol
+        folder "rabbitmq_prod" as rabbitvol
+    }
+
+    package "Docker Overlay Network\nlms_prod" as network {
+    }
+}
+
+' External connections
+user --> internet
+internet --> traefik
+
+' Traefik routing
+traefik --> saga : /api/catalog
+traefik --> genre : /api/genres
+traefik --> author : /api/authors
+traefik --> book : /api/books (POST)
+
+' Saga to services
+saga ..> genre : REST + Circuit Breaker
+saga ..> author : REST + Circuit Breaker
+saga ..> book : REST + Circuit Breaker
+
+' Services to databases
+genre --> postgres : genre_db
+author --> postgres : author_db
+author --> mongodb : author_read_db
+book --> postgres : book_db
+
+' Services to infrastructure
+saga --> redis : Saga state
+genre --> redis : Cache
+author --> redis : Cache
+genre ..> rabbitmq : Events
+author ..> rabbitmq : Events
+book ..> rabbitmq : Events
+
+' Volume mounts
+postgres --> pgvol
+mongodb --> mongvol
+redis --> redvol
+rabbitmq --> rabbitvol
+
+' Network membership
+saga -[hidden]- network
+genre -[hidden]- network
+author -[hidden]- network
+book -[hidden]- network
+postgres -[hidden]- network
+mongodb -[hidden]- network
+redis -[hidden]- network
+rabbitmq -[hidden]- network
+
+note top of traefik
+  **Load Balancer**
+  - Round-robin across 3 replicas
+  - Health checks: /actuator/health
+  - Removes unhealthy instances
+end note
+
+note right of saga
+  **Saga Orchestrator**
+  Image: saga-orchestrator:dev
+  Replicas: 3
+  Resources: CPU 0.5, Memory 512M
+
+  Environment:
+  - REDIS_HOST=redis
+  - RABBITMQ_HOST=rabbitmq
+  - GENRE_SERVICE_HOST=genre-service
+  - AUTHOR_SERVICE_HOST=author-service
+  - BOOK_SERVICE_HOST=book-command-service
+end note
+
+note bottom of postgres
+  **PostgreSQL 15-alpine**
+  Replicas: 1
+
+  Databases:
+  - genre_db
+  - author_db
+  - book_db
+  - lending_db
+  - reader_db
+
+  Placement: node.role == manager
+end note
+
+note bottom of mongodb
+  **MongoDB 7-jammy**
+  Replicas: 1
+
+  Database: author_read_db
+  Collection: authors
+
+  Authentication:
+  - Username: admin
+  - Password: admin123
+end note
+
+note bottom of redis
+  **Redis 7-alpine**
+  Replicas: 1
+
+  Configuration:
+  - maxmemory: 1gb
+  - maxmemory-policy: allkeys-lru
+
+  Usage:
+  - L2 distributed cache (TTL: 1h)
+  - Saga state storage (TTL: 1h)
+end note
+
+note bottom of rabbitmq
+  **RabbitMQ 3-management**
+  Replicas: 1
+
+  Ports:
+  - 5672 (AMQP)
+  - 15672 (Management UI)
+
+  Exchange: lms.events (Topic)
+  Queues:
+  - genre-service.events
+  - author-service.events
+  - book-query-service.events
+end note
+
+note right of network
+  **Service Discovery**
+
+  Docker Swarm DNS:
+  - genre-service → 3 replicas
+  - author-service → 3 replicas
+  - book-command-service → 3 replicas
+  - saga-orchestrator → 3 replicas
+  - postgres → 1 replica
+  - redis → 1 replica
+  - rabbitmq → 1 replica
+end note
+
+legend bottom
+  |= Component |= Color |= Replicas |
+  | Microservices | Green | 3 |
+  | Infrastructure | Orange | 1 |
+
+  **Deployment:**
+  docker stack deploy -c docker-swarm-stack-no-traefik.yml lms
+
+  **Update Strategy:**
+  - Rolling updates: 1 at a time
+  - Delay: 10s between updates
+  - Zero downtime (start-first)
+  - Auto-rollback on failure
+endlegend
+
+@enduml

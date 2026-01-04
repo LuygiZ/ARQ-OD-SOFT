@@ -1,0 +1,408 @@
+@startuml saga-sequence-compensation
+!theme plain
+title FR-1: Create Book + Author + Genre - Saga Compensation Path\nFailure Handling and Rollback (Level 3)
+
+autonumber
+
+actor "Bibliotecário" as librarian
+participant "Saga Orchestrator\n:8084" as saga
+participant "Redis\n(Saga State)" as redis
+participant "Genre Service\n:8080" as genre
+participant "PostgreSQL\n(genre_db)" as genreDB
+participant "Author Service\n:8082" as author
+participant "PostgreSQL\n(author_db)" as authorDB
+participant "Book Command\n:8083" as book
+participant "PostgreSQL\n(book_db)" as bookDB
+participant "Circuit Breaker\n(Resilience4j)" as cb
+
+== Steps 1 & 2: Genre and Author Created Successfully ==
+
+note over saga, authorDB
+  Assume Genre (id=1) and Author (authorNumber=42)
+  were created successfully in previous steps
+end note
+
+saga -> saga: executeGenreCreation() ✓
+saga -> saga: genreId = 1
+
+saga -> redis: HSET saga:{uuid}\ngenreId=1\nstate=GENRE_CREATED
+activate redis
+redis --> saga: OK
+deactivate redis
+
+saga -> saga: executeAuthorCreation() ✓
+saga -> saga: authorNumber = 42
+
+saga -> redis: HSET saga:{uuid}\nauthorNumber=42\nstate=AUTHOR_CREATED
+activate redis
+redis --> saga: OK
+deactivate redis
+
+== Step 3: Book Creation FAILS ==
+
+saga -> saga: executeBookCreation()
+saga -> saga: **State: CREATING_BOOK**
+
+saga -> redis: HSET saga:{uuid}\nstate=CREATING_BOOK
+activate redis
+redis --> saga: OK
+deactivate redis
+
+saga -> book: POST /api/books\n{\n  "title": "My Book",\n  "genre": "Fiction",\n  "authorIds": [42]\n}
+activate book
+
+alt Book Service is DOWN
+
+  book -> book: **Service Unavailable**
+  book --> saga: ❌ 503 Service Unavailable\nConnection refused
+
+  note right of cb
+    **Circuit Breaker Tracking:**
+    - Failure count: 3/5
+    - Failure rate: 60%
+    - Threshold: 50% → OPEN
+  end note
+
+else Book Service throws Exception
+
+  book -> book: createBook(...)
+
+  book -> bookDB: BEGIN TRANSACTION
+  activate bookDB
+
+  book -> book: Validate ISBN uniqueness
+
+  book -> bookDB: SELECT COUNT(*)\nFROM books\nWHERE isbn = '978-...'
+  bookDB --> book: 1 (already exists!)
+
+  book -> bookDB: ROLLBACK TRANSACTION
+  deactivate bookDB
+
+  book --> saga: ❌ 409 Conflict\n{\n  "error": "Book with ISBN already exists"\n}
+
+  note right of book
+    **Business Rule Violation**
+    Duplicate ISBN detected
+  end note
+
+else Database Connection Timeout
+
+  book -> bookDB: BEGIN TRANSACTION
+  activate bookDB
+
+  book -> bookDB: INSERT INTO books...
+
+  bookDB -[#red]x book: ❌ Timeout (30s elapsed)
+  deactivate bookDB
+
+  book --> saga: ❌ 500 Internal Server Error\n{\n  "error": "Database timeout"\n}
+
+end
+
+deactivate book
+
+== Saga Failure Detection ==
+
+saga -> saga: **catch (Exception e)**
+saga -> saga: log.error("Book creation failed: {}", e.getMessage())
+
+saga -> saga: saga.fail(e.getMessage())
+saga -> saga: **State: FAILED**
+
+saga -> redis: HSET saga:{uuid}\nstate=FAILED\nerrorMessage="..."
+activate redis
+redis --> saga: OK
+deactivate redis
+
+saga -> saga: Add SagaStep(\n  step="CREATING_BOOK",\n  status=FAILED,\n  error=e.getMessage()\n)
+
+note right of saga
+  **Saga State:**
+  {
+    "sagaId": "uuid-1234",
+    "state": "FAILED",
+    "genreId": 1,
+    "authorNumber": 42,
+    "bookId": null,
+    "errorMessage": "Book creation failed",
+    "steps": [
+      {"step": "GENRE_CREATED", "status": "SUCCESS"},
+      {"step": "AUTHOR_CREATED", "status": "SUCCESS"},
+      {"step": "CREATING_BOOK", "status": "FAILED"}
+    ]
+  }
+end note
+
+== Compensation Begins (Reverse Order) ==
+
+saga -> saga: **compensate(saga)**
+saga -> saga: **State: COMPENSATING**
+
+saga -> redis: HSET saga:{uuid}\nstate=COMPENSATING
+activate redis
+redis --> saga: OK
+deactivate redis
+
+note over saga
+  **Compensation Strategy:**
+  Reverse order - "Undo" successful steps:
+  1. Skip Book (never created)
+  2. Compensate Author (delete authorNumber=42)
+  3. Compensate Genre (delete genreId=1)
+end note
+
+== COMPENSATION STEP 1: Delete Author ==
+
+saga -> saga: if (saga.getAuthorNumber() != null)\n  → compensateAuthor()
+
+saga -> saga: compensateAuthor(saga)
+
+saga -> author: DELETE /api/authors/42\n**(No If-Match header for saga compensation)**
+activate author
+
+note right of author
+  **Special Handling:**
+
+  Normal deletes require If-Match header
+  with version for optimistic locking.
+
+  Saga compensation passes
+  expectedVersion=null to bypass
+  version check (line 102):
+
+  if (expectedVersion != null &&
+      !version.equals(expectedVersion))
+      → throw PreconditionFailed
+
+  Allows idempotent compensation.
+end note
+
+author -> author: deleteAuthor(authorNumber=42, expectedVersion=null)
+
+author -> author: **@Transactional BEGIN**
+
+author -> authorDB: BEGIN TRANSACTION
+activate authorDB
+
+author -> authorDB: SELECT * FROM authors\nWHERE author_number = 42
+authorDB --> author: AuthorEntity(authorNumber=42, version=0)
+
+author -> author: **Version check SKIPPED**\n(expectedVersion is null)
+
+author -> authorDB: DELETE FROM authors\nWHERE author_number = 42
+authorDB --> author: 1 row deleted
+
+author -> author: Create AuthorDeletedEvent\n{\n  "authorNumber": 42\n}
+
+author -> authorDB: INSERT INTO outbox_events\n(aggregate_type='AUTHOR',\n aggregate_id='42',\n event_type='DELETED',\n status='PENDING')
+authorDB --> author: OK
+
+author -> authorDB: COMMIT TRANSACTION
+deactivate authorDB
+
+author -> author: **@Transactional END**
+
+author --> saga: ✅ 204 No Content
+deactivate author
+
+saga -> saga: Add SagaStep(\n  step="COMPENSATE_AUTHOR",\n  status=SUCCESS\n)
+
+saga -> redis: HSET saga:{uuid}\nsteps=[...] (add compensation step)
+activate redis
+redis --> saga: OK
+deactivate redis
+
+== COMPENSATION STEP 2: Delete Genre ==
+
+saga -> saga: if (saga.getGenreId() != null)\n  → compensateGenre()
+
+saga -> saga: compensateGenre(saga)
+
+saga -> genre: DELETE /api/genres/1
+activate genre
+
+genre -> genre: deleteGenre(id=1)
+
+genre -> genre: **@Transactional BEGIN**
+
+genre -> genreDB: BEGIN TRANSACTION
+activate genreDB
+
+genre -> genreDB: SELECT * FROM genres\nWHERE id = 1
+genreDB --> genre: Genre(id=1, name="Fiction", version=0)
+
+genre -> genreDB: DELETE FROM genres\nWHERE id = 1
+genreDB --> genre: 1 row deleted
+
+genre -> genre: Create GenreDeletedEvent\n{\n  "genreId": 1,\n  "name": "Fiction"\n}
+
+genre -> genreDB: INSERT INTO outbox_events\n(aggregate_type='GENRE',\n aggregate_id='1',\n event_type='DELETED',\n status='PENDING')
+genreDB --> genre: OK
+
+genre -> genreDB: COMMIT TRANSACTION
+deactivate genreDB
+
+genre -> genre: **@Transactional END**
+
+genre --> saga: ✅ 204 No Content
+deactivate genre
+
+saga -> saga: Add SagaStep(\n  step="COMPENSATE_GENRE",\n  status=SUCCESS\n)
+
+saga -> redis: HSET saga:{uuid}\nsteps=[...] (add compensation step)
+activate redis
+redis --> saga: OK
+deactivate redis
+
+== Compensation Complete ==
+
+saga -> saga: saga.compensated()
+saga -> saga: **State: COMPENSATED**
+
+saga -> redis: HSET saga:{uuid}\nstate=COMPENSATED\ncompletedAt=NOW()
+activate redis
+redis --> saga: OK
+deactivate redis
+
+note right of saga
+  **Final Saga State:**
+  {
+    "sagaId": "uuid-1234",
+    "state": "COMPENSATED",
+    "errorMessage": "Book creation failed: Service unavailable",
+    "steps": [
+      {"step": "GENRE_CREATED", "status": "SUCCESS"},
+      {"step": "AUTHOR_CREATED", "status": "SUCCESS"},
+      {"step": "CREATING_BOOK", "status": "FAILED", "error": "..."},
+      {"step": "COMPENSATE_AUTHOR", "status": "SUCCESS"},
+      {"step": "COMPENSATE_GENRE", "status": "SUCCESS"}
+    ],
+    "compensatedAt": "2026-01-04T23:00:05"
+  }
+end note
+
+== Exception Thrown to Client ==
+
+saga -> saga: **throw new SagaException(**\n  "Saga failed and compensated",\n  originalException\n**)**
+
+saga --> librarian: ❌ 500 Internal Server Error\n**Response:**\n{\n  "error": "Saga execution failed",\n  "message": "Book creation failed: Service unavailable",\n  "sagaId": "uuid-1234",\n  "state": "COMPENSATED",\n  "timestamp": "2026-01-04T23:00:05"\n}
+
+note over librarian
+  **User Impact:**
+  - Request FAILED
+  - NO partial data created
+  - Database in consistent state
+  - All created entities rolled back
+  - Clear error message
+
+  **Retry Strategy:**
+  - User can retry the request
+  - Will create new Saga instance
+  - Idempotent operation
+end note
+
+== Alternative: Compensation Fails ==
+
+alt Compensation Delete Fails
+
+  saga -> author: DELETE /api/authors/42
+  activate author
+  author --> saga: ❌ 500 Internal Server Error\n(Database connection failed)
+  deactivate author
+
+  saga -> saga: **catch (Exception compensationError)**
+
+  saga -> saga: Add SagaStep(\n  step="COMPENSATE_AUTHOR",\n  status=FAILED,\n  error=compensationError.getMessage()\n)
+
+  saga -> saga: **State: COMPENSATION_FAILED**
+
+  saga -> redis: HSET saga:{uuid}\nstate=COMPENSATION_FAILED
+  activate redis
+  redis --> saga: OK
+  deactivate redis
+
+  note right of saga
+    **Manual Intervention Required!**
+
+    Saga State: COMPENSATION_FAILED
+
+    Admin actions:
+    1. Check SagaInstance in Redis
+    2. Manually delete orphaned entities
+    3. Or reset saga for retry:
+       saga.resetForRetry()
+
+    Monitoring:
+    - Alert triggered
+    - Dashboard shows failed saga
+    - Incident created
+  end note
+
+  saga --> librarian: ❌ 500 Internal Server Error\n{\n  "error": "Saga compensation failed",\n  "sagaId": "uuid-1234",\n  "state": "COMPENSATION_FAILED",\n  "details": "Manual intervention required"\n}
+
+end
+
+== Circuit Breaker Opens After Repeated Failures ==
+
+note over cb
+  **Circuit Breaker State Machine:**
+
+  CLOSED (normal) →
+    After 50% failures in 10 calls →
+  OPEN (fail-fast) →
+    After 10 seconds wait →
+  HALF_OPEN (testing) →
+    3 probe calls →
+      ✓ Success: CLOSED
+      ✗ Failure: OPEN again
+end note
+
+cb -> cb: **Failure Rate: 50%**
+cb -> cb: **State: CLOSED → OPEN**
+
+note right of cb
+  **Next Request (while OPEN):**
+
+  Saga → Book Service
+    ↓
+  Circuit Breaker OPEN
+    ↓
+  IMMEDIATE FAILURE
+  (no actual call made)
+    ↓
+  CallNotPermittedException
+    ↓
+  Compensation triggered
+end note
+
+saga -> book: POST /api/books
+activate book
+book -[#red]x saga: ❌ CircuitBreakerOpenException\n"Circuit breaker is OPEN"
+deactivate book
+
+note over saga
+  **Fail-Fast Behavior:**
+  - No network call made
+  - Instant failure (<1ms)
+  - Protects downstream service
+  - Allows service recovery time
+
+  **Recovery:**
+  After 10s, circuit tries
+  3 probe calls (HALF_OPEN state)
+end note
+
+note over librarian, cb
+  **COMPENSATION SUCCESSFUL!**
+  - Saga detected Book creation failure
+  - Automatically rolled back Author (deleted)
+  - Automatically rolled back Genre (deleted)
+  - Database in consistent state (as if request never happened)
+  - Full audit trail preserved in Saga steps
+  - Circuit breaker protects from cascading failures
+
+  **Atomicity Achieved via Compensation!**
+  All-or-nothing semantics in distributed system
+end note
+
+@enduml

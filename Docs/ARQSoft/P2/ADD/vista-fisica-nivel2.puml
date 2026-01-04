@@ -1,0 +1,158 @@
+@startuml vista-fisica-nivel2
+!define RECTANGLE_COLOR #4CAF50
+!define DATABASE_COLOR #2196F3
+!define INFRASTRUCTURE_COLOR #FF9800
+!define SERVICE_COLOR #9C27B0
+
+title Vista Física - Nível 2: Deployment Architecture\nDocker Swarm Cluster
+
+skinparam {
+    rectangle {
+        BackgroundColor<<service>> SERVICE_COLOR
+        BackgroundColor<<database>> DATABASE_COLOR
+        BackgroundColor<<infrastructure>> INFRASTRUCTURE_COLOR
+        FontColor white
+    }
+    node {
+        BackgroundColor #37474F
+        FontColor white
+    }
+    cloud {
+        BackgroundColor #607D8B
+        FontColor white
+    }
+}
+
+cloud "Internet" as internet
+
+node "Docker Swarm Manager Node" {
+
+    ' API Gateway Layer
+    rectangle "Traefik\n(Load Balancer)\nPort: 80, 8090\n1 replica" <<infrastructure>> as traefik
+
+    ' Infrastructure Services
+    package "Infrastructure Services" {
+        rectangle "PostgreSQL\nPort: 5432\n1 replica" <<database>> as postgres
+        rectangle "MongoDB\nPort: 27017\n1 replica" <<database>> as mongodb
+        rectangle "Redis Cache\nPort: 6379\n1 replica" <<infrastructure>> as redis
+        rectangle "RabbitMQ\nPorts: 5672, 15672\n1 replica" <<infrastructure>> as rabbitmq
+    }
+
+    ' Microservices Layer
+    package "Microservices (3 replicas each)" {
+        rectangle "Genre Service\nPort: 8080\n3 replicas" <<service>> as genre
+        rectangle "Author Service\nPort: 8082\n3 replicas" <<service>> as author
+        rectangle "Book Command\nPort: 8083\n3 replicas" <<service>> as bookCmd
+        rectangle "Book Query\nPort: 8085\n3 replicas" <<service>> as bookQuery
+        rectangle "Lending Service\nPort: 8086\n3 replicas" <<service>> as lending
+        rectangle "Reader Service\nPort: 8087\n3 replicas" <<service>> as reader
+        rectangle "Saga Orchestrator\nPort: 8084\n3 replicas" <<service>> as saga
+    }
+
+    ' Persistent Storage
+    database "Volumes" {
+        folder "postgres_prod" as pgvol
+        folder "mongodb_prod" as mongvol
+        folder "redis_prod" as redvol
+        folder "rabbitmq_prod" as rabbitvol
+    }
+}
+
+' Network
+package "Docker Overlay Network: lms_prod" as network {
+}
+
+' External Connections
+internet --> traefik : HTTPS\nPort 80
+
+' Traefik Routing
+traefik --> genre : /api/genres
+traefik --> author : /api/authors
+traefik --> bookCmd : /api/books\n(POST/PUT/DELETE)
+traefik --> bookQuery : /api/books\n(GET)
+traefik --> lending : /api/v1/lendings
+traefik --> reader : /api/readers
+traefik --> saga : /api/catalog
+
+' Service to Database Connections
+genre --> postgres : genre_db
+author --> postgres : author_db
+author --> mongodb : author_read_db
+bookCmd --> postgres : book_db
+bookQuery --> postgres : book_db
+lending --> postgres : lending_db
+reader --> postgres : reader_db
+
+' Service to Infrastructure
+genre --> redis : L2 Cache
+author --> redis : L2 Cache
+bookQuery --> redis : L2 Cache
+saga --> redis : Saga State
+
+genre --> rabbitmq : Events
+author --> rabbitmq : Events
+bookCmd --> rabbitmq : Events
+bookQuery --> rabbitmq : Events
+lending --> rabbitmq : Events
+saga --> rabbitmq : Commands
+
+' Saga to Services
+saga ..> genre : REST API
+saga ..> author : REST API
+saga ..> bookCmd : REST API
+
+' Volume Mounts
+postgres --> pgvol : mount
+mongodb --> mongvol : mount
+redis --> redvol : mount
+rabbitmq --> rabbitvol : mount
+
+' Network membership (all components in overlay network)
+traefik -[hidden]-> network
+genre -[hidden]-> network
+author -[hidden]-> network
+bookCmd -[hidden]-> network
+bookQuery -[hidden]-> network
+lending -[hidden]-> network
+reader -[hidden]-> network
+saga -[hidden]-> network
+postgres -[hidden]-> network
+mongodb -[hidden]-> network
+redis -[hidden]-> network
+rabbitmq -[hidden]-> network
+
+note bottom of traefik
+  **Health Checks:**
+  - All services: /actuator/health
+  - Interval: 30s
+  - Start period: 60s
+  **Resource Limits:**
+  - CPU: 0.5 cores
+  - Memory: 512M
+end note
+
+note bottom of postgres
+  **Database Instances:**
+  - genre_db
+  - author_db
+  - book_db
+  - lending_db
+  - reader_db
+end note
+
+note bottom of mongodb
+  **Collections:**
+  - authors (read model)
+  - books (future CQRS)
+end note
+
+note bottom of rabbitmq
+  **Exchanges:**
+  - lms.events (Topic)
+  **Queues:**
+  - genre-service.events
+  - author-service.events
+  - book-query-service.events
+end note
+
+@enduml

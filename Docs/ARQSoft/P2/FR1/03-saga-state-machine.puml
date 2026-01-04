@@ -1,0 +1,292 @@
+@startuml saga-state-machine
+!theme plain
+title FR-1: Saga State Machine\nState Transitions for Distributed Transaction Coordination
+
+skinparam state {
+    BackgroundColor<<success>> LightGreen
+    BackgroundColor<<failure>> LightCoral
+    BackgroundColor<<intermediate>> LightYellow
+    BackgroundColor<<compensating>> Orange
+    BorderColor Black
+    FontSize 11
+}
+
+[*] --> STARTED : POST /api/catalog/books
+
+state STARTED <<intermediate>> {
+    STARTED : **Initial State**
+    STARTED : ----
+    STARTED : • Create SagaInstance
+    STARTED : • Store in Redis (TTL: 1h)
+    STARTED : • sagaId = UUID.random()
+    STARTED : • startedAt = now()
+}
+
+STARTED --> CREATING_GENRE : executeGenreCreation()
+
+state CREATING_GENRE <<intermediate>> {
+    CREATING_GENRE : **Genre Creation Step**
+    CREATING_GENRE : ----
+    CREATING_GENRE : • Check if genre exists
+    CREATING_GENRE : • If not: POST /api/genres
+    CREATING_GENRE : • Wait for response
+}
+
+CREATING_GENRE --> GENRE_CREATED : Genre created (201)\nor found existing
+CREATING_GENRE --> FAILED : Genre creation failed (4xx/5xx)
+
+state GENRE_CREATED <<intermediate>> {
+    GENRE_CREATED : **Genre Step Complete**
+    GENRE_CREATED : ----
+    GENRE_CREATED : • genreId stored in saga
+    GENRE_CREATED : • Add SagaStep(GENRE_CREATED, SUCCESS)
+    GENRE_CREATED : • Update Redis
+}
+
+GENRE_CREATED --> CREATING_AUTHOR : executeAuthorCreation()
+
+state CREATING_AUTHOR <<intermediate>> {
+    CREATING_AUTHOR : **Author Creation Step**
+    CREATING_AUTHOR : ----
+    CREATING_AUTHOR : • Check if author exists
+    CREATING_AUTHOR : • If not: POST /api/authors
+    CREATING_AUTHOR : • Wait for response
+}
+
+CREATING_AUTHOR --> AUTHOR_CREATED : Author created (201)\nor found existing
+CREATING_AUTHOR --> FAILED : Author creation failed (4xx/5xx)
+
+state AUTHOR_CREATED <<intermediate>> {
+    AUTHOR_CREATED : **Author Step Complete**
+    AUTHOR_CREATED : ----
+    AUTHOR_CREATED : • authorNumber stored in saga
+    AUTHOR_CREATED : • Add SagaStep(AUTHOR_CREATED, SUCCESS)
+    AUTHOR_CREATED : • Update Redis
+}
+
+AUTHOR_CREATED --> CREATING_BOOK : executeBookCreation()
+
+state CREATING_BOOK <<intermediate>> {
+    CREATING_BOOK : **Book Creation Step**
+    CREATING_BOOK : ----
+    CREATING_BOOK : • Auto-generate ISBN
+    CREATING_BOOK : • POST /api/books
+    CREATING_BOOK : • Wait for response
+}
+
+CREATING_BOOK --> BOOK_CREATED : Book created (201)
+CREATING_BOOK --> FAILED : Book creation failed (4xx/5xx)\nor Circuit Breaker OPEN
+
+state BOOK_CREATED <<intermediate>> {
+    BOOK_CREATED : **Book Step Complete**
+    BOOK_CREATED : ----
+    BOOK_CREATED : • bookIsbn stored in saga
+    BOOK_CREATED : • Add SagaStep(BOOK_CREATED, SUCCESS)
+    BOOK_CREATED : • Update Redis
+}
+
+BOOK_CREATED --> COMPLETED : saga.complete()
+
+state COMPLETED <<success>> {
+    COMPLETED : **✅ Saga Successful**
+    COMPLETED : ----
+    COMPLETED : • All steps completed
+    COMPLETED : • completedAt = now()
+    COMPLETED : • Return aggregated response
+    COMPLETED : • HTTP 201 Created to client
+    COMPLETED : ----
+    COMPLETED : **Entities Created:**
+    COMPLETED : • Genre (id)
+    COMPLETED : • Author (authorNumber)
+    COMPLETED : • Book (isbn)
+    COMPLETED : ----
+    COMPLETED : **Events Published (Async):**
+    COMPLETED : • GenreCreatedEvent
+    COMPLETED : • AuthorCreatedEvent
+    COMPLETED : • BookCreatedEvent
+}
+
+COMPLETED --> [*] : Saga ends successfully
+
+state FAILED <<failure>> {
+    FAILED : **❌ Saga Failed**
+    FAILED : ----
+    FAILED : • Exception caught
+    FAILED : • errorMessage stored
+    FAILED : • Add SagaStep(FAILED)
+    FAILED : • Update Redis
+}
+
+FAILED --> COMPENSATING : compensate()\nReverse order
+
+state COMPENSATING <<compensating>> {
+    COMPENSATING : **Compensation In Progress**
+    COMPENSATING : ----
+    COMPENSATING : **Reverse Order:**
+    COMPENSATING : 1. Skip Book (not created)
+    COMPENSATING : 2. If authorNumber != null:
+    COMPENSATING :    DELETE /api/authors/{authorNumber}
+    COMPENSATING : 3. If genreId != null:
+    COMPENSATING :    DELETE /api/genres/{genreId}
+    COMPENSATING : ----
+    COMPENSATING : **Retry Logic:**
+    COMPENSATING : • Max 3 attempts per compensation
+    COMPENSATING : • Exponential backoff
+}
+
+COMPENSATING --> COMPENSATED : All compensations\nsucceeded
+COMPENSATING --> COMPENSATION_FAILED : Any compensation\nfailed after retries
+
+state COMPENSATED <<failure>> {
+    COMPENSATED : **✅ Compensation Successful**
+    COMPENSATED : ----
+    COMPENSATED : • All created entities deleted
+    COMPENSATED : • Database consistent
+    COMPENSATED : • compensatedAt = now()
+    COMPENSATED : • HTTP 500 to client
+    COMPENSATED : ----
+    COMPENSATED : **Compensation Steps:**
+    COMPENSATED : • COMPENSATE_AUTHOR: SUCCESS
+    COMPENSATED : • COMPENSATE_GENRE: SUCCESS
+    COMPENSATED : ----
+    COMPENSATED : **Events Published (Async):**
+    COMPENSATED : • AuthorDeletedEvent
+    COMPENSATED : • GenreDeletedEvent
+}
+
+COMPENSATED --> [*] : Saga ends with rollback
+
+state COMPENSATION_FAILED <<failure>> {
+    COMPENSATION_FAILED : **❌ Compensation Failed**
+    COMPENSATION_FAILED : ----
+    COMPENSATION_FAILED : **Manual Intervention Required!**
+    COMPENSATION_FAILED : ----
+    COMPENSATION_FAILED : • Some compensations failed
+    COMPENSATION_FAILED : • Orphaned entities may exist
+    COMPENSATION_FAILED : • Admin alerted
+    COMPENSATION_FAILED : • HTTP 500 to client
+    COMPENSATION_FAILED : ----
+    COMPENSATION_FAILED : **Admin Actions:**
+    COMPENSATION_FAILED : • Check Redis saga state
+    COMPENSATION_FAILED : • Manually delete orphans
+    COMPENSATION_FAILED : • Or reset saga for retry:
+    COMPENSATION_FAILED :   saga.resetForRetry()
+}
+
+COMPENSATION_FAILED --> [*] : Manual resolution
+
+note right of STARTED
+  **Saga Instance Storage:**
+
+  Redis Hash: saga:{sagaId}
+
+  Fields:
+  • sagaId (UUID)
+  • state (enum)
+  • startedAt
+  • completedAt
+  • compensatedAt
+  • genreId
+  • authorNumber
+  • bookIsbn
+  • errorMessage
+  • retryCount
+  • steps[] (audit trail)
+
+  TTL: 3600 seconds (1 hour)
+end note
+
+note right of CREATING_GENRE
+  **Idempotency:**
+
+  Before creating, check if
+  genre already exists by name:
+
+  GET /api/genres/search?name={name}
+
+  If found: reuse existing
+  If not found: create new
+
+  Prevents duplicate genres
+  on saga retry.
+end note
+
+note right of CREATING_AUTHOR
+  **Idempotency:**
+
+  Before creating, check if
+  author already exists by name:
+
+  GET /api/authors?name={name}
+
+  If found: reuse existing
+  If not found: create new
+
+  Prevents duplicate authors
+  on saga retry.
+end note
+
+note right of CREATING_BOOK
+  **Auto-Generated ISBN:**
+
+  isbn = IsbnGenerator
+    .generateValidIsbn()
+
+  Format: 978-X-XX-XXXXXX-X
+  (13 digits with checksum)
+
+  Guaranteed unique per request.
+end note
+
+note right of COMPENSATING
+  **Compensation Guarantees:**
+
+  • Idempotent: DELETE is safe to retry
+  • Version-free: No If-Match required
+  • Best-effort: Retry up to 3 times
+  • Logged: Full audit trail
+  • Alerting: Failures trigger alerts
+
+  **Order Matters:**
+  Must be reverse of creation
+  to respect dependencies.
+end note
+
+note bottom of COMPLETED
+  **Performance Metrics:**
+
+  • P95 latency: <3 seconds
+  • Success rate: >99%
+  • Compensation rate: <1%
+
+  **Eventual Consistency:**
+
+  Events published to RabbitMQ
+  asynchronously (1s polling).
+
+  CQRS read models updated
+  with typical lag <500ms.
+end note
+
+note bottom of COMPENSATED
+  **Consistency Guarantee:**
+
+  Despite distributed architecture,
+  Saga Pattern ensures
+  **atomicity via compensation**:
+
+  Either ALL entities created,
+  OR NONE created.
+
+  No partial states!
+end note
+
+legend right
+  |= State Type |= Color |= Meaning |
+  | Intermediate | Yellow | In progress |
+  | Success | Green | Completed successfully |
+  | Failure | Red | Failed |
+  | Compensating | Orange | Rolling back |
+endlegend
+
+@enduml

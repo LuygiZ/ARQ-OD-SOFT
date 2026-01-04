@@ -1,0 +1,118 @@
+@startuml vista-logica-nivel1
+!define ACTOR_COLOR #3F51B5
+!define SYSTEM_COLOR #4CAF50
+!define EXTERNAL_COLOR #FF9800
+
+title Vista Lógica - Nível 1: System Context\nLibrary Management System
+
+skinparam {
+    actor {
+        BackgroundColor ACTOR_COLOR
+        FontColor white
+    }
+    rectangle {
+        BackgroundColor<<system>> SYSTEM_COLOR
+        BackgroundColor<<external>> EXTERNAL_COLOR
+        FontColor white
+        BorderColor black
+    }
+    package {
+        BackgroundColor #E0E0E0
+        BorderColor black
+    }
+}
+
+' Actors
+actor "Bibliotecário\n(Librarian)" as librarian #lightblue
+actor "Leitor\n(Reader)" as reader #lightgreen
+actor "Administrador\n(Admin)" as admin #lightyellow
+
+' Main System
+package "Library Management System\n(Microservices Architecture)" <<system>> {
+    rectangle "LMS\nMicroservices\nPlatform" as lms
+}
+
+' External Systems
+rectangle "Sistema de\nAutenticação\nExterno" <<external>> as authSystem
+rectangle "Serviço de\nFotos/Media\nExterno" <<external>> as mediaService
+rectangle "Sistema de\nNotificações\nEmail/SMS" <<external>> as notificationService
+
+' Relationships - Librarian
+librarian --> lms : Gerir catálogo\n(Books, Authors, Genres)
+librarian --> lms : Gerir empréstimos\n(Lendings)
+librarian --> lms : Consultar estatísticas\n(Reports)
+
+' Relationships - Reader
+reader --> lms : Pesquisar livros\n(Search)
+reader --> lms : Requisitar livros\n(Request Lending)
+reader --> lms : Devolver livros\n(Return + Review)
+reader --> lms : Consultar histórico\n(Lending History)
+
+' Relationships - Admin
+admin --> lms : Gerir utilizadores\n(Users Management)
+admin --> lms : Configurar sistema\n(System Config)
+admin --> lms : Monitorizar sistema\n(Monitoring)
+
+' External System Relationships
+lms --> authSystem : Autenticar utilizadores\n(JWT Tokens)
+lms --> mediaService : Armazenar fotos\n(Books, Authors, Readers)
+lms --> notificationService : Enviar notificações\n(Overdue, Reservations)
+
+note right of lms
+  **Principais Funcionalidades:**
+
+  **Gestão de Catálogo:**
+  - Criar/Atualizar/Eliminar Books
+  - Gerir Authors e Genres
+  - FR-1: Criar Book+Author+Genre
+    atomicamente via Saga
+
+  **Gestão de Leitores:**
+  - Registar Readers
+  - Gerir perfis e histórico
+
+  **Gestão de Empréstimos:**
+  - Requisitar livros (Lend)
+  - Devolver com avaliação (Return)
+  - Gerir multas (Fines)
+
+  **Relatórios e Consultas:**
+  - Top 5 livros/autores/géneros
+  - Estatísticas de empréstimos
+  - Pesquisas avançadas
+end note
+
+note bottom of authSystem
+  **OAuth 2.0 / JWT**
+  - Emissão de tokens
+  - Validação de credenciais
+  - Gestão de sessões
+end note
+
+note bottom of mediaService
+  **Storage Service**
+  - Upload de imagens
+  - CDN para delivery
+  - Resize automático
+end note
+
+note bottom of notificationService
+  **Communication Service**
+  - Email notifications
+  - SMS alerts
+  - Push notifications
+end note
+
+' Quality Attributes
+note left of lms
+  **Atributos de Qualidade:**
+
+  - **Disponibilidade:** 99.9%
+  - **Performance:** <200ms (P95)
+  - **Escalabilidade:** Auto-scaling
+  - **Consistência:** Saga Pattern
+  - **Manutenibilidade:** Independência
+    de serviços
+end note
+
+@enduml
