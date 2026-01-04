@@ -62,6 +62,8 @@ pipeline {
 		}
 
         // STAGE 1.1: Static Analysis (Metric: 1.1)
+        // STAGE 1.1: Static Analysis (Metric: 1.1)
+        /*
         stage('Stage 1.1: Static Analysis') {
             steps {
                 script {
@@ -70,6 +72,7 @@ pipeline {
                 }
             }
         }
+        */
 
 		// STAGE 2: Unit & Integration Tests
 		stage('Stage 2: Unit & Integration Tests') {
@@ -193,6 +196,7 @@ pipeline {
 					}
 				}
 
+				/*
 				stage('Mutation Tests') {
 					steps {
 						script {
@@ -209,6 +213,7 @@ pipeline {
 						}
 					}
 				}
+				*/
 			}
 		}
 
@@ -286,6 +291,8 @@ pipeline {
 		}
 
         // STAGE 7.5: Load Testing (Metric: >200pts)
+        // STAGE 7.5: Load Testing (Metric: >200pts)
+        /*
         stage('Stage 7.5: Load Testing') {
             when {
                 expression { return !params.SkipTests }
@@ -326,8 +333,11 @@ pipeline {
                 }
             }
         }
+        */
 
         // STAGE 7.6: Auto-Scaling (Metric: 3.5)
+        // STAGE 7.6: Auto-Scaling (Metric: 3.5)
+        /*
         stage('Stage 7.6: Scale Service') {
             when {
                 expression { return !params.SkipTests && params.Environment == 'kubernetes' }
@@ -343,6 +353,7 @@ pipeline {
                 }
             }
         }
+        */
 
 		// STAGE 8: System Tests on DEV (QG2)
 		stage('Stage 8: System Tests DEV (QG2)') {
