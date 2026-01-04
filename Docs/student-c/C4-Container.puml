@@ -1,42 +1,52 @@
 @startuml C4_Container
 !include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
 
-title Container Diagram - Student C (Lending & Reviews)
+title Container Diagram - LMS Microservices with CQRS Book Services
 
 Person(reader, "Reader", "Library member")
 Person(librarian, "Librarian", "Library staff")
 
 System_Boundary(lms, "Library Management System") {
 
-    Container(reader_api, "Reader Service", "Spring Boot", "Authentication and JWT issuance\nPort: 8087")
+    Container(traefik, "Traefik", "Load Balancer", "API Gateway\nRoutes by HTTP method\nPort: 80")
+
+    Container(reader_api, "Reader Service", "Spring Boot", "Authentication and JWT\n2 instances - Port: 8087")
     ContainerDb(reader_db, "Reader DB", "PostgreSQL", "Users, Readers")
 
-    Container(lending_api, "Lending Service", "Spring Boot", "Lending operations (Commands)\nPort: 8086")
+    Container(lending_api, "Lending Service", "Spring Boot", "Lending operations\n2 instances - Port: 8086")
     ContainerDb(lending_db, "Lending DB", "PostgreSQL", "Lendings, Outbox Events")
 
-    Container(book_api, "Book Service", "Spring Boot", "Book queries (Queries)\nPort: 8083")
-    ContainerDb(book_db, "Book DB", "PostgreSQL", "Books, Reviews")
+    Container(book_cmd, "Book Command Service", "Spring Boot", "CQRS Write Side\n2 instances - Port: 8083\nPOST/PUT/PATCH/DELETE")
+    Container(book_qry, "Book Query Service", "Spring Boot", "CQRS Read Side\n2 instances - Port: 8085\nGET operations, Reviews")
+    ContainerDb(book_db, "Book DB", "PostgreSQL", "Books, BookReadModel, Reviews\nShared by Command & Query")
 
-    ContainerQueue(rabbitmq, "RabbitMQ", "AMQP", "Event messaging")
-    ContainerDb(redis, "Redis", "Cache", "Caching layer")
+    Container(saga, "Saga Orchestrator", "Spring Boot", "Distributed transactions\n2 instances - Port: 8084")
+
+    ContainerQueue(rabbitmq, "RabbitMQ", "AMQP", "Event messaging\nTopic Exchange: lms.events")
+    ContainerDb(redis, "Redis", "Cache", "Query caching\nSaga state")
 }
 
-Rel(reader, reader_api, "POST /login", "HTTPS")
-Rel(librarian, reader_api, "POST /login", "HTTPS")
+Rel(reader, traefik, "HTTP Requests", "Port 80")
+Rel(librarian, traefik, "HTTP Requests", "Port 80")
 
-Rel(reader, lending_api, "POST /lendings/{id}/return", "HTTPS + JWT")
-Rel(librarian, lending_api, "POST /lendings", "HTTPS + JWT")
-
-Rel(reader, book_api, "GET /books/{isbn}/reviews", "HTTPS")
+Rel(traefik, reader_api, "Routes /api/readers", "HTTP")
+Rel(traefik, lending_api, "Routes /api/lendings", "HTTP")
+Rel(traefik, book_cmd, "Routes /api/books\nPOST/PUT/PATCH/DELETE", "HTTP")
+Rel(traefik, book_qry, "Routes /api/books\nGET", "HTTP")
+Rel(traefik, saga, "Routes /api/catalog", "HTTP")
 
 Rel(reader_api, reader_db, "Reads/Writes", "JDBC")
 Rel(lending_api, lending_db, "Reads/Writes", "JDBC")
-Rel(book_api, book_db, "Reads/Writes", "JDBC")
+Rel(book_cmd, book_db, "Writes", "JDBC")
+Rel(book_qry, book_db, "Reads", "JDBC")
 
 Rel(lending_api, rabbitmq, "Publishes LendingReturnedEvent", "AMQP")
-Rel(rabbitmq, book_api, "Delivers events", "AMQP")
+Rel(book_cmd, rabbitmq, "Publishes BookCreated/Updated/Deleted", "AMQP")
+Rel(rabbitmq, book_qry, "Delivers events", "AMQP")
 
-Rel(lending_api, redis, "Cache", "Redis")
-Rel(book_api, redis, "Cache", "Redis")
+Rel(book_qry, redis, "Cache queries", "Redis")
+Rel(saga, redis, "Saga state", "Redis")
+
+Rel(saga, book_cmd, "Creates books", "HTTP/Feign")
 
 @enduml

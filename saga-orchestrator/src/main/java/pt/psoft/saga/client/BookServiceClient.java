@@ -12,8 +12,8 @@ import pt.psoft.shared.dto.book.CreateBookRequest;
  * Uses shared-kernel DTOs
  */
 @FeignClient(
-        name = "book-service",
-        url = "${feign.client.config.book-service.url}"
+        name = "book-command-service",
+        url = "${feign.client.config.book-command-service.url}"
 )
 public interface BookServiceClient {
 

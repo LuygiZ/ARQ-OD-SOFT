@@ -16,12 +16,12 @@
 	<modules>
 		<module>shared-kernel</module>
 		<module>genre-service</module>
-		<module>book-service</module>
 		<module>author-service</module>
+		<module>book-command-service</module>
+		<module>book-query-service</module>
+		<module>lending-service</module>
+		<module>reader-service</module>
 		<module>saga-orchestrator</module>
-		<!-- Adicionar outros serviços conforme forem criados -->
-		<!-- <module>author-service</module> -->
-		<!-- <module>book-service</module> -->
 	</modules>
 
 	<properties>

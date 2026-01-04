@@ -6,8 +6,8 @@ participant "Reader Service\n(Auth)" as Auth
 participant "Lending Service\n(Command)" as Lending
 database "Lending DB" as LendingDB
 queue "RabbitMQ" as MQ
-participant "Book Service\n(Query)" as Book
-database "Book DB" as BookDB
+participant "Book Query Service\n(CQRS Read Side)" as Book
+database "Book DB\n(BookReadModel, Reviews)" as BookDB
 
 == Authentication ==
 Reader -> Auth: POST /api/public/login\n{username, password}

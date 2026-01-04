@@ -34,8 +34,8 @@ feign:
       author-service:
         url: http://${AUTHOR_SERVICE_HOST:author-service}:${AUTHOR_SERVICE_PORT:8082}
 
-      book-service:
-        url: http://${BOOK_SERVICE_HOST:book-service}:${BOOK_SERVICE_PORT:8083}
+      book-command-service:
+        url: http://${BOOK_SERVICE_HOST:book-command-service}:${BOOK_SERVICE_PORT:8083}
 
   circuitbreaker:
     enabled: true

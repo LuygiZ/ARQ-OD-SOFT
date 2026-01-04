@@ -13,6 +13,31 @@ volumes:
 services:
   # ==================== INFRASTRUCTURE ====================
 
+  # ===================== TRAEFIK (Load Balancer) =========================
+  traefik:
+    image: traefik:v3.1
+    restart: unless-stopped
+    command:
+      - "--api.dashboard=true"
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--log.level=INFO"
+      - "--ping=true"
+    ports:
+      - "80:80"      # HTTP entry point (API Gateway)
+      - "8090:8080"  # Traefik Dashboard
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - lms_network
+    healthcheck:
+      test: ["CMD", "traefik", "healthcheck"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
   # ===================== POSTGRES =========================
   postgres:
     image: postgres:15-alpine
@@ -34,8 +59,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-  #==================== MONGODB ======================
 
+  #==================== MONGODB ======================
   mongodb:
     image: mongo:7-jammy
     container_name: mongodb_lms
@@ -94,15 +119,14 @@ services:
       timeout: 5s
       retries: 5
 
-  # ==================== MICROSERVICES ====================
+  # ==================== MICROSERVICES (Multiple Instances) ====================
 
-  # ======== GENRE ================
+  # ======== GENRE SERVICE (2 instances) ================
   genre-service:
     image: genre-service:latest
-    container_name: genre-service
     restart: unless-stopped
-    ports:
-      - "8081:8080"
+    expose:
+      - "8080"
     environment:
       SPRING_PROFILES_ACTIVE: dev
       DB_HOST: postgres
@@ -119,6 +143,22 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.genre.rule=PathPrefix(`/api/genres`)"
+      - "traefik.http.routers.genre.entrypoints=web"
+      - "traefik.http.services.genre.loadbalancer.server.port=8080"
+      - "traefik.http.services.genre.loadbalancer.healthcheck.path=/actuator/health"
+      - "traefik.http.services.genre.loadbalancer.healthcheck.interval=10s"
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/actuator/health"]
       interval: 30s
@@ -126,14 +166,12 @@ services:
       retries: 3
       start_period: 40s
 
-  # ======== AUTHOR (Polyglot Persistence: PostgreSQL + MongoDB) ========
-
+  # ======== AUTHOR SERVICE (2 instances) - Polyglot Persistence: PostgreSQL + MongoDB ========
   author-service:
     image: author-service:latest
-    container_name: author-service
     restart: unless-stopped
-    ports:
-      - "8082:8082"
+    expose:
+      - "8082"
     environment:
       SPRING_PROFILES_ACTIVE: dev
       # PostgreSQL - Command Model (Writes)
@@ -162,6 +200,22 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.author.rule=PathPrefix(`/api/authors`)"
+      - "traefik.http.routers.author.entrypoints=web"
+      - "traefik.http.services.author.loadbalancer.server.port=8082"
+      - "traefik.http.services.author.loadbalancer.healthcheck.path=/actuator/health"
+      - "traefik.http.services.author.loadbalancer.healthcheck.interval=10s"
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8082/actuator/health"]
       interval: 30s
@@ -169,13 +223,56 @@ services:
       retries: 3
       start_period: 40s
 
-  # ============== BOOKS ================
-  book-service:
-    image: book-service:latest
-    container_name: book-service
+  # ============== BOOK COMMAND SERVICE (2 instances) - CQRS Write Side ================
+  book-command-service:
+    image: book-command-service:latest
     restart: unless-stopped
-    ports:
-      - "8083:8083"
+    expose:
+      - "8083"
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      DB_HOST: postgres
+      DB_USER: postgres
+      DB_PASSWORD: password
+      RABBITMQ_HOST: rabbitmq
+      SERVER_PORT: 8083
+    networks:
+      - lms_network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.book-command.rule=PathPrefix(`/api/books`) && (Method(`POST`) || Method(`PUT`) || Method(`PATCH`) || Method(`DELETE`))"
+      - "traefik.http.routers.book-command.entrypoints=web"
+      - "traefik.http.routers.book-command.priority=100"
+      - "traefik.http.services.book-command.loadbalancer.server.port=8083"
+      - "traefik.http.services.book-command.loadbalancer.healthcheck.path=/actuator/health"
+      - "traefik.http.services.book-command.loadbalancer.healthcheck.interval=10s"
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8083/actuator/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 40s
+
+  # ============== BOOK QUERY SERVICE (2 instances) - CQRS Read Side ================
+  book-query-service:
+    image: book-query-service:latest
+    restart: unless-stopped
+    expose:
+      - "8085"
     environment:
       SPRING_PROFILES_ACTIVE: dev
       DB_HOST: postgres
@@ -183,7 +280,7 @@ services:
       DB_PASSWORD: password
       REDIS_HOST: redis
       RABBITMQ_HOST: rabbitmq
-      SERVER_PORT: 8083
+      SERVER_PORT: 8085
     networks:
       - lms_network
     depends_on:
@@ -193,20 +290,36 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.book-query.rule=PathPrefix(`/api/books`) && Method(`GET`)"
+      - "traefik.http.routers.book-query.entrypoints=web"
+      - "traefik.http.routers.book-query.priority=90"
+      - "traefik.http.services.book-query.loadbalancer.server.port=8085"
+      - "traefik.http.services.book-query.loadbalancer.healthcheck.path=/actuator/health"
+      - "traefik.http.services.book-query.loadbalancer.healthcheck.interval=10s"
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8083/actuator/health"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8085/actuator/health"]
       interval: 30s
       timeout: 5s
       retries: 3
       start_period: 40s
 
-  # ============== LENDING (Student C) ================
+  # ============== LENDING SERVICE (2 instances) - Student C ================
   lending-service:
     image: lending-service:latest
-    container_name: lending-service
     restart: unless-stopped
-    ports:
-      - "8086:8086"
+    expose:
+      - "8086"
     environment:
       SPRING_PROFILES_ACTIVE: dev
       DB_HOST: postgres
@@ -225,6 +338,7 @@ services:
       rabbitmq:
         condition: service_healthy
     deploy:
+      replicas: 2
       resources:
         limits:
           cpus: '0.5'
@@ -232,6 +346,13 @@ services:
         reservations:
           cpus: '0.25'
           memory: 256M
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.lending.rule=PathPrefix(`/api/v1/lendings`)"
+      - "traefik.http.routers.lending.entrypoints=web"
+      - "traefik.http.services.lending.loadbalancer.server.port=8086"
+      - "traefik.http.services.lending.loadbalancer.healthcheck.path=/actuator/health"
+      - "traefik.http.services.lending.loadbalancer.healthcheck.interval=10s"
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8086/actuator/health"]
       interval: 30s
@@ -239,13 +360,12 @@ services:
       retries: 3
       start_period: 40s
 
-  # ============== READER SERVICE (Authentication & Reader Management) ================
+  # ============== READER SERVICE (2 instances) - Authentication & Reader Management ================
   reader-service:
     image: reader-service:latest
-    container_name: reader-service
     restart: unless-stopped
-    ports:
-      - "8087:8087"
+    expose:
+      - "8087"
     environment:
       SPRING_PROFILES_ACTIVE: dev
       DB_HOST: postgres
@@ -264,6 +384,7 @@ services:
       rabbitmq:
         condition: service_healthy
     deploy:
+      replicas: 2
       resources:
         limits:
           cpus: '0.5'
@@ -271,6 +392,17 @@ services:
         reservations:
           cpus: '0.25'
           memory: 256M
+    labels:
+      - "traefik.enable=true"
+      # Route for /api/readers
+      - "traefik.http.routers.reader.rule=PathPrefix(`/api/readers`)"
+      - "traefik.http.routers.reader.entrypoints=web"
+      # Route for /api/public (auth endpoints)
+      - "traefik.http.routers.reader-auth.rule=PathPrefix(`/api/public`)"
+      - "traefik.http.routers.reader-auth.entrypoints=web"
+      - "traefik.http.services.reader.loadbalancer.server.port=8087"
+      - "traefik.http.services.reader.loadbalancer.healthcheck.path=/actuator/health"
+      - "traefik.http.services.reader.loadbalancer.healthcheck.interval=10s"
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8087/actuator/health"]
       interval: 30s
@@ -278,23 +410,22 @@ services:
       retries: 3
       start_period: 40s
 
-  # ============== SAGA ORCHESTRATOR ================
+  # ============== SAGA ORCHESTRATOR (2 instances) ================
   saga-orchestrator:
     image: saga-orchestrator:latest
-    container_name: saga-orchestrator
     restart: unless-stopped
-    ports:
-      - "8084:8084"
+    expose:
+      - "8084"
     environment:
       SPRING_PROFILES_ACTIVE: dev
       # Redis for Saga state
       REDIS_HOST: redis
-      # Service URLs
+      # Service URLs (Traefik will load balance via Docker DNS)
       GENRE_SERVICE_HOST: genre-service
       GENRE_SERVICE_PORT: 8080
       AUTHOR_SERVICE_HOST: author-service
       AUTHOR_SERVICE_PORT: 8082
-      BOOK_SERVICE_HOST: book-service
+      BOOK_SERVICE_HOST: book-command-service
       BOOK_SERVICE_PORT: 8083
       SERVER_PORT: 8084
     networks:
@@ -302,12 +433,26 @@ services:
     depends_on:
       redis:
         condition: service_healthy
-      genre-service:
+      traefik:
         condition: service_healthy
-      author-service:
-        condition: service_healthy
-      book-service:
-        condition: service_healthy
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.saga-catalog.rule=PathPrefix(`/api/catalog`)"
+      - "traefik.http.routers.saga-catalog.entrypoints=web"
+      - "traefik.http.routers.saga-sagas.rule=PathPrefix(`/api/sagas`)"
+      - "traefik.http.routers.saga-sagas.entrypoints=web"
+      - "traefik.http.services.saga-orchestrator.loadbalancer.server.port=8084"
+      - "traefik.http.services.saga-orchestrator.loadbalancer.healthcheck.path=/actuator/health"
+      - "traefik.http.services.saga-orchestrator.loadbalancer.healthcheck.interval=10s"
     healthcheck:
       test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8084/actuator/health" ]
       interval: 30s
