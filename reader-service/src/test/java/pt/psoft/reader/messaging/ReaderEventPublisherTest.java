@@ -21,7 +21,7 @@ class ReaderEventPublisherTest {
     private com.fasterxml.jackson.databind.ObjectMapper objectMapper;
 
     @Mock
-    private pt.psoft.reader.repositories.OutboxRepository outboxRepository;
+    private pt.psoft.reader.repositories.jpa.OutboxRepository outboxRepository;
 
     @InjectMocks
     private ReaderEventPublisher publisher;
