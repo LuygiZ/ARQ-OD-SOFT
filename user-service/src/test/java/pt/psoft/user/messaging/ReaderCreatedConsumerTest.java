@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(PactConsumerTestExt.class)
-@PactTestFor(providerName = "reader-service", providerType = ProviderType.ASYNC)
+@PactTestFor(providerName = "reader-service")
 public class ReaderCreatedConsumerTest {
 
     @Pact(consumer = "user-service")
