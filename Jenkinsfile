@@ -25,16 +25,7 @@ pipeline {
 	environment {
 		MAVEN_DIR = tool(name: 'Maven 3.9.12', type: 'maven')
 		APP_NAME = 'psoft-g1'
-
-		// Ports for each environment
-	environment {
-		MAVEN_DIR = tool(name: 'Maven 3.9.12', type: 'maven')
-		APP_NAME = 'psoft-g1'
         
-        // ODSOFT: Force Java 21 (Host default is 25 which breaks Lombok)
-        JAVA_HOME = '/Library/Java/JavaVirtualMachines/temurin-21.jdk/Contents/Home'
-        PATH = "${JAVA_HOME}/bin:${env.PATH}"
-
 		// Ports for each environment
 		DEV_PORT = '8080'
 		STAGING_PORT = '8081'
@@ -51,6 +42,14 @@ pipeline {
 				script {
 					echo '📥 Stage 1: Checking out code and compiling...'
 					checkout scm
+                    
+                    echo "🔎 Checking Java Version:"
+                    if (isUnix()) {
+                        sh "java -version"
+                        sh "echo JAVA_HOME=$JAVA_HOME"
+                    } else {
+                        bat "java -version"
+                    }
 
 					if (isUnix()) {
 						// ODSOFT: We use 'install' so that shared-kernel is available in local repo for other modules
