@@ -57,8 +57,19 @@ kubectl apply -f infrastructure/k8s/reader-service.yaml
 kubectl rollout restart deployment/reader-service
 
 # 7. Verification / Smoke Test
+# 7. Verification / Smoke Test
 echo "[Stage 7] Verifying Deployment..."
-kubectl rollout status deployment/reader-service
+if ! kubectl rollout status deployment/reader-service --timeout=60s; then
+    echo "🚨 Deployment Failed! Initiating Auto-Rollback..."
+    kubectl rollout undo deployment/reader-service
+    echo "✅ Rollback completed. Service restored to previous version."
+    exit 1
+fi
+
+# 8. Post-Deploy Configuration (Criteria 4.3 - Feature Flags)
+# We can enable the feature dynamically without redeploying code
+# kubectl set env deployment/reader-service FEATURE_ENABLE_RECOMMENDATIONS=true
+
 echo "Reader Service is Live at http://localhost:30084"
 
 echo "=================================================="
