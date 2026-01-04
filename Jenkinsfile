@@ -143,12 +143,12 @@ pipeline {
 					try {
 						if (isUnix()) {
 							// Generate the Pact file (Consumer)
-							sh "mvn test -Dtest=ReaderCreatedConsumerTest -pl user-service -am"
+							sh "mvn test -Dtest=ReaderCreatedConsumerTest -pl user-service -am -DfailIfNoSpecifiedTests=false"
 							// Verify the Pact file (Provider)
-							sh "mvn test -Dtest=ReaderCreatedProviderTest -pl reader-service -am"
+							sh "mvn test -Dtest=ReaderCreatedProviderTest -pl reader-service -am -DfailIfNoSpecifiedTests=false"
 						} else {
-							bat "mvn test -Dtest=ReaderCreatedConsumerTest -pl user-service -am"
-							bat "mvn test -Dtest=ReaderCreatedProviderTest -pl reader-service -am"
+							bat "mvn test -Dtest=ReaderCreatedConsumerTest -pl user-service -am -DfailIfNoSpecifiedTests=false"
+							bat "mvn test -Dtest=ReaderCreatedProviderTest -pl reader-service -am -DfailIfNoSpecifiedTests=false"
 						}
 					} catch (Exception e) {
 						echo "⚠️ Contract tests failed: ${e.message}"
