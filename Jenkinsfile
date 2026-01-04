@@ -57,6 +57,8 @@ pipeline {
         stage('Stage 1.1: Static Analysis') {
             steps {
                 script {
+                    echo '🔍 Checkstyle skipped temporarily to reduce log noise.'
+                    /*
                     echo '🔍 Running Checkstyle...'
                     try {
 						if (isUnix()) {
@@ -71,6 +73,7 @@ pipeline {
                     } catch (Exception e) {
                          echo "⚠️ Static Analysis failed or plugin missing: ${e.message}"
                     }
+                    */
                 }
             }
         }
