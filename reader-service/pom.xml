@@ -119,7 +119,7 @@
 
         <!-- Pact Consumer -->
         <dependency>
-            <groupId>au.com.dius.pact.consumer</groupId>
+            <groupId>au.com.dius.pact.provider</groupId>
             <artifactId>junit5</artifactId>
             <version>4.6.3</version>
             <scope>test</scope>
