@@ -27,6 +27,15 @@ pipeline {
 		APP_NAME = 'psoft-g1'
 
 		// Ports for each environment
+	environment {
+		MAVEN_DIR = tool(name: 'Maven 3.9.12', type: 'maven')
+		APP_NAME = 'psoft-g1'
+        
+        // ODSOFT: Force Java 21 (Host default is 25 which breaks Lombok)
+        JAVA_HOME = '/Library/Java/JavaVirtualMachines/temurin-21.jdk/Contents/Home'
+        PATH = "${JAVA_HOME}/bin:${env.PATH}"
+
+		// Ports for each environment
 		DEV_PORT = '8080'
 		STAGING_PORT = '8081'
 		PROD_PORT = '8082'
