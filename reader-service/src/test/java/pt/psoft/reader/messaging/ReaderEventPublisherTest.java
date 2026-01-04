@@ -39,9 +39,6 @@ class ReaderEventPublisherTest {
         publisher.publishReaderCreated(event);
 
         // Assert
-        verify(rabbitTemplate).convertAndSend(
-                eq("internal.exchange"),
-                eq("reader.created"),
-                eq(event));
+        verify(outboxRepository).save(org.mockito.ArgumentMatchers.any(pt.psoft.shared.messaging.OutboxEvent.class));
     }
 }
