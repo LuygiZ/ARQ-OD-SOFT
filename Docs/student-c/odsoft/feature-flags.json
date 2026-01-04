@@ -1,0 +1,117 @@
+{
+    "description": "ODSOFT 2025/2026 - Student C - Feature Flags for Dark Launch and Kill Switch (Criterion 4.3)",
+    "version": "1.0.0",
+    "lastUpdated": "2026-01-04T12:00:00Z",
+    "updatedBy": "jenkins-pipeline",
+
+    "features": {
+        "reviews_v2": {
+            "description": "New review system with enhanced rating",
+            "enabled": true,
+            "darkLaunch": true,
+            "allowedUsers": ["beta-tester-1", "beta-tester-2", "internal-qa"],
+            "allowedRoles": ["BETA_TESTER", "QA"],
+            "percentage": 0,
+            "metadata": {
+                "createdAt": "2026-01-04T10:00:00Z",
+                "owner": "student-c",
+                "jiraTicket": "LMS-123"
+            }
+        },
+        "advanced_rating": {
+            "description": "Advanced rating system with multiple criteria",
+            "enabled": false,
+            "darkLaunch": false,
+            "killSwitch": true,
+            "percentage": 0,
+            "metadata": {
+                "createdAt": "2026-01-04T10:00:00Z",
+                "owner": "student-c",
+                "jiraTicket": "LMS-124"
+            }
+        },
+        "new_lending_flow": {
+            "description": "Improved lending creation flow",
+            "enabled": true,
+            "darkLaunch": false,
+            "percentage": 10,
+            "gradualRollout": {
+                "startDate": "2026-01-04T00:00:00Z",
+                "endDate": "2026-01-11T00:00:00Z",
+                "incrementPerDay": 15
+            },
+            "metadata": {
+                "createdAt": "2026-01-04T10:00:00Z",
+                "owner": "student-c",
+                "jiraTicket": "LMS-125"
+            }
+        },
+        "return_with_comment_required": {
+            "description": "Require comment when returning books",
+            "enabled": true,
+            "darkLaunch": false,
+            "percentage": 100,
+            "metadata": {
+                "createdAt": "2026-01-04T10:00:00Z",
+                "owner": "student-c",
+                "jiraTicket": "LMS-126"
+            }
+        }
+    },
+
+    "killSwitches": {
+        "global_read_only": {
+            "description": "Put entire system in read-only mode",
+            "enabled": false,
+            "activatedAt": null,
+            "activatedBy": null
+        },
+        "disable_new_lendings": {
+            "description": "Disable creation of new lendings",
+            "enabled": false,
+            "activatedAt": null,
+            "activatedBy": null
+        },
+        "disable_returns": {
+            "description": "Disable book returns",
+            "enabled": false,
+            "activatedAt": null,
+            "activatedBy": null
+        },
+        "disable_reviews": {
+            "description": "Disable review functionality",
+            "enabled": false,
+            "activatedAt": null,
+            "activatedBy": null
+        },
+        "maintenance_mode": {
+            "description": "Enable maintenance mode - shows maintenance page",
+            "enabled": false,
+            "activatedAt": null,
+            "activatedBy": null,
+            "maintenanceMessage": "System is under maintenance. Please try again later."
+        }
+    },
+
+    "environments": {
+        "dev": {
+            "allFeaturesEnabled": true,
+            "killSwitchesDisabled": true
+        },
+        "staging": {
+            "allFeaturesEnabled": false,
+            "killSwitchesDisabled": false
+        },
+        "production": {
+            "allFeaturesEnabled": false,
+            "killSwitchesDisabled": false
+        }
+    },
+
+    "apiEndpoints": {
+        "getFlags": "GET /api/v1/feature-flags",
+        "updateFlag": "PUT /api/v1/feature-flags/{flagName}",
+        "activateKillSwitch": "POST /api/v1/kill-switches/{switchName}/activate",
+        "deactivateKillSwitch": "POST /api/v1/kill-switches/{switchName}/deactivate"
+    }
+}
