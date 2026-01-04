@@ -535,6 +535,21 @@ def deployKubernetes(environment, port) {
 
 	if (isUnix()) {
 		sh """
+            # Check if kubectl exists, if not download it
+            if ! command -v kubectl &> /dev/null; then
+                echo "kubectl could not be found, downloading..."
+                curl -LO "https://dl.k8s.io/release/\$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+                chmod +x kubectl
+                mkdir -p ~/.local/bin
+                mv kubectl ~/.local/bin/kubectl
+                export PATH=\$PATH:~/.local/bin
+            fi
+            
+            # Ensure kubectl is in PATH for this session
+            export PATH=\$PATH:~/.local/bin
+            echo "kubectl version:"
+            kubectl version --client
+
             # 1. Apply Infrastructure (Postgres, RabbitMQ, Redis)
             kubectl apply -f infrastructure/k8s/postgres.yaml || true
             kubectl apply -f infrastructure/k8s/rabbitmq.yaml || true
