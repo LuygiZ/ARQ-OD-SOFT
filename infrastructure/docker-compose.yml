@@ -10,6 +10,7 @@ volumes:
   rabbitmq_data:
   mongodb_data:
 
+
 services:
   # ==================== INFRASTRUCTURE ====================
 
@@ -30,7 +31,7 @@ services:
     networks:
       - lms_network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -68,7 +69,7 @@ services:
       - lms_network
     command: redis-server --maxmemory 512mb --maxmemory-policy allkeys-lru
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: [ "CMD", "redis-cli", "ping" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -79,7 +80,7 @@ services:
     container_name: rabbitmq_lms
     restart: unless-stopped
     ports:
-      - "5672:5672"   # AMQP
+      - "5672:5672" # AMQP
       - "15672:15672" # Management UI
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
@@ -89,7 +90,7 @@ services:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
     healthcheck:
-      test: ["CMD", "rabbitmqctl", "status"]
+      test: [ "CMD", "rabbitmqctl", "status" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -98,6 +99,9 @@ services:
 
   # ======== GENRE ================
   genre-service:
+    build:
+      context: ..
+      dockerfile: genre-service/Dockerfile
     image: genre-service:latest
     container_name: genre-service
     restart: unless-stopped
@@ -120,7 +124,7 @@ services:
       rabbitmq:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/actuator/health"]
+      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/actuator/health" ]
       interval: 30s
       timeout: 5s
       retries: 3
@@ -129,6 +133,9 @@ services:
   # ======== AUTHOR (Polyglot Persistence: PostgreSQL + MongoDB) ========
 
   author-service:
+    build:
+      context: ..
+      dockerfile: author-service/Dockerfile
     image: author-service:latest
     container_name: author-service
     restart: unless-stopped
@@ -163,7 +170,7 @@ services:
       rabbitmq:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8082/actuator/health"]
+      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8082/actuator/health" ]
       interval: 30s
       timeout: 5s
       retries: 3
@@ -171,6 +178,9 @@ services:
 
   # ============== BOOKS ================
   book-service:
+    build:
+      context: ..
+      dockerfile: book-service/Dockerfile
     image: book-service:latest
     container_name: book-service
     restart: unless-stopped
@@ -194,7 +204,7 @@ services:
       rabbitmq:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8083/actuator/health"]
+      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8083/actuator/health" ]
       interval: 30s
       timeout: 5s
       retries: 3
@@ -202,7 +212,9 @@ services:
 
   # ============== READER (Student B) ================
   reader-service:
-    build: ../reader-service
+    build:
+      context: ..
+      dockerfile: reader-service/Dockerfile
     image: reader-service:latest
     container_name: reader-service
     restart: unless-stopped
@@ -226,7 +238,7 @@ services:
       rabbitmq:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8084/actuator/health"]
+      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8084/actuator/health" ]
       interval: 30s
       timeout: 5s
       retries: 3
@@ -234,7 +246,9 @@ services:
 
   # ============== USER (Student B) ================
   user-service:
-    build: ../user-service
+    build:
+      context: ..
+      dockerfile: user-service/Dockerfile
     image: user-service:latest
     container_name: user-service
     restart: unless-stopped
@@ -258,7 +272,7 @@ services:
       rabbitmq:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8085/actuator/health"]
+      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8085/actuator/health" ]
       interval: 30s
       timeout: 5s
       retries: 3
@@ -266,11 +280,14 @@ services:
 
   # ============== SAGA ORCHESTRATOR ================
   saga-orchestrator:
+    build:
+      context: ..
+      dockerfile: saga-orchestrator/Dockerfile
     image: saga-orchestrator:latest
     container_name: saga-orchestrator
     restart: unless-stopped
     ports:
-      - "8086:8084" 
+      - "8086:8084"
     environment:
       SPRING_PROFILES_ACTIVE: dev
       # Redis for Saga state

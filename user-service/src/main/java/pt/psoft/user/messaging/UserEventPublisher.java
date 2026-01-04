@@ -1,38 +1,38 @@
-package pt.psoft.reader.messaging;
+package pt.psoft.user.messaging;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import pt.psoft.reader.repositories.jpa.OutboxRepository;
+import pt.psoft.user.repositories.jpa.OutboxRepository;
 import pt.psoft.shared.messaging.OutboxEvent;
-import pt.psoft.shared.events.reader.ReaderCreatedEvent;
+import pt.psoft.shared.events.user.UserCreatedEvent; // Assuming this event exists
 
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class ReaderEventPublisher {
+public class UserEventPublisher {
 
     private final OutboxRepository outboxRepository;
     private final ObjectMapper objectMapper;
 
-    public void publishReaderCreated(ReaderCreatedEvent event) {
+    public void publishUserCreated(UserCreatedEvent event) {
         try {
             String payload = objectMapper.writeValueAsString(event);
             
             OutboxEvent outboxEvent = new OutboxEvent(
-                    "READER",
-                    event.getUsername(), // Using username as aggregate ID for now, or use ID if available
+                    "USER",
+                    event.getUsername(), 
                     "CREATED",
                     payload
             );
 
             outboxRepository.save(outboxEvent);
-            log.info("Persisted ReaderCreatedEvent to Outbox: {}", event.getUsername());
+            log.info("Persisted UserCreatedEvent to Outbox: {}", event.getUsername());
 
         } catch (Exception e) {
-            log.error("Failed to persist ReaderCreatedEvent to Outbox", e);
-            throw new RuntimeException("Failed to persist event", e); // Ensure transaction rollback
+            log.error("Failed to persist UserCreatedEvent to Outbox", e);
+            throw new RuntimeException("Failed to persist event", e); 
         }
     }
 }

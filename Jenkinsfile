@@ -12,7 +12,7 @@ pipeline {
 	parameters {
 		choice(
 			name: 'Environment',
-			choices: ["docker", "local"],
+			choices: ["docker", "local", "kubernetes"],
 			description: 'Choose deployment environment type.'
 		)
 		booleanParam(
@@ -106,6 +106,35 @@ pipeline {
 			}
 		}
 
+		// STAGE 2.5: Contract Tests (ODSOFT)
+		// This stage runs Consumer-Driven Contract Tests using Pact.
+		// 1. User Service (Consumer) generates the contract (.json)
+		// 2. Reader Service (Provider) verifies it meets the contract
+		stage('Stage 2.5: Contract Tests (Pact)') {
+			when {
+				expression { return !params.SkipTests }
+			}
+			steps {
+				script {
+					echo '🤝 Running Contract Tests (Pact)...'
+					try {
+						if (isUnix()) {
+							// Generate the Pact file (Consumer)
+							sh "mvn test -Dtest=ReaderCreatedConsumerTest -pl user-service -am"
+							// Verify the Pact file (Provider)
+							sh "mvn test -Dtest=ReaderCreatedProviderTest -pl reader-service -am"
+						} else {
+							bat "mvn test -Dtest=ReaderCreatedConsumerTest -pl user-service -am"
+							bat "mvn test -Dtest=ReaderCreatedProviderTest -pl reader-service -am"
+						}
+					} catch (Exception e) {
+						echo "⚠️ Contract tests failed: ${e.message}"
+						currentBuild.result = 'UNSTABLE'
+					}
+				}
+			}
+		}
+
 		// STAGE 3-5: Quality Gates (QG1)
 		stage('Stage 3-5: Quality Analysis (QG1)') {
 			when {
@@ -115,7 +144,7 @@ pipeline {
 				stage('Test Coverage') {
 					steps {
 						script {
-							echo '📊 Generating coverage report...'
+							echo '� Generating coverage report...'
 							try {
 								if (isUnix()) {
 									sh "mvn jacoco:report"
@@ -197,6 +226,8 @@ pipeline {
 					echo '🚀 Stage 7: Deploying to DEV environment...'
 					if (params.Environment == 'docker') {
 						deployDocker('dev', env.DEV_PORT)
+					} else if (params.Environment == 'kubernetes') {
+						deployKubernetes('dev', env.DEV_PORT)
 					} else {
 						deployLocal('dev', env.DEV_PORT)
 					}
@@ -234,6 +265,8 @@ pipeline {
 					echo '🚀 Stage 9: Deploying to STAGING environment...'
 					if (params.Environment == 'docker') {
 						deployDocker('staging', env.STAGING_PORT)
+					} else if (params.Environment == 'kubernetes') {
+						deployKubernetes('staging', env.STAGING_PORT)
 					} else {
 						deployLocal('staging', env.STAGING_PORT)
 					}
@@ -272,6 +305,8 @@ pipeline {
 					echo '🚀 Stage 11: Deploying to PRODUCTION environment...'
 					if (params.Environment == 'docker') {
 						deployDocker('production', env.PROD_PORT)
+					} else if (params.Environment == 'kubernetes') {
+						deployKubernetes('production', env.PROD_PORT)
 					} else {
 						deployLocal('production', env.PROD_PORT)
 					}
@@ -350,6 +385,48 @@ pipeline {
 // ═══════════════════════════════════════════════════
 //              DEPLOYMENT FUNCTIONS
 // ═══════════════════════════════════════════════════
+
+def deployKubernetes(environment, port) {
+	echo "🚢 Deploying ${environment} to Kubernetes..."
+
+	// ODSOFT: We apply the Infrastructure as Code (IaC) manifests
+	// and perform a Rolling Update for the services.
+
+	if (isUnix()) {
+		sh """
+            # 1. Apply Infrastructure (Postgres, RabbitMQ, Redis)
+            # We use '|| true' because they might already exist/be immutable in some envs, preventing pipeline fail
+            kubectl apply -f infrastructure/k8s/postgres.yaml || true
+            kubectl apply -f infrastructure/k8s/rabbitmq.yaml || true
+            kubectl apply -f infrastructure/k8s/redis.yaml || true
+
+            # 2. Deploy Services
+            # In a real pipeline, we would substitute image tags here.
+            # For this setup, we assume the manifest uses 'latest' or a specific version.
+            kubectl apply -f infrastructure/k8s/user-service.yaml
+            kubectl apply -f infrastructure/k8s/reader-service.yaml
+
+            # 3. Trigger Rolling Update
+            # This forces K8s to pull the new image and perform a zero-downtime update
+            kubectl rollout restart deployment/user-service
+            kubectl rollout restart deployment/reader-service
+
+            echo "✅ Kubernetes deployment triggered. Monitor with 'kubectl get pods'."
+        """
+	} else {
+		bat """
+            kubectl apply -f infrastructure/k8s/postgres.yaml
+            kubectl apply -f infrastructure/k8s/rabbitmq.yaml
+            kubectl apply -f infrastructure/k8s/redis.yaml
+
+            kubectl apply -f infrastructure/k8s/user-service.yaml
+            kubectl apply -f infrastructure/k8s/reader-service.yaml
+
+            kubectl rollout restart deployment/user-service
+            kubectl rollout restart deployment/reader-service
+        """
+	}
+}
 
 def deployDocker(environment, port) {
 	def imageName = "${env.APP_NAME}:${environment}"

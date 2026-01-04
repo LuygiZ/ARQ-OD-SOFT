@@ -19,6 +19,7 @@ public class UserEventConsumer {
 
     private final UserRepository userRepository;
     private final RabbitTemplate rabbitTemplate;
+    private final org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
 
     @RabbitListener(queues = RabbitmqConfig.READER_CREATED_QUEUE)
     @Transactional
@@ -34,8 +35,7 @@ public class UserEventConsumer {
             }
 
             // 2. Create User
-            // Note: In a real app, password should be encoded here using BCryptEncoder
-            User newUser = new User(event.getUsername(), event.getPassword(), event.getFullName());
+            User newUser = new User(event.getUsername(), passwordEncoder.encode(event.getPassword()), event.getFullName());
             newUser.addRole("READER");
             userRepository.save(newUser);
             log.info("User created successfully: {}", event.getUsername());

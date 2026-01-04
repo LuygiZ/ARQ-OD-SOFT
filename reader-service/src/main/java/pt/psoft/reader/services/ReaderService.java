@@ -47,4 +47,8 @@ public class ReaderService {
 
         return reader;
     }
+
+    public java.util.Optional<Reader> findByUsername(String username) {
+        return readerRepository.findByUsername(username);
+    }
 }

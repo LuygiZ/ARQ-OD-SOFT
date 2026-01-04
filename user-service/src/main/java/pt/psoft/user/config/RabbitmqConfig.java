@@ -18,4 +18,22 @@ public class RabbitmqConfig {
     public Queue readerCreatedQueue() {
         return new Queue(READER_CREATED_QUEUE);
     }
+    @Bean
+    public TopicExchange exchange() {
+        return new TopicExchange("lms.events");
+    }
+
+    @Bean
+    public Binding binding(Queue readerCreatedQueue, TopicExchange exchange) {
+        return BindingBuilder.bind(readerCreatedQueue).to(exchange).with("catalog.reader.created");
+    }
+
+    @Bean
+    public org.springframework.amqp.support.converter.Jackson2JsonMessageConverter producerJackson2MessageConverter() {
+        com.fasterxml.jackson.databind.ObjectMapper objectMapper = new com.fasterxml.jackson.databind.ObjectMapper();
+        objectMapper.registerModule(new com.fasterxml.jackson.datatype.jsr310.JavaTimeModule());
+        objectMapper.disable(com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        objectMapper.configure(com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        return new org.springframework.amqp.support.converter.Jackson2JsonMessageConverter(objectMapper);
+    }
 }
