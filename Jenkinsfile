@@ -59,12 +59,12 @@ pipeline {
                 script {
                     echo '🔍 Running Checkstyle...'
                     try {
-                        if (isUnix()) {
-                            // Using checkstyle:check, allows build to fail if violations found
-                            sh "mvn checkstyle:check || true" 
-                        } else {
-                            bat "mvn checkstyle:check || true"
-                        }
+						if (isUnix()) {
+                            // Using checkstyle:check with failOnViolation=false so build persists
+							sh "mvn checkstyle:check -Dcheckstyle.failOnViolation=false -Dcheckstyle.failsOnError=false"
+						} else {
+							bat "mvn checkstyle:check -Dcheckstyle.failOnViolation=false -Dcheckstyle.failsOnError=false"
+						}
                         recordIssues(
                             tools: [checkStyle(pattern: '**/target/checkstyle-result.xml')]
                         )
