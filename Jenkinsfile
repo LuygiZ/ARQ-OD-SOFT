@@ -211,11 +211,16 @@ pipeline {
 					echo '📦 Building the final package...'
 					if (isUnix()) {
 						sh 'mvn package -DskipTests'
-						def jarPath = sh(script: "find target -name '*.jar' -type f | head -1", returnStdout: true).trim()
-						env.JAR_NAME = sh(script: "basename ${jarPath}", returnStdout: true).trim()
+						// ODSOFT: Multi-module project, look in user-service target
+						def jarPath = sh(script: "find user-service/target -name '*.jar' -type f | head -1", returnStdout: true).trim()
+						if (jarPath) {
+						    env.JAR_NAME = sh(script: "basename ${jarPath}", returnStdout: true).trim()
+						} else {
+						    env.JAR_NAME = "psoft-g1-service.jar"
+						}
 					} else {
 						bat 'mvn package -DskipTests'
-						bat 'dir /b target\\*.jar > jarname.txt'
+						bat 'dir /b user-service\\target\\*.jar > jarname.txt'
 						def jarName = readFile('jarname.txt').trim()
 						env.JAR_NAME = jarName
 					}
