@@ -58,22 +58,7 @@ pipeline {
             steps {
                 script {
                     echo '🔍 Checkstyle skipped temporarily to reduce log noise.'
-                    /*
-                    echo '🔍 Running Checkstyle...'
-                    try {
-						if (isUnix()) {
-                            // Using checkstyle:check with failOnViolation=false so build persists
-							sh "mvn checkstyle:check -Dcheckstyle.failOnViolation=false -Dcheckstyle.failsOnError=false"
-						} else {
-							bat "mvn checkstyle:check -Dcheckstyle.failOnViolation=false -Dcheckstyle.failsOnError=false"
-						}
-                        recordIssues(
-                            tools: [checkStyle(pattern: '**/target/checkstyle-result.xml')]
-                        )
-                    } catch (Exception e) {
-                         echo "⚠️ Static Analysis failed or plugin missing: ${e.message}"
-                    }
-                    */
+                    // Checkstyle execution removed temporarily
                 }
             }
         }
