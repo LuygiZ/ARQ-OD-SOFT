@@ -17,9 +17,9 @@ import java.io.Serializable;
 @AllArgsConstructor
 public class GenreDTO implements Serializable {
 
-    private String id;
+    private Long id;
 
     @NotNull
     @Size(min = 1, max = 100)
-    private String genre;
+    private String genreName;
 }

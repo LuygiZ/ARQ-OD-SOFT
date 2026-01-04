@@ -1,0 +1,308 @@
+version: '3.8'
+
+networks:
+  lms_dev:
+    driver: bridge
+
+volumes:
+  postgres_dev:
+  redis_dev:
+  rabbitmq_dev:
+  mongodb_dev:
+
+services:
+  # ==================== INFRASTRUCTURE ====================
+
+  postgres-dev:
+    image: postgres:15-alpine
+    container_name: postgres_dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_dev:/var/lib/postgresql/data
+      - ./infrastructure/init-databases.sql:/docker-entrypoint-initdb.d/init-databases.sql
+    networks:
+      - lms_dev
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mongodb-dev:
+    image: mongo:7-jammy
+    container_name: mongodb_dev
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin123
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_dev:/data/db
+    networks:
+      - lms_dev
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis-dev:
+    image: redis:7-alpine
+    container_name: redis_dev
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_dev:/data
+    networks:
+      - lms_dev
+    command: redis-server --maxmemory 256mb --maxmemory-policy allkeys-lru
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  rabbitmq-dev:
+    image: rabbitmq:3-management-alpine
+    container_name: rabbitmq_dev
+    restart: unless-stopped
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_dev:/var/lib/rabbitmq
+    networks:
+      - lms_dev
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ==================== MICROSERVICES (DEV - Single Instance) ====================
+
+  genre-service-dev:
+    image: genre-service:dev
+    container_name: genre-service-dev
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      DB_HOST: postgres-dev
+      DB_USER: postgres
+      DB_PASSWORD: password
+      REDIS_HOST: redis-dev
+      RABBITMQ_HOST: rabbitmq-dev
+      SERVER_PORT: 8080
+    networks:
+      - lms_dev
+    depends_on:
+      postgres-dev:
+        condition: service_healthy
+      redis-dev:
+        condition: service_healthy
+      rabbitmq-dev:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  author-service-dev:
+    image: author-service:dev
+    container_name: author-service-dev
+    restart: unless-stopped
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      DB_HOST: postgres-dev
+      DB_USER: postgres
+      DB_PASSWORD: password
+      MONGODB_HOST: mongodb-dev
+      MONGODB_PORT: 27017
+      MONGODB_DATABASE: author_read_db
+      MONGODB_USERNAME: admin
+      MONGODB_PASSWORD: admin123
+      REDIS_HOST: redis-dev
+      RABBITMQ_HOST: rabbitmq-dev
+      SERVER_PORT: 8082
+    networks:
+      - lms_dev
+    depends_on:
+      postgres-dev:
+        condition: service_healthy
+      mongodb-dev:
+        condition: service_healthy
+      redis-dev:
+        condition: service_healthy
+      rabbitmq-dev:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8082/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  book-command-service-dev:
+    image: book-command-service:dev
+    container_name: book-command-service-dev
+    restart: unless-stopped
+    ports:
+      - "8083:8083"
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      DB_HOST: postgres-dev
+      DB_USER: postgres
+      DB_PASSWORD: password
+      RABBITMQ_HOST: rabbitmq-dev
+      SERVER_PORT: 8083
+    networks:
+      - lms_dev
+    depends_on:
+      postgres-dev:
+        condition: service_healthy
+      rabbitmq-dev:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8083/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  book-query-service-dev:
+    image: book-query-service:dev
+    container_name: book-query-service-dev
+    restart: unless-stopped
+    ports:
+      - "8085:8085"
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      DB_HOST: postgres-dev
+      DB_USER: postgres
+      DB_PASSWORD: password
+      REDIS_HOST: redis-dev
+      RABBITMQ_HOST: rabbitmq-dev
+      SERVER_PORT: 8085
+    networks:
+      - lms_dev
+    depends_on:
+      postgres-dev:
+        condition: service_healthy
+      redis-dev:
+        condition: service_healthy
+      rabbitmq-dev:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8085/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  lending-service-dev:
+    image: lending-service:dev
+    container_name: lending-service-dev
+    restart: unless-stopped
+    ports:
+      - "8086:8086"
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      DB_HOST: postgres-dev
+      DB_USER: postgres
+      DB_PASSWORD: password
+      REDIS_HOST: redis-dev
+      RABBITMQ_HOST: rabbitmq-dev
+      SERVER_PORT: 8086
+    networks:
+      - lms_dev
+    depends_on:
+      postgres-dev:
+        condition: service_healthy
+      redis-dev:
+        condition: service_healthy
+      rabbitmq-dev:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8086/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  reader-service-dev:
+    image: reader-service:dev
+    container_name: reader-service-dev
+    restart: unless-stopped
+    ports:
+      - "8087:8087"
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      DB_HOST: postgres-dev
+      DB_USER: postgres
+      DB_PASSWORD: password
+      REDIS_HOST: redis-dev
+      RABBITMQ_HOST: rabbitmq-dev
+      SERVER_PORT: 8087
+    networks:
+      - lms_dev
+    depends_on:
+      postgres-dev:
+        condition: service_healthy
+      redis-dev:
+        condition: service_healthy
+      rabbitmq-dev:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8087/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  saga-orchestrator-dev:
+    image: saga-orchestrator:dev
+    container_name: saga-orchestrator-dev
+    restart: unless-stopped
+    ports:
+      - "8084:8084"
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      REDIS_HOST: redis-dev
+      RABBITMQ_HOST: rabbitmq-dev
+      GENRE_SERVICE_HOST: genre-service-dev
+      GENRE_SERVICE_PORT: 8080
+      AUTHOR_SERVICE_HOST: author-service-dev
+      AUTHOR_SERVICE_PORT: 8082
+      BOOK_SERVICE_HOST: book-command-service-dev
+      BOOK_SERVICE_PORT: 8083
+      SERVER_PORT: 8084
+    networks:
+      - lms_dev
+    depends_on:
+      redis-dev:
+        condition: service_healthy
+      rabbitmq-dev:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8084/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s

@@ -20,7 +20,7 @@ public class GenreViewMapper {
         }
 
         return new GenreDTO(
-                genre.getId().toString(),
+                genre.getId(),
                 genre.getName()
         );
     }
@@ -45,7 +45,7 @@ public class GenreViewMapper {
         }
 
         Genre genre = new Genre();
-        genre.setName(dto.getGenre());
+        genre.setName(dto.getGenreName());
         return genre;
     }
 }

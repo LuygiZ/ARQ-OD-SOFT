@@ -136,7 +136,7 @@ public class GenreServiceImpl implements GenreService {
 
     private GenreDTO toDTO(Genre genre) {
         return new GenreDTO(
-                genre.getId().toString(),
+                genre.getId(),
                 genre.getName()
         );
     }

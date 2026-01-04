@@ -1,0 +1,55 @@
+{
+  "consumer": {
+    "name": "SagaOrchestrator"
+  },
+  "provider": {
+    "name": "GenreService"
+  },
+  "interactions": [
+    {
+      "description": "A request for GenreCreatedEvent",
+      "providerStates": [
+        {
+          "name": "A genre exists and GenreCreatedEvent is published"
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/api/genres/1"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "id": 1,
+          "genreName": "Science Fiction"
+        },
+        "matchingRules": {
+          "body": {
+            "$.id": {
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.genreName": {
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  ],
+  "metadata": {
+    "pactSpecification": {
+      "version": "3.0.0"
+    }
+  }
+}

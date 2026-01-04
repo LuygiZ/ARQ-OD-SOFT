@@ -16,6 +16,15 @@ spring:
           max-idle: 8
           min-idle: 0
 
+  # RabbitMQ Configuration
+  rabbitmq:
+    host: ${RABBITMQ_HOST:rabbitmq}
+    port: 5672
+    username: ${RABBITMQ_USERNAME:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
+    connection-timeout: 10000
+    requested-heartbeat: 60
+
 server:
   port: ${SERVER_PORT:8084}
 

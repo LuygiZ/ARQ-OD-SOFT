@@ -1,0 +1,10 @@
+# Locust Performance Testing Dependencies
+# Install with: pip install -r requirements.txt
+
+locust==2.20.0
+requests==2.31.0
+gevent==23.9.1
+
+# Optional: For generating reports
+matplotlib==3.8.2
+pandas==2.1.4

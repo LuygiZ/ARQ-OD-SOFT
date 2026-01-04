@@ -1,0 +1,390 @@
+version: '3.8'
+
+networks:
+  lms_staging:
+    driver: bridge
+
+volumes:
+  postgres_staging:
+  redis_staging:
+  rabbitmq_staging:
+  mongodb_staging:
+
+services:
+  # ==================== INFRASTRUCTURE ====================
+
+  postgres-staging:
+    image: postgres:15-alpine
+    container_name: postgres_staging
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_staging:/var/lib/postgresql/data
+      - ./infrastructure/init-databases.sql:/docker-entrypoint-initdb.d/init-databases.sql
+    networks:
+      - lms_staging
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mongodb-staging:
+    image: mongo:7-jammy
+    container_name: mongodb_staging
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin123
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongodb_staging:/data/db
+    networks:
+      - lms_staging
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis-staging:
+    image: redis:7-alpine
+    container_name: redis_staging
+    restart: unless-stopped
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_staging:/data
+    networks:
+      - lms_staging
+    command: redis-server --maxmemory 512mb --maxmemory-policy allkeys-lru
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  rabbitmq-staging:
+    image: rabbitmq:3-management-alpine
+    container_name: rabbitmq_staging
+    restart: unless-stopped
+    ports:
+      - "5673:5672"
+      - "15673:15672"
+    volumes:
+      - rabbitmq_staging:/var/lib/rabbitmq
+    networks:
+      - lms_staging
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ==================== LOAD BALANCER ====================
+
+  traefik-staging:
+    image: traefik:v3.1
+    container_name: traefik_staging
+    restart: unless-stopped
+    command:
+      - "--api.dashboard=true"
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--log.level=INFO"
+      - "--ping=true"
+    ports:
+      - "8180:80"
+      - "8190:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - lms_staging
+    healthcheck:
+      test: ["CMD", "traefik", "healthcheck"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # ==================== MICROSERVICES (2 instances each for load testing) ====================
+
+  genre-service-staging:
+    image: genre-service:staging
+    restart: unless-stopped
+    environment:
+      SPRING_PROFILES_ACTIVE: staging
+      DB_HOST: postgres-staging
+      DB_USER: postgres
+      DB_PASSWORD: password
+      REDIS_HOST: redis-staging
+      RABBITMQ_HOST: rabbitmq-staging
+      SERVER_PORT: 8080
+    networks:
+      - lms_staging
+    depends_on:
+      postgres-staging:
+        condition: service_healthy
+      redis-staging:
+        condition: service_healthy
+      rabbitmq-staging:
+        condition: service_healthy
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.genre-staging.rule=PathPrefix(`/api/genres`)"
+      - "traefik.http.routers.genre-staging.entrypoints=web"
+      - "traefik.http.services.genre-staging.loadbalancer.server.port=8080"
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  author-service-staging:
+    image: author-service:staging
+    restart: unless-stopped
+    environment:
+      SPRING_PROFILES_ACTIVE: staging
+      DB_HOST: postgres-staging
+      DB_USER: postgres
+      DB_PASSWORD: password
+      MONGODB_HOST: mongodb-staging
+      MONGODB_PORT: 27017
+      MONGODB_DATABASE: author_read_db
+      MONGODB_USERNAME: admin
+      MONGODB_PASSWORD: admin123
+      REDIS_HOST: redis-staging
+      RABBITMQ_HOST: rabbitmq-staging
+      SERVER_PORT: 8082
+    networks:
+      - lms_staging
+    depends_on:
+      postgres-staging:
+        condition: service_healthy
+      mongodb-staging:
+        condition: service_healthy
+      redis-staging:
+        condition: service_healthy
+      rabbitmq-staging:
+        condition: service_healthy
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.author-staging.rule=PathPrefix(`/api/authors`)"
+      - "traefik.http.routers.author-staging.entrypoints=web"
+      - "traefik.http.services.author-staging.loadbalancer.server.port=8082"
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8082/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  book-command-service-staging:
+    image: book-command-service:staging
+    restart: unless-stopped
+    environment:
+      SPRING_PROFILES_ACTIVE: staging
+      DB_HOST: postgres-staging
+      DB_USER: postgres
+      DB_PASSWORD: password
+      RABBITMQ_HOST: rabbitmq-staging
+      SERVER_PORT: 8083
+    networks:
+      - lms_staging
+    depends_on:
+      postgres-staging:
+        condition: service_healthy
+      rabbitmq-staging:
+        condition: service_healthy
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.book-command-staging.rule=PathPrefix(`/api/books`) && (Method(`POST`) || Method(`PUT`) || Method(`DELETE`))"
+      - "traefik.http.routers.book-command-staging.entrypoints=web"
+      - "traefik.http.routers.book-command-staging.priority=100"
+      - "traefik.http.services.book-command-staging.loadbalancer.server.port=8083"
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8083/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  book-query-service-staging:
+    image: book-query-service:staging
+    restart: unless-stopped
+    environment:
+      SPRING_PROFILES_ACTIVE: staging
+      DB_HOST: postgres-staging
+      DB_USER: postgres
+      DB_PASSWORD: password
+      REDIS_HOST: redis-staging
+      RABBITMQ_HOST: rabbitmq-staging
+      SERVER_PORT: 8085
+    networks:
+      - lms_staging
+    depends_on:
+      postgres-staging:
+        condition: service_healthy
+      redis-staging:
+        condition: service_healthy
+      rabbitmq-staging:
+        condition: service_healthy
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.book-query-staging.rule=PathPrefix(`/api/books`) && Method(`GET`)"
+      - "traefik.http.routers.book-query-staging.entrypoints=web"
+      - "traefik.http.routers.book-query-staging.priority=90"
+      - "traefik.http.services.book-query-staging.loadbalancer.server.port=8085"
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8085/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  lending-service-staging:
+    image: lending-service:staging
+    restart: unless-stopped
+    environment:
+      SPRING_PROFILES_ACTIVE: staging
+      DB_HOST: postgres-staging
+      DB_USER: postgres
+      DB_PASSWORD: password
+      REDIS_HOST: redis-staging
+      RABBITMQ_HOST: rabbitmq-staging
+      SERVER_PORT: 8086
+    networks:
+      - lms_staging
+    depends_on:
+      postgres-staging:
+        condition: service_healthy
+      redis-staging:
+        condition: service_healthy
+      rabbitmq-staging:
+        condition: service_healthy
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.lending-staging.rule=PathPrefix(`/api/v1/lendings`)"
+      - "traefik.http.routers.lending-staging.entrypoints=web"
+      - "traefik.http.services.lending-staging.loadbalancer.server.port=8086"
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8086/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  reader-service-staging:
+    image: reader-service:staging
+    restart: unless-stopped
+    environment:
+      SPRING_PROFILES_ACTIVE: staging
+      DB_HOST: postgres-staging
+      DB_USER: postgres
+      DB_PASSWORD: password
+      REDIS_HOST: redis-staging
+      RABBITMQ_HOST: rabbitmq-staging
+      SERVER_PORT: 8087
+    networks:
+      - lms_staging
+    depends_on:
+      postgres-staging:
+        condition: service_healthy
+      redis-staging:
+        condition: service_healthy
+      rabbitmq-staging:
+        condition: service_healthy
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.reader-staging.rule=PathPrefix(`/api/readers`) || PathPrefix(`/api/public`)"
+      - "traefik.http.routers.reader-staging.entrypoints=web"
+      - "traefik.http.services.reader-staging.loadbalancer.server.port=8087"
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8087/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  saga-orchestrator-staging:
+    image: saga-orchestrator:staging
+    restart: unless-stopped
+    environment:
+      SPRING_PROFILES_ACTIVE: staging
+      REDIS_HOST: redis-staging
+      GENRE_SERVICE_HOST: genre-service-staging
+      GENRE_SERVICE_PORT: 8080
+      AUTHOR_SERVICE_HOST: author-service-staging
+      AUTHOR_SERVICE_PORT: 8082
+      BOOK_SERVICE_HOST: book-command-service-staging
+      BOOK_SERVICE_PORT: 8083
+      SERVER_PORT: 8084
+    networks:
+      - lms_staging
+    depends_on:
+      redis-staging:
+        condition: service_healthy
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.saga-staging.rule=PathPrefix(`/api/catalog`) || PathPrefix(`/api/sagas`)"
+      - "traefik.http.routers.saga-staging.entrypoints=web"
+      - "traefik.http.services.saga-staging.loadbalancer.server.port=8084"
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8084/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s

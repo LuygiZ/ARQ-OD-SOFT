@@ -112,7 +112,7 @@ public class SagaOrchestrator {
                 log.info("✅ [STEP 1] Genre created: ID={}", genreResponse.getId());
             }
 
-            saga.setGenreId(Long.parseLong(genreResponse.getId()));
+            saga.setGenreId(genreResponse.getId());
             saga.setGenreResponse(toJson(genreResponse));
             saga.setState(SagaState.GENRE_CREATED);
             saga.addStep(SagaStep.success(isExisting ? "FOUND_GENRE" : "CREATE_GENRE", "genre-service",
@@ -336,8 +336,8 @@ public class SagaOrchestrator {
             if (saga.getGenreResponse() != null) {
                 GenreDTO gr = objectMapper.readValue(saga.getGenreResponse(), GenreDTO.class);
                 genreResp = CreateBookSagaResponse.GenreResponse.builder()
-                        .id(Long.parseLong(gr.getId()))
-                        .name(gr.getGenre())
+                        .id(gr.getId())
+                        .name(gr.getGenreName())
                         .build();
             }
 

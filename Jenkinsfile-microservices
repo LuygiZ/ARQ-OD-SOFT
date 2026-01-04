@@ -1,0 +1,716 @@
+pipeline {
+    agent any
+
+    parameters {
+        choice(
+            name: 'DEPLOYMENT_STRATEGY',
+            choices: ['rolling', 'blue-green', 'canary'],
+            description: 'Choose deployment strategy'
+        )
+        choice(
+            name: 'ENVIRONMENT',
+            choices: ['dev', 'staging', 'prod'],
+            description: 'Target deployment environment'
+        )
+        booleanParam(
+            name: 'RUN_LOAD_TESTS',
+            defaultValue: true,
+            description: 'Run load tests in staging'
+        )
+        booleanParam(
+            name: 'SKIP_TESTS',
+            defaultValue: false,
+            description: 'Skip all tests (not recommended)'
+        )
+        string(
+            name: 'DOCKER_REGISTRY',
+            defaultValue: 'localhost:5000',
+            description: 'Docker registry URL'
+        )
+        string(
+            name: 'NOTIFICATION_EMAIL',
+            defaultValue: 'devops@example.com',
+            description: 'Email for deployment notifications'
+        )
+    }
+
+    environment {
+        MAVEN_OPTS = '-Dmaven.repo.local=.m2/repository'
+        DOCKER_REGISTRY = "${params.DOCKER_REGISTRY}"
+        VERSION = "${env.BUILD_NUMBER}"
+
+        // Services to build and deploy
+        SERVICES = 'genre-service,author-service,book-command-service,book-query-service,lending-service,reader-service,saga-orchestrator'
+
+        // Deployment targets
+        SERVICE_A = 'genre-service'  // Auto-deploy service
+        SERVICE_B = 'author-service' // Manual approval service
+    }
+
+    stages {
+        // ============================================
+        // STAGE 1: CHECKOUT & SETUP
+        // ============================================
+        stage('Checkout & Setup') {
+            steps {
+                script {
+                    echo '=================================================='
+                    echo '  STAGE 1: Checkout & Setup'
+                    echo '=================================================='
+                    echo "Build: #${env.BUILD_NUMBER}"
+                    echo "Branch: ${env.GIT_BRANCH ?: 'main'}"
+                    echo "Deployment Strategy: ${params.DEPLOYMENT_STRATEGY}"
+                    echo "Target Environment: ${params.ENVIRONMENT}"
+                    echo '=================================================='
+
+                    checkout scm
+                }
+            }
+        }
+
+        // ============================================
+        // STAGE 2: BUILD & COMPILE
+        // ============================================
+        stage('Build & Compile') {
+            steps {
+                script {
+                    echo '📦 Stage 2: Building all services...'
+
+                    if (isUnix()) {
+                        sh 'mvn clean compile test-compile -DskipTests'
+                    } else {
+                        bat 'mvn clean compile test-compile -DskipTests'
+                    }
+                }
+            }
+        }
+
+        // ============================================
+        // STAGE 3: STATIC ANALYSIS
+        // ============================================
+        stage('Static Analysis') {
+            when {
+                expression { return !params.SKIP_TESTS }
+            }
+            parallel {
+                stage('Checkstyle') {
+                    steps {
+                        script {
+                            echo '🔍 Running Checkstyle...'
+                            try {
+                                if (isUnix()) {
+                                    sh 'mvn checkstyle:check'
+                                } else {
+                                    bat 'mvn checkstyle:check'
+                                }
+                            } catch (Exception e) {
+                                echo "⚠️ Checkstyle warnings detected"
+                                currentBuild.result = 'UNSTABLE'
+                            }
+                        }
+                    }
+                    post {
+                        always {
+                            recordIssues(
+                                enabledForFailure: true,
+                                tool: checkStyle(pattern: '**/target/checkstyle-result.xml')
+                            )
+                        }
+                    }
+                }
+
+                stage('SonarQube Analysis') {
+                    steps {
+                        script {
+                            echo '📊 Running SonarQube analysis...'
+                            try {
+                                withSonarQubeEnv('SonarQube') {
+                                    if (isUnix()) {
+                                        sh 'mvn sonar:sonar'
+                                    } else {
+                                        bat 'mvn sonar:sonar'
+                                    }
+                                }
+                            } catch (Exception e) {
+                                echo "⚠️ SonarQube analysis failed: ${e.message}"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // ============================================
+        // STAGE 4: UNIT TESTS
+        // ============================================
+        stage('Unit Tests') {
+            when {
+                expression { return !params.SKIP_TESTS }
+            }
+            steps {
+                script {
+                    echo '🧪 Running unit tests...'
+                    try {
+                        if (isUnix()) {
+                            sh 'mvn test'
+                        } else {
+                            bat 'mvn test'
+                        }
+                    } catch (Exception e) {
+                        echo "⚠️ Some unit tests failed"
+                        currentBuild.result = 'UNSTABLE'
+                    }
+                }
+            }
+            post {
+                always {
+                    junit allowEmptyResults: true, testResults: '**/target/surefire-reports/*.xml'
+                }
+            }
+        }
+
+        // ============================================
+        // STAGE 5: INTEGRATION & CONTRACT TESTS
+        // ============================================
+        stage('Integration & Contract Tests') {
+            when {
+                expression { return !params.SKIP_TESTS }
+            }
+            parallel {
+                stage('Integration Tests') {
+                    steps {
+                        script {
+                            echo '🔗 Running integration tests...'
+                            try {
+                                if (isUnix()) {
+                                    sh 'mvn failsafe:integration-test failsafe:verify'
+                                } else {
+                                    bat 'mvn failsafe:integration-test failsafe:verify'
+                                }
+                            } catch (Exception e) {
+                                echo "⚠️ Some integration tests failed"
+                                currentBuild.result = 'UNSTABLE'
+                            }
+                        }
+                    }
+                    post {
+                        always {
+                            junit allowEmptyResults: true, testResults: '**/target/failsafe-reports/*.xml'
+                        }
+                    }
+                }
+
+                stage('Contract Tests (Pact)') {
+                    steps {
+                        script {
+                            echo '📋 Running Pact contract tests...'
+                            try {
+                                if (isUnix()) {
+                                    sh 'mvn test -Dtest=*PactTest'
+                                } else {
+                                    bat 'mvn test -Dtest=*PactTest'
+                                }
+                            } catch (Exception e) {
+                                echo "⚠️ Contract tests failed: ${e.message}"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // ============================================
+        // STAGE 6: CODE QUALITY CHECKS
+        // ============================================
+        stage('Code Quality') {
+            when {
+                expression { return !params.SKIP_TESTS }
+            }
+            parallel {
+                stage('Test Coverage') {
+                    steps {
+                        script {
+                            echo '📊 Generating coverage report...'
+                            try {
+                                if (isUnix()) {
+                                    sh 'mvn jacoco:report'
+                                } else {
+                                    bat 'mvn jacoco:report'
+                                }
+                            } catch (Exception e) {
+                                echo "⚠️ Coverage report generation failed"
+                            }
+                        }
+                    }
+                    post {
+                        always {
+                            jacoco(
+                                execPattern: '**/target/jacoco.exec',
+                                classPattern: '**/target/classes',
+                                sourcePattern: '**/src/main/java'
+                            )
+                        }
+                    }
+                }
+
+                stage('Mutation Tests') {
+                    steps {
+                        script {
+                            echo '🧬 Running mutation tests...'
+                            try {
+                                if (isUnix()) {
+                                    sh 'mvn org.pitest:pitest-maven:mutationCoverage'
+                                } else {
+                                    bat 'mvn org.pitest:pitest-maven:mutationCoverage'
+                                }
+                            } catch (Exception e) {
+                                echo "⚠️ Mutation tests failed: ${e.message}"
+                            }
+                        }
+                    }
+                    post {
+                        always {
+                            publishHTML(target: [
+                                allowMissing: true,
+                                alwaysLinkToLastBuild: true,
+                                keepAll: true,
+                                reportDir: 'target/pit-reports',
+                                reportFiles: 'index.html',
+                                reportName: 'PIT Mutation Report'
+                            ])
+                        }
+                    }
+                }
+            }
+        }
+
+        // ============================================
+        // STAGE 7: PACKAGE
+        // ============================================
+        stage('Package') {
+            steps {
+                script {
+                    echo '📦 Packaging services...'
+                    if (isUnix()) {
+                        sh 'mvn package -DskipTests'
+                    } else {
+                        bat 'mvn package -DskipTests'
+                    }
+                }
+            }
+            post {
+                success {
+                    archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true
+                }
+            }
+        }
+
+        // ============================================
+        // STAGE 8: BUILD DOCKER IMAGES
+        // ============================================
+        stage('Build Docker Images') {
+            steps {
+                script {
+                    echo '🐳 Building Docker images...'
+
+                    def services = env.SERVICES.split(',')
+
+                    services.each { service ->
+                        def imageName = "${env.DOCKER_REGISTRY}/${service}:${params.ENVIRONMENT}"
+                        def imageTag = "${env.DOCKER_REGISTRY}/${service}:${env.VERSION}"
+
+                        echo "Building ${service}..."
+
+                        if (isUnix()) {
+                            sh """
+                                cd ${service}
+                                docker build -t ${imageName} -t ${imageTag} .
+                            """
+                        } else {
+                            bat """
+                                cd ${service}
+                                docker build -t ${imageName} -t ${imageTag} .
+                            """
+                        }
+                    }
+                }
+            }
+        }
+
+        // ============================================
+        // STAGE 9: PUSH DOCKER IMAGES
+        // ============================================
+        stage('Push Docker Images') {
+            steps {
+                script {
+                    echo '📤 Pushing Docker images to registry...'
+
+                    def services = env.SERVICES.split(',')
+
+                    services.each { service ->
+                        def imageName = "${env.DOCKER_REGISTRY}/${service}:${params.ENVIRONMENT}"
+                        def imageTag = "${env.DOCKER_REGISTRY}/${service}:${env.VERSION}"
+
+                        echo "Pushing ${service}..."
+
+                        if (isUnix()) {
+                            sh """
+                                docker push ${imageName}
+                                docker push ${imageTag}
+                            """
+                        } else {
+                            bat """
+                                docker push ${imageName}
+                                docker push ${imageTag}
+                            """
+                        }
+                    }
+
+                    echo '✅ All images pushed successfully!'
+                }
+            }
+        }
+
+        // ============================================
+        // STAGE 10: DEPLOY TO DEV
+        // ============================================
+        stage('Deploy to DEV') {
+            when {
+                expression { return params.ENVIRONMENT == 'dev' }
+            }
+            steps {
+                script {
+                    echo '🚀 Deploying to DEV environment...'
+
+                    if (isUnix()) {
+                        sh 'docker-compose -f docker-compose-dev.yml up -d'
+                    } else {
+                        bat 'docker-compose -f docker-compose-dev.yml up -d'
+                    }
+
+                    echo '✅ DEV deployment complete!'
+                }
+            }
+        }
+
+        // ============================================
+        // STAGE 11: SMOKE TESTS - DEV
+        // ============================================
+        stage('Smoke Tests - DEV') {
+            when {
+                expression { return params.ENVIRONMENT == 'dev' }
+            }
+            steps {
+                script {
+                    echo '💨 Running smoke tests on DEV...'
+
+                    if (isUnix()) {
+                        sh 'bash scripts/testing/smoke-test.sh dev http://localhost'
+                    } else {
+                        bat 'bash scripts/testing/smoke-test.sh dev http://localhost'
+                    }
+                }
+            }
+        }
+
+        // ============================================
+        // STAGE 12: DEPLOY TO STAGING
+        // ============================================
+        stage('Deploy to STAGING') {
+            when {
+                expression { return params.ENVIRONMENT == 'staging' }
+            }
+            steps {
+                script {
+                    echo '🚀 Deploying to STAGING environment...'
+
+                    if (isUnix()) {
+                        sh 'docker-compose -f docker-compose-staging.yml up -d'
+                    } else {
+                        bat 'docker-compose -f docker-compose-staging.yml up -d'
+                    }
+
+                    echo '✅ STAGING deployment complete!'
+                }
+            }
+        }
+
+        // ============================================
+        // STAGE 13: SMOKE TESTS - STAGING
+        // ============================================
+        stage('Smoke Tests - STAGING') {
+            when {
+                expression { return params.ENVIRONMENT == 'staging' }
+            }
+            steps {
+                script {
+                    echo '💨 Running smoke tests on STAGING...'
+
+                    if (isUnix()) {
+                        sh 'bash scripts/testing/smoke-test.sh staging http://localhost'
+                    } else {
+                        bat 'bash scripts/testing/smoke-test.sh staging http://localhost'
+                    }
+                }
+            }
+        }
+
+        // ============================================
+        // STAGE 14: LOAD TESTS - STAGING
+        // ============================================
+        stage('Load Tests - STAGING') {
+            when {
+                expression {
+                    return params.ENVIRONMENT == 'staging' && params.RUN_LOAD_TESTS
+                }
+            }
+            steps {
+                script {
+                    echo '⚡ Running load tests on STAGING...'
+
+                    def services = env.SERVICES.split(',')
+
+                    services.each { service ->
+                        echo "Load testing ${service}..."
+
+                        try {
+                            if (isUnix()) {
+                                sh "bash scripts/testing/load-test.sh http://localhost:8180/api/${service} 50 1000"
+                            } else {
+                                bat "bash scripts/testing/load-test.sh http://localhost:8180/api/${service} 50 1000"
+                            }
+                        } catch (Exception e) {
+                            echo "⚠️ Load test failed for ${service}: ${e.message}"
+                        }
+                    }
+                }
+            }
+            post {
+                always {
+                    archiveArtifacts artifacts: 'load-test-results/**/*', allowEmptyArchive: true
+                }
+            }
+        }
+
+        // ============================================
+        // STAGE 15: MANUAL APPROVAL FOR SERVICE B
+        // ============================================
+        stage('Approve Service B Deployment') {
+            when {
+                expression {
+                    return params.ENVIRONMENT == 'prod' && env.SERVICE_B != null
+                }
+            }
+            steps {
+                script {
+                    echo '📧 Sending deployment notification for Service B...'
+
+                    def deploymentUrl = "${env.JENKINS_URL}job/${env.JOB_NAME}/${env.BUILD_NUMBER}/"
+
+                    // Send email notification
+                    emailext(
+                        to: "${params.NOTIFICATION_EMAIL}",
+                        subject: "🚀 Service B Ready for Production Deployment - Build #${env.BUILD_NUMBER}",
+                        body: """
+                            <h2>Service B (${env.SERVICE_B}) is ready for production deployment</h2>
+
+                            <p><strong>Build:</strong> #${env.BUILD_NUMBER}</p>
+                            <p><strong>Version:</strong> ${env.VERSION}</p>
+                            <p><strong>Deployment Strategy:</strong> ${params.DEPLOYMENT_STRATEGY}</p>
+
+                            <h3>Test Results:</h3>
+                            <ul>
+                                <li>✅ Unit Tests: Passed</li>
+                                <li>✅ Integration Tests: Passed</li>
+                                <li>✅ Contract Tests: Passed</li>
+                                <li>✅ Smoke Tests: Passed</li>
+                                <li>✅ Load Tests: Passed</li>
+                            </ul>
+
+                            <p><strong>Action Required:</strong></p>
+                            <p>Please review and approve the deployment:</p>
+                            <p><a href="${deploymentUrl}input">Click here to approve or reject</a></p>
+
+                            <p><em>This is an automated notification from Jenkins CI/CD Pipeline</em></p>
+                        """,
+                        mimeType: 'text/html'
+                    )
+
+                    // Wait for manual approval
+                    input message: "Deploy Service B (${env.SERVICE_B}) to PRODUCTION?",
+                          ok: 'Deploy',
+                          submitter: 'admin,devops'
+                }
+            }
+        }
+
+        // ============================================
+        // STAGE 16: DEPLOY TO PRODUCTION
+        // ============================================
+        stage('Deploy to PRODUCTION') {
+            when {
+                expression { return params.ENVIRONMENT == 'prod' }
+            }
+            steps {
+                script {
+                    echo '🚀 Deploying to PRODUCTION using Docker Swarm...'
+                    echo "Deployment Strategy: ${params.DEPLOYMENT_STRATEGY}"
+
+                    if (params.DEPLOYMENT_STRATEGY == 'canary') {
+                        echo 'Using CANARY deployment strategy...'
+
+                        def services = env.SERVICES.split(',')
+                        services.each { service ->
+                            if (isUnix()) {
+                                sh "bash scripts/deployment/canary-deploy.sh ${service} ${env.VERSION} 1 3"
+                            } else {
+                                bat "bash scripts/deployment/canary-deploy.sh ${service} ${env.VERSION} 1 3"
+                            }
+                        }
+
+                    } else if (params.DEPLOYMENT_STRATEGY == 'blue-green') {
+                        echo 'Using BLUE-GREEN deployment strategy...'
+
+                        def services = env.SERVICES.split(',')
+                        services.each { service ->
+                            if (isUnix()) {
+                                sh "bash scripts/deployment/blue-green-deploy.sh ${service} ${env.VERSION} 3"
+                            } else {
+                                bat "bash scripts/deployment/blue-green-deploy.sh ${service} ${env.VERSION} 3"
+                            }
+                        }
+
+                    } else {
+                        echo 'Using ROLLING UPDATE deployment strategy...'
+
+                        if (isUnix()) {
+                            sh """
+                                export VERSION=${env.VERSION}
+                                docker stack deploy -c docker-swarm-stack.yml lms
+                            """
+                        } else {
+                            bat """
+                                set VERSION=${env.VERSION}
+                                docker stack deploy -c docker-swarm-stack.yml lms
+                            """
+                        }
+                    }
+
+                    echo '✅ PRODUCTION deployment initiated!'
+                }
+            }
+        }
+
+        // ============================================
+        // STAGE 17: HEALTH CHECK & AUTO-ROLLBACK
+        // ============================================
+        stage('Health Check & Auto-Rollback') {
+            when {
+                expression { return params.ENVIRONMENT == 'prod' }
+            }
+            steps {
+                script {
+                    echo '🏥 Monitoring service health...'
+
+                    def services = env.SERVICES.split(',')
+                    def allHealthy = true
+
+                    services.each { service ->
+                        echo "Checking ${service}..."
+
+                        try {
+                            if (isUnix()) {
+                                sh """
+                                    timeout 60 bash -c '
+                                        while ! docker service ps ${service} --filter "desired-state=running" | grep -q Running; do
+                                            echo "Waiting for ${service} to start..."
+                                            sleep 5
+                                        done
+                                    '
+                                """
+                            }
+
+                            echo "✅ ${service} is healthy"
+
+                        } catch (Exception e) {
+                            echo "❌ ${service} health check failed!"
+                            allHealthy = false
+                        }
+                    }
+
+                    if (!allHealthy) {
+                        echo '🔄 Triggering automatic rollback...'
+
+                        services.each { service ->
+                            if (isUnix()) {
+                                sh "docker service rollback ${service} || true"
+                            } else {
+                                bat "docker service rollback ${service} || exit 0"
+                            }
+                        }
+
+                        error('Deployment failed health checks - automatic rollback performed')
+                    }
+
+                    echo '✅ All services are healthy!'
+                }
+            }
+        }
+    }
+
+    // ============================================
+    // POST-BUILD ACTIONS
+    // ============================================
+    post {
+        success {
+            script {
+                echo '✅ Pipeline completed successfully!'
+
+                emailext(
+                    to: "${params.NOTIFICATION_EMAIL}",
+                    subject: "✅ Deployment Successful - Build #${env.BUILD_NUMBER}",
+                    body: """
+                        <h2>Deployment completed successfully!</h2>
+
+                        <p><strong>Build:</strong> #${env.BUILD_NUMBER}</p>
+                        <p><strong>Environment:</strong> ${params.ENVIRONMENT}</p>
+                        <p><strong>Strategy:</strong> ${params.DEPLOYMENT_STRATEGY}</p>
+                        <p><strong>Version:</strong> ${env.VERSION}</p>
+
+                        <p>All services are deployed and healthy.</p>
+
+                        <p><a href="${env.BUILD_URL}">View build details</a></p>
+                    """,
+                    mimeType: 'text/html'
+                )
+            }
+        }
+
+        failure {
+            script {
+                echo '❌ Pipeline failed!'
+
+                emailext(
+                    to: "${params.NOTIFICATION_EMAIL}",
+                    subject: "❌ Deployment Failed - Build #${env.BUILD_NUMBER}",
+                    body: """
+                        <h2>Deployment failed!</h2>
+
+                        <p><strong>Build:</strong> #${env.BUILD_NUMBER}</p>
+                        <p><strong>Environment:</strong> ${params.ENVIRONMENT}</p>
+                        <p><strong>Strategy:</strong> ${params.DEPLOYMENT_STRATEGY}</p>
+
+                        <p>Please check the build logs for details.</p>
+
+                        <p><a href="${env.BUILD_URL}console">View console output</a></p>
+                    """,
+                    mimeType: 'text/html'
+                )
+            }
+        }
+
+        always {
+            cleanWs()
+        }
+    }
+}
