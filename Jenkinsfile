@@ -6,7 +6,7 @@ pipeline {
 	}
 
 	tools {
-		maven 'Maven 3.9.11'
+		maven 'Maven 3.9.12'
 	}
 
 	parameters {
@@ -23,7 +23,7 @@ pipeline {
 	}
 
 	environment {
-		MAVEN_DIR = tool(name: 'Maven 3.9.11', type: 'maven')
+		MAVEN_DIR = tool(name: 'Maven 3.9.12', type: 'maven')
 		APP_NAME = 'psoft-g1'
 
 		// Ports for each environment
