@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   jenkins:
-    image: jenkins/jenkins:lts
+    build: .
     container_name: jenkins-odsoft
     privileged: true
     user: root
@@ -12,7 +12,6 @@ services:
     volumes:
       - jenkins_data:/var/jenkins_home
       - /var/run/docker.sock:/var/run/docker.sock # Allow Jenkins to run Docker commands
-      - /usr/local/bin/docker:/usr/local/bin/docker # Map Docker binary (might need adjustment based on valid paths, but socket is most important)
     restart: unless-stopped
 
 volumes:
