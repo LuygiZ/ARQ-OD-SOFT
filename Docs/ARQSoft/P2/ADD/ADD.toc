@@ -1,0 +1,68 @@
+\babel@toc {english}{}\relax 
+\babel@toc {english}{}\relax 
+\contentsline {chapter}{\numberline {1}Introdução}{1}{chapter.1}%
+\contentsline {section}{\numberline {1.1}Contexto do Projeto}{1}{section.1.1}%
+\contentsline {section}{\numberline {1.2}Objetivo}{1}{section.1.2}%
+\contentsline {subsection}{\numberline {1.2.1}Estratégia de Migração}{1}{subsection.1.2.1}%
+\contentsline {section}{\numberline {1.3}Requisito Funcional Atribuído - Luis Santos (1250534)}{1}{section.1.3}%
+\contentsline {chapter}{\numberline {2}Análise de Requisitos}{3}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Requisitos Funcionais}{3}{section.2.1}%
+\contentsline {section}{\numberline {2.2}Requisitos Não-Funcionais}{3}{section.2.2}%
+\contentsline {section}{\numberline {2.3}Cenários de Qualidade}{3}{section.2.3}%
+\contentsline {subsection}{\numberline {2.3.1}QA-1: Disponibilidade}{4}{subsection.2.3.1}%
+\contentsline {subsection}{\numberline {2.3.2}QA-2: Performance}{4}{subsection.2.3.2}%
+\contentsline {subsection}{\numberline {2.3.3}QA-6: Consistência (FR-1)}{4}{subsection.2.3.3}%
+\contentsline {chapter}{\numberline {3}Padrões de Microserviços}{5}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Strangler Fig Pattern}{5}{section.3.1}%
+\contentsline {section}{\numberline {3.2}Database-per-Service}{5}{section.3.2}%
+\contentsline {section}{\numberline {3.3}Polyglot Persistence}{6}{section.3.3}%
+\contentsline {section}{\numberline {3.4}Saga Pattern}{6}{section.3.4}%
+\contentsline {section}{\numberline {3.5}Outbox Pattern}{7}{section.3.5}%
+\contentsline {section}{\numberline {3.6}Domain Events}{7}{section.3.6}%
+\contentsline {section}{\numberline {3.7}CQRS}{8}{section.3.7}%
+\contentsline {section}{\numberline {3.8}Message Broker (RabbitMQ)}{8}{section.3.8}%
+\contentsline {chapter}{\numberline {4}Priorização de Requisitos}{9}{chapter.4}%
+\contentsline {chapter}{\numberline {5}Processo ADD - Iterações}{11}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Roadmap Geral}{11}{section.5.1}%
+\contentsline {section}{\numberline {5.2}Iteração 1: Fundação}{11}{section.5.2}%
+\contentsline {section}{\numberline {5.3}Iteração 2: Consistência e Events}{12}{section.5.3}%
+\contentsline {section}{\numberline {5.4}Iteração 3: Performance e CQRS}{15}{section.5.4}%
+\contentsline {section}{\numberline {5.5}Iteração 4: Disponibilidade}{16}{section.5.5}%
+\contentsline {chapter}{\numberline {6}Arquitetura Final}{17}{chapter.6}%
+\contentsline {section}{\numberline {6.1}Responsabilidades}{19}{section.6.1}%
+\contentsline {section}{\numberline {6.2}Padrões Implementados}{19}{section.6.2}%
+\contentsline {chapter}{\numberline {7}Decisões Técnicas}{21}{chapter.7}%
+\contentsline {section}{\numberline {7.1}TM-1: Migração Progressiva}{21}{section.7.1}%
+\contentsline {section}{\numberline {7.2}TM-2: Transações Distribuídas}{21}{section.7.2}%
+\contentsline {section}{\numberline {7.3}TM-3: Database Strategy}{21}{section.7.3}%
+\contentsline {section}{\numberline {7.4}TM-4: CQRS}{22}{section.7.4}%
+\contentsline {section}{\numberline {7.5}TM-5: Message Broker}{22}{section.7.5}%
+\contentsline {section}{\numberline {7.6}TM-6: Outbox}{22}{section.7.6}%
+\contentsline {section}{\numberline {7.7}TM-7: Caching Strategy}{23}{section.7.7}%
+\contentsline {chapter}{\numberline {8}Roadmap de Implementação}{25}{chapter.8}%
+\contentsline {section}{\numberline {8.1}Estratégia}{25}{section.8.1}%
+\contentsline {section}{\numberline {8.2}Fases}{25}{section.8.2}%
+\contentsline {section}{\numberline {8.3}Riscos}{26}{section.8.3}%
+\contentsline {chapter}{\numberline {9}Métricas de Sucesso}{27}{chapter.9}%
+\contentsline {section}{\numberline {9.1}Critérios de Aceitação}{27}{section.9.1}%
+\contentsline {chapter}{\numberline {10}Vistas Arquiteturais (4+1 View Model)}{29}{chapter.10}%
+\contentsline {section}{\numberline {10.1}Vista Lógica}{29}{section.10.1}%
+\contentsline {subsection}{\numberline {10.1.1}Nível 1: Contexto do Sistema}{29}{subsection.10.1.1}%
+\contentsline {subsection}{\numberline {10.1.2}Nível 2: Decomposição em Microserviços}{30}{subsection.10.1.2}%
+\contentsline {subsection}{\numberline {10.1.3}Nível 3: Estrutura Interna de Microserviço}{30}{subsection.10.1.3}%
+\contentsline {section}{\numberline {10.2}Vista Física}{31}{section.10.2}%
+\contentsline {subsection}{\numberline {10.2.1}Nível 2: Deployment com Docker Swarm}{32}{subsection.10.2.1}%
+\contentsline {section}{\numberline {10.3}Vista de Implementação}{33}{section.10.3}%
+\contentsline {subsection}{\numberline {10.3.1}Nível 2: Estrutura Multi-Módulo Maven}{33}{subsection.10.3.1}%
+\contentsline {section}{\numberline {10.4}Vista de Processo}{34}{section.10.4}%
+\contentsline {subsection}{\numberline {10.4.1}FR-1: Saga Orchestration Process}{34}{subsection.10.4.1}%
+\contentsline {subsection}{\numberline {10.4.2}CQRS Synchronization Process}{35}{subsection.10.4.2}%
+\contentsline {section}{\numberline {10.5}Vista de Cenários (+1)}{35}{section.10.5}%
+\contentsline {subsection}{\numberline {10.5.1}Cenário: Criar Book + Author + Genre (FR-1)}{35}{subsection.10.5.1}%
+\contentsline {chapter}{\numberline {11}Conclusão}{37}{chapter.11}%
+\contentsline {section}{\numberline {11.1}Objetivos Alcançados}{37}{section.11.1}%
+\contentsline {section}{\numberline {11.2}Padrões Implementados}{38}{section.11.2}%
+\contentsline {section}{\numberline {11.3}Contribuições ADD}{38}{section.11.3}%
+\contentsline {section}{\numberline {11.4}Estratégias Executadas}{38}{section.11.4}%
+\contentsline {section}{\numberline {11.5}Best Practices}{38}{section.11.5}%
+\providecommand \tocbasic@end@toc@file {}\tocbasic@end@toc@file 

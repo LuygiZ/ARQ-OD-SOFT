@@ -1176,7 +1176,7 @@ A Vista de Implementação descreve a organização do código-fonte, módulos e
 \textbf{Root POM (lms-microservices-parent):}
 \begin{itemize}
     \item Plugin Management: Checkstyle, JaCoCo, PIT, SonarQube
-    \item Quality Gates: Coverage ≥70\%, Mutation ≥60\%, Checkstyle violations = 0
+    \item Quality Gates: Coverage 70\%, Mutation 60\%, Checkstyle violations = 0
     \item Java 21, Spring Boot, Spring Cloud
 \end{itemize}
 
@@ -1188,28 +1188,6 @@ A Vista de Implementação descreve a organização do código-fonte, módulos e
     \item \textbf{Exceptions:} BusinessException, NotFoundException, ConflictException
     \item \textbf{Base Classes:} BaseEntity, EntityWithVersion, AuditableEntity
 \end{itemize}
-
-\textbf{Service Modules (genre-service, author-service, etc.):}
-
-Cada módulo segue estrutura:
-\begin{verbatim}
-src/main/java/pt/psoft/{service}/
-  ├── api/controller/       (REST endpoints)
-  ├── services/             (Business logic)
-  ├── model/                (Entities, VOs)
-  ├── repositories/         (JPA/MongoDB)
-  ├── messaging/            (Event pub/sub)
-  └── config/               (Security, Cache)
-src/main/resources/
-  ├── application.yml       (Configuration)
-  └── rsa.public.key        (JWT validation)
-src/test/java/
-  ├── unit/                 (Surefire)
-  ├── integration/          (Failsafe)
-  └── cdc/                  (Pact contracts)
-Dockerfile                  (Multi-stage build)
-pom.xml                     (Dependencies)
-\end{verbatim}
 
 \textbf{Infrastructure:}
 \begin{itemize}
